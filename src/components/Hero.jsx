@@ -37,7 +37,7 @@ export default function Hero() {
             <div className="inline-flex items-center space-x-2 px-3 sm:px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full mb-4 sm:mb-6 animate-in slide-in-from-bottom duration-700">
               <Sparkles className="w-4 h-4 text-blue-400" />
               <span className="text-xs sm:text-sm text-blue-300">
-                Introducing ThinkOra AI
+                Introducing SkillBridge AI
               </span>
             </div>
 
@@ -49,7 +49,7 @@ export default function Hero() {
                 Build Better
               </span>
               <span className="bg-gradient-to-r from-white via-blue-100 to-cyan-100 bg-clip-text text-transparent block mb-1 sm:mb-2">
-                With ThinkOra AI
+                With SkillBridge AI
               </span>
             </h1>
 
@@ -85,7 +85,7 @@ export default function Hero() {
                       <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-green-500" />
                     </div>
                     <span className="text-xs sm:text-sm text-gray-300">
-                      ThinkOra AI
+                      SkillBridge AI
                     </span>
                   </div>
                   <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />

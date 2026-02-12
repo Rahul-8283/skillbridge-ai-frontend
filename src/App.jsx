@@ -1,9 +1,9 @@
-import Navbar from "./components/Navbar";
-import Hero from "./components/Hero";
-import Features from "./components/Features";
-import Pricing from "./components/Pricing";
-import Testimonials from "./components/Testimonials";
-import Footer from "./components/Footer";
+import Navbar from "./components/Navbar.jsx";
+import Hero from "./components/Hero.jsx";
+import Features from "./components/Features.jsx";
+import Pricing from "./components/Pricing.jsx";
+import Testimonials from "./components/Testimonials.jsx";
+import Footer from "./components/Footer.jsx";
 import { useEffect, useState } from "react";
 
 function App() {
