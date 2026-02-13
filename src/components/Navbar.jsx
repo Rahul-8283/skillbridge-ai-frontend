@@ -1,8 +1,28 @@
-import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { Menu, X, LogIn, LogOut, UserPlus } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Navbar({ scrolled }) {
   const [mobileMenuIsOpen, setMobileMenuIsOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const userThere = !!user;
+
+  // Update user state when location changes or component mounts
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    } else {
+      setUser(null);
+    }
+  }, [location]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+  };
 
   return (
     <nav
@@ -48,6 +68,38 @@ export default function Navbar({ scrolled }) {
             >
               Testimonials
             </a>
+
+            {!userThere ? (
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => navigate("/login")}
+                  className="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-gray-300 hover:text-teal-400 px-4 py-2 rounded-lg border border-slate-700 transition-all duration-300"
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span className="text-sm lg:text-base">Sign In</span>
+                </button>
+                <button
+                  onClick={() => navigate("/signup")}
+                  className="flex items-center space-x-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg transition-all duration-300"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span className="text-sm lg:text-base">Sign Up</span>
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-4">
+                <div className="w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-2 bg-slate-800 hover:bg-red-600 text-gray-300 hover:text-white px-4 py-2 rounded-lg border border-slate-700 transition-all duration-300"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="text-sm lg:text-base">Logout</span>
+                </button>
+              </div>
+            )}
           </div>
 
           <button
@@ -87,6 +139,52 @@ export default function Navbar({ scrolled }) {
             >
               Testimonials
             </a>
+
+            <div className="border-t border-slate-700 pt-4 mt-4">
+              {!userThere ? (
+                <div className="space-y-3">
+                  <button
+                    onClick={() => {
+                      navigate("/login");
+                      setMobileMenuIsOpen(false);
+                    }}
+                    className="w-full flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 text-gray-300 hover:text-teal-400 px-4 py-2 rounded-lg border border-slate-700 transition-all duration-300"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    <span className="text-sm">Sign In</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigate("/signup");
+                      setMobileMenuIsOpen(false);
+                    }}
+                    className="w-full flex items-center justify-center space-x-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg transition-all duration-300"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    <span className="text-sm">Sign Up</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3 px-4 py-2 bg-slate-800 rounded-lg">
+                    <div className="w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                      {user.name.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="text-gray-300">{user.name}</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setMobileMenuIsOpen(false);
+                    }}
+                    className="w-full flex items-center justify-center space-x-2 bg-slate-800 hover:bg-red-600 text-gray-300 hover:text-white px-4 py-2 rounded-lg border border-slate-700 transition-all duration-300"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span className="text-sm">Logout</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
