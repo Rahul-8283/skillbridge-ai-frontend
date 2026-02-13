@@ -2,6 +2,8 @@ import Navbar from "./components/Navbar.jsx";
 import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HeroPage from "./pages/Hero.jsx";
+import LoginPage from "./pages/LoginPage.jsx";
+import SignUpPage from "./pages/SignUpPage.jsx";
 
 function App() {
   const [scrolled, setScrolled] = useState(false);
@@ -22,6 +24,8 @@ function App() {
         <Navbar scrolled={scrolled} />
         <Routes>
           <Route path="/" element={<HeroPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/login" element={<LoginPage />} />
         </Routes>
       </div>
     </BrowserRouter>
