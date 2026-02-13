@@ -1,10 +1,7 @@
 import Navbar from "./components/Navbar.jsx";
-import Hero from "./components/Hero.jsx";
-import Features from "./components/Features.jsx";
-import Pricing from "./components/Pricing.jsx";
-import Testimonials from "./components/Testimonials.jsx";
-import Footer from "./components/Footer.jsx";
 import { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import HeroPage from "./pages/Hero.jsx";
 
 function App() {
   const [scrolled, setScrolled] = useState(false);
@@ -18,15 +15,16 @@ function App() {
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+  
   return (
-    <div className="min-h-screen bg-slate-950 text-white overflow-hidden">
-      <Navbar scrolled={scrolled} />
-      <Hero />
-      <Features />
-      <Pricing />
-      <Testimonials />
-      <Footer />
-    </div>
+    <BrowserRouter>
+      <div className="min-h-screen bg-slate-950 text-white overflow-hidden">
+        <Navbar scrolled={scrolled} />
+        <Routes>
+          <Route path="/" element={<HeroPage />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
 
