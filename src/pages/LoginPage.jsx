@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogIn } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -30,11 +31,15 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white pt-20 flex items-center justify-center px-4">
-      <div className="max-w-md w-full">
+      <motion.div className="max-w-md w-full"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        translate={{ duration: 1.1 }}
+      > 
         <div className="bg-slate-900 rounded-2xl p-8 border border-slate-800">
           <div className="flex items-center justify-center space-x-3 mb-8">
-            <LogIn className="w-8 h-8 text-teal-400" />
-            <h1 className="text-3xl font-bold text-teal-400">Sign In</h1>
+            <LogIn className="w-8 h-8 text-blue-400" />
+            <h1 className="text-3xl font-bold text-blue-400">Sign In</h1>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -47,7 +52,7 @@ export default function LoginPage() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-slate-800 text-white placeholder-gray-500 px-4 py-3 rounded-lg border border-slate-700 focus:border-teal-400 focus:outline-none transition-colors"
+                className="w-full bg-slate-800 text-white placeholder-gray-500 px-4 py-3 rounded-lg border border-slate-700 focus:border-blue-400 focus:outline-none transition-colors"
               />
             </div>
 
@@ -60,13 +65,13 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-800 text-white placeholder-gray-500 px-4 py-3 rounded-lg border border-slate-700 focus:border-teal-400 focus:outline-none transition-colors"
+                className="w-full bg-slate-800 text-white placeholder-gray-500 px-4 py-3 rounded-lg border border-slate-700 focus:border-blue-400 focus:outline-none transition-colors"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 rounded-lg transition-all duration-300"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-all duration-300"
             >
               Sign In
             </button>
@@ -76,13 +81,13 @@ export default function LoginPage() {
             Don't have an account?{" "}
             <button
               onClick={() => navigate("/signup")}
-              className="text-teal-400 hover:text-teal-300 font-semibold"
+              className="text-blue-400 hover:text-blue-300 font-semibold"
             >
               Sign up here
             </button>
           </p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
