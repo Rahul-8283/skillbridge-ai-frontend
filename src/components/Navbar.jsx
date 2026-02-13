@@ -84,7 +84,7 @@ export default function Navbar({ scrolled }) {
                 </button>
                 <button
                   onClick={() => navigate("/login")}
-                  className="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-gray-300 hover:text-blue-400 px-4 py-2 rounded-lg border border-slate-700 transition-all duration-300"
+                  className="flex items-center space-x-2 bg-slate-800 hover:bg-slate-800 text-gray-300 hover:text-blue-400 px-4 py-2 rounded-lg border border-slate-700 transition-all duration-300"
                 >
                   <LogIn className="w-4 h-4" />
                   <span className="text-sm lg:text-base">Sign In</span>
