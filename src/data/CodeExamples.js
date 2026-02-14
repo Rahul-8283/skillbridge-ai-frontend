@@ -1,118 +1,63 @@
 export const codeExamples = {
-  "App.jsx": `import { useState } from "react";
-import { ThinkOra } from "@thinkora/ai";
+  "JobSeeker": `import { useState } from "react";
+import { analyzeResume } from "@skillbridge/ai";
 
-function App() {
-  const [code, setCode] = useState("");
+function JobSeeker() {
+  const [matchScore, setMatchScore] = useState(0);
 
-  const handleAICompletion = async () => {
-    const suggestion = await ThinkOra.complete(code);
-    setCode(suggestion);
+  const calculateSkillMatch = async (resume) => {
+    const score = await analyzeResume(resume);
+    setMatchScore(score);
   };
 
   return (
-    <div className="app">
-      <CodeEditor 
-        onChange={setCode} 
-        onAI={handleAICompletion} 
-      />
+    <div className="seeker-dashboard">
+      <h2>Your Skill Match: {matchScore}%</h2>
+      <button onClick={() => calculateSkillMatch()}>
+        Analyze My Resume
+      </button>
     </div>
   );
 }`,
-  "Hero.jsx": `import { useState, useEffect } from "react";
-import { ThinkOra } from "@thinkora/ai";
+  "JobProvider": `import { useState } from "react";
+import { findCandidates } from "@skillbridge/ai";
 
-export default function Hero() {
-  const [isTyping, setIsTyping] = useState(false);
-  
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsTyping(true);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+export default function JobProvider() {
+  const [candidates, setCandidates] = useState([]);
 
-  const handleAISuggestion = async () => {
-    const suggestion = await ThinkOra.suggest("hero component");
-    return suggestion;
+  const searchCandidates = async (jobDesc) => {
+    const results = await findCandidates(jobDesc);
+    setCandidates(results);
   };
 
   return (
-    <section className="hero">
-      <h1 className="text-4xl font-bold">
-        {isTyping ? "AI-Powered Development" : "Loading..."}
-      </h1>
-      <button onClick={handleAISuggestion}>
-        Get AI Suggestion
+    <section className="provider-dashboard">
+      <h2>Top Matches: {candidates.length}</h2>
+      <button onClick={() => searchCandidates()}>
+        Find Perfect Candidates
       </button>
     </section>
-  );
-}`,
-  "Navbar.jsx": `import { useState } from "react";
-import { ThinkOra } from "@thinkora/ai";
-
-export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const handleSearch = async () => {
-    const results = await ThinkOra.search(searchQuery);
-    return results;
-  };
-
-  return (
-    <nav className="navbar">
-      <div className="nav-brand">
-        <h2>ThinkOra AI</h2>
-      </div>
-      
-      <div className="nav-search">
-        <input 
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search code..."
-        />
-        <button onClick={handleSearch}>Search</button>
-      </div>
-      
-      <button 
-        className="menu-toggle"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        ☰
-      </button>
-    </nav>
   );
 }`,
 };
 
 export const floatingCards = {
-  "App.jsx": {
+  "JobSeeker": {
     bgColor: "bg-blue-500/20",
     iconColor: "text-blue-400",
     textColor: "text-blue-200",
     contentColor: "text-blue-300",
-    icon: "AI",
-    title: "Smart Completion",
-    content: "AI-powered code suggestions in real-time",
+    icon: "📊",
+    title: "Resume Analysis",
+    content: "AI analyzes your skills and matches with perfect jobs",
   },
-  "Hero.jsx": {
+  "JobProvider": {
     bgColor: "bg-purple-500/20",
     iconColor: "text-purple-400",
     textColor: "text-purple-200",
     contentColor: "text-purple-300",
-    icon: "⚡",
-    title: "Auto Animation",
-    content: "Dynamic typing effects generated automatically",
-  },
-  "Navbar.jsx": {
-    bgColor: "bg-emerald-500/20",
-    iconColor: "text-emerald-400",
-    textColor: "text-emerald-200",
-    contentColor: "text-emerald-300",
-    icon: "🔍",
-    title: "Smart Search",
-    content: "Intelligent code search across your project",
+    icon: "🎯",
+    title: "Smart Matching",
+    content: "Find candidates perfectly matched to your job description",
   },
 };

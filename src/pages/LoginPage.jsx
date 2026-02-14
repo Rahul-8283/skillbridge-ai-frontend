@@ -16,14 +16,18 @@ export default function LoginPage() {
       return;
     }
 
+    // Get existing user data if available (to preserve role)
+    const existingUser = localStorage.getItem("user");
+    const existingData = existingUser ? JSON.parse(existingUser) : {};
+    
+    const userData = {
+      name: email.split("@")[0],
+      email: email,
+      role: existingData.role, // Preserve existing role if any
+    };
+
     // Store user data in localStorage
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        name: email.split("@")[0],
-        email: email,
-      })
-    );
+    localStorage.setItem("user", JSON.stringify(userData));
 
     // Navigate to home
     navigate("/");

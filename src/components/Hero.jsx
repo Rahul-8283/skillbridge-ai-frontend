@@ -1,12 +1,12 @@
 import { ArrowRight, ChevronDown, Play, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import SyntaxHighlighter from "react-syntax-highlighter";
-import { codeExamples, floatingCards } from "../data/CodeExamples";
+import { codeExamples, floatingCards } from "../data/CodeExamples.js";
 import { nightOwl } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
 export default function Hero() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [activeTab, setActiveTab] = useState("App.jsx");
+  const [activeTab, setActiveTab] = useState("JobSeeker");
 
   useEffect(() => {
     function handleMouseMove(e) {
@@ -43,20 +43,20 @@ export default function Hero() {
 
             <h1 className="text-5xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-semibold mb-4 sm:mb-6 animate-in slide-in-from-bottom duration-700 delay-100 leading-tight">
               <span className="bg-gradient-to-r from-white via-blue-100 to-cyan-100 bg-clip-text text-transparent block mb-1 sm:mb-2">
-                Code Faster
+                Grow Smarter
               </span>
               <span className="bg-gradient-to-b from-blue-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent block mb-1 sm:mb-2">
-                Build Better
+                Match Faster
               </span>
               <span className="bg-gradient-to-r from-white via-blue-100 to-cyan-100 bg-clip-text text-transparent block mb-1 sm:mb-2">
-                With SkillBridge AI
+                With SkillBridge
               </span>
             </h1>
 
             <p className="text-md sm:text-base lg:text-lg text-gray-400 max-w-2xl mx-auto lg:mx-0 mb-6 sm:mb-8 animate-in slide-in-from-bottom duration-700 delay-200 leading-relaxed">
-              Accelerate your development workflow with intelligent code
-              completion, automated testing, and smart debugging. Ship
-              production-ready code 10x faster.
+              Bridge the gap between talent and opportunity with AI-powered
+              skill matching. Find the perfect job or ideal candidate in
+              minutes, not months.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-4 mb-8 sm:mb-12 animate-in slide-in-from-bottom duration-700 delay-300">
@@ -95,34 +95,24 @@ export default function Hero() {
                   {/* file tabs */}
                   <div className="flex space-x-1 sm:space-x-2 mb-3 sm:mb-4 overflow-x-auto">
                     <button
-                      onClick={() => setActiveTab("App.jsx")}
+                      onClick={() => setActiveTab("JobSeeker")}
                       className={`px-3 py-2 backdrop-blur-sm tex-xs sm:text-sm rounded-t-lg border ${
-                        activeTab === "App.jsx"
+                        activeTab === "JobSeeker"
                           ? "bg-blue-500/30 text-white border-blue-400/20"
                           : "bg-white/5 text-gray-300 border-white/10 hover:bg-white/10"
                       }  transition-all duration-200 whitespace-nowrap`}
                     >
-                      App.jsx
+                      Job Seeker
                     </button>
                     <button
-                      onClick={() => setActiveTab("Hero.jsx")}
+                      onClick={() => setActiveTab("JobProvider")}
                       className={`px-3 py-2 backdrop-blur-sm tex-xs sm:text-sm rounded-t-lg border ${
-                        activeTab === "Hero.jsx"
+                        activeTab === "JobProvider"
                           ? "bg-blue-500/30 text-white border-blue-400/20"
                           : "bg-white/5 text-gray-300 border-white/10 hover:bg-white/10"
                       }  transition-all duration-200 whitespace-nowrap`}
                     >
-                      Hero.jsx
-                    </button>
-                    <button
-                      onClick={() => setActiveTab("Navbar.jsx")}
-                      className={`px-3 py-2 backdrop-blur-sm tex-xs sm:text-sm rounded-t-lg border ${
-                        activeTab === "Navbar.jsx"
-                          ? "bg-blue-500/30 text-white border-blue-400/20"
-                          : "bg-white/5 text-gray-300 border-white/10 hover:bg-white/10"
-                      }  transition-all duration-200 whitespace-nowrap`}
-                    >
-                      Navbar.jsx
+                      Job Provider
                     </button>
                   </div>
 
