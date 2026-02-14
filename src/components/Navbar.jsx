@@ -54,24 +54,9 @@ export default function Navbar({ scrolled }) {
             <Link to="/" className="text-gray-300 hover:text-white text-sm lg:text-base">
               Home
             </Link>
-            <a
-              href="#features"
-              className="text-gray-300 hover:text-white text-sm lg:text-base"
-            >
-              Features
-            </a>
-            <a
-              href="#pricing"
-              className="text-gray-300 hover:text-white text-sm lg:text-base"
-            >
-              Pricing
-            </a>
-            <a
-              href="#testimonials"
-              className="text-gray-300 hover:text-white text-sm lg:text-base"
-            >
-              Testimonials
-            </a>
+            <Link to="/about" className="text-gray-300 hover:text-white text-sm lg:text-base">
+              About
+            </Link>
 
             {!userThere ? (
               <div className="flex items-center space-x-3">
@@ -125,27 +110,9 @@ export default function Navbar({ scrolled }) {
             <Link to="/" className="block text-gray-300 hover:text-white text-sm lg:text-base">
               Home
             </Link>
-            <a
-              href="#features"
-              onClick={() => setMobileMenuIsOpen(false)}
-              className="block text-gray-300 hover:text-white text-sm lg:text-base"
-            >
-              Features
-            </a>
-            <a
-              href="#pricing"
-              onClick={() => setMobileMenuIsOpen(false)}
-              className="block text-gray-300 hover:text-white text-sm lg:text-base"
-            >
-              Pricing
-            </a>
-            <a
-              href="#testimonials"
-              onClick={() => setMobileMenuIsOpen(false)}
-              className="block text-gray-300 hover:text-white text-sm lg:text-base"
-            >
-              Testimonials
-            </a>
+            <Link to="/about" className="block text-gray-300 hover:text-white text-sm lg:text-base">
+              About
+            </Link>
 
             <div className="border-t border-slate-700 pt-4 mt-4">
               {!userThere ? (

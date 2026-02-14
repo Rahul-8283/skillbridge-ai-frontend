@@ -1,10 +1,12 @@
 import Navbar from "./components/Navbar.jsx";
 import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import HeroPage from "./pages/Hero.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
 
+import AboutPage from "./pages/AboutPage.jsx";
 function App() {
   const [scrolled, setScrolled] = useState(false);
 
@@ -26,6 +28,8 @@ function App() {
           <Route path="/" element={<HeroPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
+
+          <Route path="/about" element={<AboutPage />} />
         </Routes>
       </div>
     </BrowserRouter>
