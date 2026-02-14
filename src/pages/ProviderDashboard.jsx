@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FileText, Users, BarChart3, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import Footer from "../components/Footer.jsx";
 
 export default function ProviderDashboard() {
   const [user, setUser] = useState(null);
@@ -28,7 +29,8 @@ export default function ProviderDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white px-4 pt-32 pb-20">
+    <>
+      <div className="min-h-screen bg-slate-950 text-white px-4 pt-32 pb-20">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
@@ -176,5 +178,7 @@ export default function ProviderDashboard() {
         </motion.div>
       </div>
     </div>
+    <Footer />
+    </>
   );
 }

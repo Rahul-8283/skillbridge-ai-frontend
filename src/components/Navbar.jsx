@@ -27,6 +27,16 @@ export default function Navbar({ scrolled }) {
     navigate("/");
   };
 
+  const handleDashboard = () => {
+    if (!user) {
+      alert("Please sign in to access your dashboard");
+      navigate("/login");
+      return;
+    }
+    const dashboardRoute = user.role === "job-seeker" ? "/seeker-dashboard" : "/provider-dashboard";
+    navigate(dashboardRoute);
+  };
+
   return (
     <nav
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled
@@ -58,6 +68,12 @@ export default function Navbar({ scrolled }) {
             <Link to="/about" className="text-gray-300 hover:text-white text-sm lg:text-base">
               About
             </Link>
+            <button
+              onClick={handleDashboard}
+              className="text-gray-300 hover:text-white text-sm lg:text-base flex items-center space-x-1 hover:text-blue-400 transition-colors"
+            >
+              <span>Dashboard</span>
+            </button>
 
             {!userThere ? (
               <div className="flex items-center space-x-3">
@@ -114,6 +130,15 @@ export default function Navbar({ scrolled }) {
             <Link to="/about" className="block text-gray-300 hover:text-white text-sm lg:text-base">
               About
             </Link>
+            <button
+              onClick={() => {
+                handleDashboard();
+                setMobileMenuIsOpen(false);
+              }}
+              className="w-full text-left block text-gray-300 hover:text-white text-sm lg:text-base flex items-center space-x-2 hover:text-blue-400 transition-colors"
+            >
+              <span>Dashboard</span>
+            </button>
 
             <div className="border-t border-slate-700 pt-4 mt-4">
               {!userThere ? (
