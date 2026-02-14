@@ -93,7 +93,7 @@ export default function Navbar({ scrolled }) {
             ) : (
               <div className="flex items-center space-x-4">
                 <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                  {user.name.charAt(0).toUpperCase()}
+                  {user?.name?.charAt(0).toUpperCase()}
                 </div>
                 <button
                   onClick={handleLogout}

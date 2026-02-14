@@ -9,8 +9,8 @@ export default function HeroPage() {
     <>
       <HeroSection />
       <Features />
-      {/* <Pricing /> */}
-      {/* <Testimonials /> */}
+      <Pricing />
+      <Testimonials />
       <Footer />
     </>
   );
