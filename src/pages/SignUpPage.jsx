@@ -8,12 +8,13 @@ export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [userType, setUserType] = useState("job-seeker");
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!fullName || !email || !password || !confirmPassword) {
+    if (!fullName || !email || !password || !confirmPassword || !userType) {
       alert("All fields are required");
       return;
     }
@@ -23,17 +24,41 @@ export default function SignUpPage() {
       return;
     }
 
-    // Store user data in localStorage
+    // Get registered users from localStorage
+    const registeredUsersStr = localStorage.getItem("registeredUsers");
+    const registeredUsers = registeredUsersStr ? JSON.parse(registeredUsersStr) : [];
+
+    // Check if email already exists
+    const emailExists = registeredUsers.some((user) => user.email === email);
+    if (emailExists) {
+      alert("Email already registered. Please sign in instead.");
+      return;
+    }
+
+    // Add new user to registered users
+    const newUser = {
+      name: fullName,
+      email: email,
+      password: password,
+      role: userType,
+    };
+    registeredUsers.push(newUser);
+
+    // Store updated registered users
+    localStorage.setItem("registeredUsers", JSON.stringify(registeredUsers));
+
+    // Set current user as logged in
     localStorage.setItem(
       "user",
       JSON.stringify({
         name: fullName,
         email: email,
+        role: userType,
       })
     );
 
-    // Navigate to home
-    navigate("/");
+    // Navigate to appropriate dashboard
+    navigate(userType === "job-seeker" ? "/seeker-dashboard" : "/provider-dashboard");
   };
 
   return (
@@ -74,6 +99,20 @@ export default function SignUpPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-slate-800 text-white placeholder-gray-500 px-4 py-3 rounded-lg border border-slate-700 focus:border-blue-400 focus:outline-none transition-colors"
               />
+            </div>
+
+            <div>
+              <label className="block text-gray-300 text-sm mb-2">
+                Role
+              </label>
+              <select
+                value={userType}
+                onChange={(e) => setUserType(e.target.value)}
+                className="w-full bg-slate-800 text-white px-4 py-3 rounded-lg border border-slate-700 focus:border-blue-400 focus:outline-none transition-colors cursor-pointer"
+              >
+                <option value="job-seeker">Job Seeker</option>
+                <option value="job-provider">Job Provider</option>
+              </select>
             </div>
 
             <div>

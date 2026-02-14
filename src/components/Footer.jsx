@@ -1,16 +1,10 @@
 import { Github, Twitter, Linkedin, Mail } from "lucide-react";
 
 const footerLinks = {
-  Product: ["Features", "Pricing", "Security", "Roadmap", "Changelog"],
-  Company: ["About", "Blog", "Careers", "Press", "Partners"],
-  Resources: [
-    "Documentation",
-    "Help Center",
-    "Community",
-    "API Reference",
-    "Status",
-  ],
-  Legal: ["Privacy", "Terms", "Cookie Policy", "Licenses", "Compliance"],
+  "For Job Seekers": ["Upload Resume", "Browse Jobs", "Learning Plans", "Skill Assessment"],
+  "For Job Providers": ["Post Jobs", "Find Candidates", "Manage Postings", "Candidate Pool"],
+  "Company": ["About Us", "Blog", "Careers", "Contact"],
+  "Resources": ["Documentation", "Help Center", "Privacy Policy", "Terms of Service"],
 };
 
 export default function Footer() {
@@ -29,13 +23,12 @@ export default function Footer() {
                 />
               </div>
               <span className="text-lg sm:text-xl font-bold">
-                <span className="text-white">Think</span>
-                <span className="text-blue-400">Ora</span>
+                <span className="text-white">Skill</span>
+                <span className="text-blue-400">Bridge</span>
               </span>
             </div>
             <p className="text-gray-400 mb-4 sm:mb-6 max-w-xs mx-auto sm:mx-0 text-sm sm:text-base">
-              Transform your workflow with AI-powered tools and automation.
-              Built for modern teams.
+              Bridge the gap between talent and opportunity. AI-powered skill matching and career growth.
             </p>
             <div className="flex justify-center sm:justify-start space-x-3 sm:space-x-4">
               <a

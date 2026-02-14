@@ -16,21 +16,36 @@ export default function LoginPage() {
       return;
     }
 
-    // Get existing user data if available (to preserve role)
-    const existingUser = localStorage.getItem("user");
-    const existingData = existingUser ? JSON.parse(existingUser) : {};
-    
-    const userData = {
-      name: email.split("@")[0],
-      email: email,
-      role: existingData.role, // Preserve existing role if any
-    };
+    // Get registered users from localStorage
+    const registeredUsersStr = localStorage.getItem("registeredUsers");
+    const registeredUsers = registeredUsersStr ? JSON.parse(registeredUsersStr) : [];
 
-    // Store user data in localStorage
-    localStorage.setItem("user", JSON.stringify(userData));
+    // Check if user exists in registered users
+    const userExists = registeredUsers.find((user) => user.email === email);
 
-    // Navigate to home
-    navigate("/");
+    if (!userExists) {
+      alert("User not found. Please sign up first.");
+      return;
+    }
+
+    // Validate password
+    if (userExists.password !== password) {
+      alert("Invalid password. Please try again.");
+      return;
+    }
+
+    // Set current user as logged in
+    localStorage.setItem(
+      "user",
+      JSON.stringify({
+        name: userExists.name,
+        email: userExists.email,
+        role: userExists.role,
+      })
+    );
+
+    // Navigate to appropriate dashboard based on role
+    navigate(userExists.role === "job-seeker" ? "/seeker-dashboard" : "/provider-dashboard");
   };
 
   return (
