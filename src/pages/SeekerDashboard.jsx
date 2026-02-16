@@ -36,9 +36,9 @@ export default function SeekerDashboard() {
       <div className="min-h-screen bg-slate-950 text-white px-4 pt-32 pb-20">
         <div className="max-w-7xl mx-auto">
           <SeekerHeader user={user} />
-          <SeekerStats />
+          <SeekerStats user={user} />
           <SeekerActions />
-          <ProfileCompletion />
+          <ProfileCompletion user={user} />
         </div>
       </div>
       <Footer />

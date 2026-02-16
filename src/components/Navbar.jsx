@@ -94,9 +94,12 @@ export default function Navbar({ scrolled }) {
               </div>
             ) : (
               <div className="flex items-center space-x-4">
-                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                <button
+                  onClick={() => navigate("/profile")}
+                  className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm hover:bg-blue-600 transition-colors cursor-pointer"
+                >
                   {user?.name?.charAt(0).toUpperCase()}
-                </div>
+                </button>
                 <button
                   onClick={handleLogout}
                   className="flex items-center space-x-2 bg-slate-800 hover:bg-red-600 text-gray-300 hover:text-white px-4 py-2 rounded-lg border border-slate-700 transition-all duration-300"
@@ -166,12 +169,18 @@ export default function Navbar({ scrolled }) {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <div className="flex items-center space-x-3 px-4 py-2 bg-slate-800 rounded-lg">
+                  <button
+                    onClick={() => {
+                      navigate("/profile");
+                      setMobileMenuIsOpen(false);
+                    }}
+                    className="w-full flex items-center space-x-3 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
+                  >
                     <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                       {user.name.charAt(0).toUpperCase()}
                     </div>
-                    <span className="text-gray-300">{user.name}</span>
-                  </div>
+                    <span className="text-gray-300 text-left">{user.name}</span>
+                  </button>
                   <button
                     onClick={() => {
                       handleLogout();

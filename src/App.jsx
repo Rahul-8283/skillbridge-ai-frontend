@@ -7,6 +7,7 @@ import SignUpPage from "./pages/SignUpPage.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
 import SeekerDashboard from "./pages/SeekerDashboard.jsx";
 import ProviderDashboard from "./pages/ProviderDashboard.jsx";
+import ProfilePage from "./pages/ProfilePage.jsx";
 function App() {
   const [scrolled, setScrolled] = useState(false);
 
@@ -30,6 +31,7 @@ function App() {
 
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
 
           <Route path="/seeker-dashboard" element={<SeekerDashboard />} />
           <Route path="/provider-dashboard" element={<ProviderDashboard />} />

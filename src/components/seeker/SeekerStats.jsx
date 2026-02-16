@@ -1,10 +1,26 @@
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
-export default function SeekerStats() {
+export default function SeekerStats({ user }) {
+  const [profileCompletion, setProfileCompletion] = useState("0%");
+
+  useEffect(() => {
+    if (user) {
+      const storedProfile = localStorage.getItem(`${user.email}_profile`);
+      if (storedProfile) {
+        const profile = JSON.parse(storedProfile);
+        const fields = ["resume", "skills", "experience"];
+        const filledFields = fields.filter((field) => profile[field] && profile[field].trim().length > 0);
+        const completion = Math.round((filledFields.length / fields.length) * 100);
+        setProfileCompletion(`${completion}%`);
+      }
+    }
+  }, [user]);
+
   const stats = [
     { label: "Applications", value: "0", color: "blue" },
     { label: "Job Matches", value: "0", color: "purple" },
-    { label: "Profile Complete", value: "0%", color: "green" },
+    { label: "Profile Complete", value: profileCompletion, color: "green" },
     { label: "Interviews", value: "0", color: "amber" },
   ];
 
