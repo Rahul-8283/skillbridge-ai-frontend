@@ -61,7 +61,7 @@ export default function Hero() {
 
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-4 mb-8 sm:mb-12 animate-in slide-in-from-bottom duration-700 delay-300">
               <button className="group w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-b from-blue-600 to-blue-400 rounded-lg font-semibold text-sm sm:text-base transition-all duration-300 hover:scale-102 flex items-center justify-center space-x-2">
-                <span>Start Coding Free</span>
+                <span>Find Your Next Job</span>
                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform duration-300" />
               </button>
 
@@ -69,7 +69,7 @@ export default function Hero() {
                 <div className="p-2 bg-white/10 rounded-full group-hover:bg-white/20 duration-300 transition-colors">
                   <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-white" />
                 </div>
-                <span>Watch Demo</span>
+                <span>Post a Job</span>
               </button>
             </div>
           </div>
