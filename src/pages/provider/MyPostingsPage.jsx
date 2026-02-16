@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Trash2, Edit2, Eye, Calendar, Briefcase, MapPin, DollarSign } from "lucide-react";
+import { ArrowLeft, Trash2, Edit2, Eye, Calendar, Briefcase, MapPin, DollarSign, X } from "lucide-react";
 
 export default function MyPostingsPage() {
   const navigate = useNavigate();
   const [postings, setPostings] = useState([]);
   const [filter, setFilter] = useState("active");
+  const [editingJob, setEditingJob] = useState(null);
+  const [editFormData, setEditFormData] = useState(null);
 
   useEffect(() => {
     loadPostings();
@@ -67,6 +69,34 @@ export default function MyPostingsPage() {
       month: "short",
       day: "numeric",
     });
+  };
+
+  const handleEditClick = (posting) => {
+    setEditingJob(posting);
+    setEditFormData({ ...posting });
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSaveEdit = () => {
+    const allPostings = JSON.parse(localStorage.getItem("jobPostings")) || [];
+    const updated = allPostings.map((job) => {
+      if (job.id === editingJob.id) {
+        return editFormData;
+      }
+      return job;
+    });
+    localStorage.setItem("jobPostings", JSON.stringify(updated));
+    loadPostings();
+    setEditingJob(null);
+    setEditFormData(null);
+    alert("Job posting updated successfully!");
   };
 
   return (
@@ -197,7 +227,10 @@ export default function MyPostingsPage() {
                       <Eye className="w-4 h-4" />
                       <span>View Details</span>
                     </button>
-                    <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg font-medium text-sm flex items-center space-x-2 transition-colors">
+                    <button
+                      onClick={() => handleEditClick(posting)}
+                      className="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg font-medium text-sm flex items-center space-x-2 transition-colors"
+                    >
                       <Edit2 className="w-4 h-4" />
                       <span>Edit</span>
                     </button>
@@ -241,6 +274,162 @@ export default function MyPostingsPage() {
           )}
         </div>
       </div>
+
+      {/* Edit Modal */}
+      {editingJob && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-900 rounded-2xl p-8 border border-slate-800 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold">Edit Job Posting</h2>
+              <button
+                onClick={() => setEditingJob(null)}
+                className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <form className="space-y-6">
+              {/* Job Title */}
+              <div>
+                <label className="block text-sm font-semibold mb-3">Job Title</label>
+                <input
+                  type="text"
+                  name="jobTitle"
+                  value={editFormData?.jobTitle || ""}
+                  onChange={handleEditChange}
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+                />
+              </div>
+
+              {/* Company Name */}
+              <div>
+                <label className="block text-sm font-semibold mb-3">Company Name</label>
+                <input
+                  type="text"
+                  name="companyName"
+                  value={editFormData?.companyName || ""}
+                  onChange={handleEditChange}
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-semibold mb-3">Description</label>
+                <textarea
+                  name="description"
+                  value={editFormData?.description || ""}
+                  onChange={handleEditChange}
+                  rows="4"
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none transition-colors resize-none"
+                />
+              </div>
+
+              {/* Requirements */}
+              <div>
+                <label className="block text-sm font-semibold mb-3">Requirements</label>
+                <textarea
+                  name="requirements"
+                  value={editFormData?.requirements || ""}
+                  onChange={handleEditChange}
+                  rows="3"
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none transition-colors resize-none"
+                />
+              </div>
+
+              {/* Salary */}
+              <div>
+                <label className="block text-sm font-semibold mb-3">Salary Range</label>
+                <input
+                  type="text"
+                  name="salary"
+                  value={editFormData?.salary || ""}
+                  onChange={handleEditChange}
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+                />
+              </div>
+
+              {/* Location */}
+              <div>
+                <label className="block text-sm font-semibold mb-3">Location</label>
+                <input
+                  type="text"
+                  name="location"
+                  value={editFormData?.location || ""}
+                  onChange={handleEditChange}
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+                />
+              </div>
+
+              {/* Grid for selects */}
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Experience Level */}
+                <div>
+                  <label className="block text-sm font-semibold mb-3">Experience Level</label>
+                  <select
+                    name="experienceLevel"
+                    value={editFormData?.experienceLevel || "entry"}
+                    onChange={handleEditChange}
+                    className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+                  >
+                    <option value="entry">Entry Level</option>
+                    <option value="mid">Mid Level</option>
+                    <option value="senior">Senior</option>
+                    <option value="lead">Lead</option>
+                  </select>
+                </div>
+
+                {/* Job Type */}
+                <div>
+                  <label className="block text-sm font-semibold mb-3">Job Type</label>
+                  <select
+                    name="jobType"
+                    value={editFormData?.jobType || "full-time"}
+                    onChange={handleEditChange}
+                    className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+                  >
+                    <option value="full-time">Full Time</option>
+                    <option value="part-time">Part Time</option>
+                    <option value="contract">Contract</option>
+                    <option value="internship">Internship</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Deadline */}
+              <div>
+                <label className="block text-sm font-semibold mb-3">Deadline</label>
+                <input
+                  type="date"
+                  name="deadline"
+                  value={editFormData?.deadline?.split("T")[0] || ""}
+                  onChange={handleEditChange}
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 justify-end">
+                <button
+                  type="button"
+                  onClick={() => setEditingJob(null)}
+                  className="px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg font-semibold transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveEdit}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

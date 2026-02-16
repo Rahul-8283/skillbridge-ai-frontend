@@ -1,17 +1,44 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, User, Mail, MapPin, Briefcase, GraduationCap } from "lucide-react";
+import { ArrowLeft, User, Mail, MapPin, Briefcase, GraduationCap, CheckCircle, XCircle } from "lucide-react";
+import Footer from "../../components/Footer";
 
 export default function FindCandidatesPage() {
   const navigate = useNavigate();
   const [candidates, setCandidates] = useState([]);
   const [filteredCandidates, setFilteredCandidates] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [hiredEmails, setHiredEmails] = useState(new Set());
+  const [rejectedEmails, setRejectedEmails] = useState(new Set());
 
   useEffect(() => {
+    loadCandidates();
+  }, []);
+
+  const loadCandidates = () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    
     // Get all registered users who are job seekers
     const registeredUsers = JSON.parse(localStorage.getItem("registeredUsers")) || [];
-    const seekers = registeredUsers.filter((user) => user.role === "job-seeker");
+    const seekers = registeredUsers.filter((u) => u.role === "job-seeker");
+
+    // Get hired and rejected candidates for this provider
+    const hiredCandidates = JSON.parse(localStorage.getItem("hiredCandidates")) || [];
+    const rejectedCandidates = JSON.parse(localStorage.getItem("rejectedCandidates")) || [];
+
+    const hired = new Set(
+      hiredCandidates
+        .filter((h) => h.providerId === user?.email)
+        .map((h) => h.candidateEmail)
+    );
+    const rejected = new Set(
+      rejectedCandidates
+        .filter((r) => r.providerId === user?.email)
+        .map((r) => r.candidateEmail)
+    );
+
+    setHiredEmails(hired);
+    setRejectedEmails(rejected);
 
     // Enrich with profile data
     const enrichedCandidates = seekers.map((seeker) => {
@@ -25,7 +52,7 @@ export default function FindCandidatesPage() {
 
     setCandidates(enrichedCandidates);
     setFilteredCandidates(enrichedCandidates);
-  }, []);
+  };
 
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
@@ -40,6 +67,38 @@ export default function FindCandidatesPage() {
     );
 
     setFilteredCandidates(filtered);
+  };
+
+  const handleAccept = (candidateEmail) => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    const hiredCandidates = JSON.parse(localStorage.getItem("hiredCandidates")) || [];
+
+    if (!hiredCandidates.find((h) => h.candidateEmail === candidateEmail && h.providerId === user.email)) {
+      hiredCandidates.push({
+        providerId: user.email,
+        candidateEmail,
+        hiredDate: new Date().toISOString(),
+      });
+      localStorage.setItem("hiredCandidates", JSON.stringify(hiredCandidates));
+    }
+
+    setHiredEmails((prev) => new Set([...prev, candidateEmail]));
+  };
+
+  const handleReject = (candidateEmail) => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    const rejectedCandidates = JSON.parse(localStorage.getItem("rejectedCandidates")) || [];
+
+    if (!rejectedCandidates.find((r) => r.candidateEmail === candidateEmail && r.providerId === user.email)) {
+      rejectedCandidates.push({
+        providerId: user.email,
+        candidateEmail,
+        rejectedDate: new Date().toISOString(),
+      });
+      localStorage.setItem("rejectedCandidates", JSON.stringify(rejectedCandidates));
+    }
+
+    setRejectedEmails((prev) => new Set([...prev, candidateEmail]));
   };
 
   return (
@@ -173,11 +232,29 @@ export default function FindCandidatesPage() {
 
                   {/* Action Buttons */}
                   <div className="flex gap-2 mt-6">
-                    <button className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium text-sm transition-colors">
-                      View Profile
+                    <button
+                      onClick={() => handleAccept(candidate.email)}
+                      disabled={hiredEmails.has(candidate.email)}
+                      className={`flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center justify-center space-x-2 ${
+                        hiredEmails.has(candidate.email)
+                          ? "bg-green-600/20 border border-green-500/30 text-green-300 cursor-not-allowed"
+                          : "bg-green-600 hover:bg-green-700 text-white"
+                      }`}
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                      <span>{hiredEmails.has(candidate.email) ? "Accepted" : "Accept"}</span>
                     </button>
-                    <button className="flex-1 px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg font-medium text-sm transition-colors">
-                      Send Message
+                    <button
+                      onClick={() => handleReject(candidate.email)}
+                      disabled={rejectedEmails.has(candidate.email)}
+                      className={`flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center justify-center space-x-2 ${
+                        rejectedEmails.has(candidate.email)
+                          ? "bg-red-600/20 border border-red-500/30 text-red-300 cursor-not-allowed"
+                          : "bg-red-600 hover:bg-red-700 text-white"
+                      }`}
+                    >
+                      <XCircle className="w-4 h-4" />
+                      <span>{rejectedEmails.has(candidate.email) ? "Rejected" : "Reject"}</span>
                     </button>
                   </div>
                 </div>
