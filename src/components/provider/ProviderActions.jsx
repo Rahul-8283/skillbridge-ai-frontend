@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { FileText, Users, BarChart3 } from "lucide-react";
 
 const colorConfig = {
@@ -23,6 +24,8 @@ const colorConfig = {
 };
 
 export default function ProviderActions() {
+  const navigate = useNavigate();
+
   const actions = [
     {
       title: "Post Job",
@@ -31,6 +34,7 @@ export default function ProviderActions() {
       color: "blue",
       buttonText: "Create Job",
       delay: 0.2,
+      route: "/provider-dashboard/post-job",
     },
     {
       title: "Find Candidates",
@@ -39,6 +43,7 @@ export default function ProviderActions() {
       color: "purple",
       buttonText: "Browse",
       delay: 0.3,
+      route: "/provider-dashboard/find-candidates",
     },
     {
       title: "My Postings",
@@ -47,6 +52,7 @@ export default function ProviderActions() {
       color: "green",
       buttonText: "View all",
       delay: 0.4,
+      route: "/provider-dashboard/my-postings",
     },
   ];
 
@@ -71,6 +77,7 @@ export default function ProviderActions() {
               <h3 className="text-xl font-bold mb-2">{action.title}</h3>
               <p className="text-gray-400 mb-6">{action.description}</p>
               <button
+                onClick={() => navigate(action.route)}
                 className={`w-full py-2 px-4 ${colors.button} text-white font-semibold rounded-lg transition-all duration-300`}
               >
                 {action.buttonText}
