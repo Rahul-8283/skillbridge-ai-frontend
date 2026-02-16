@@ -1,6 +1,20 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
+const colorStyles = {
+  blue: "from-blue-600/20 to-blue-400/20 border-blue-500/30",
+  purple: "from-purple-600/20 to-purple-400/20 border-purple-500/30",
+  green: "from-green-600/20 to-green-400/20 border-green-500/30",
+  amber: "from-amber-600/20 to-amber-400/20 border-amber-500/30",
+};
+
+const textColorMap = {
+  blue: "text-blue-400",
+  purple: "text-purple-400",
+  green: "text-green-400",
+  amber: "text-amber-400",
+};
+
 export default function SeekerStats({ user }) {
   const [profileCompletion, setProfileCompletion] = useState("0%");
 
@@ -34,9 +48,9 @@ export default function SeekerStats({ user }) {
       {stats.map((stat, index) => (
         <div
           key={index}
-          className={`p-6 rounded-2xl bg-gradient-to-br from-${stat.color}-600/20 to-${stat.color}-400/20 border border-${stat.color}-500/30`}
+          className={`p-6 rounded-2xl bg-gradient-to-br ${colorStyles[stat.color]} border`}
         >
-          <div className={`text-3xl font-bold text-${stat.color}-400 mb-2`}>
+          <div className={`text-3xl font-bold ${textColorMap[stat.color]} mb-2`}>
             {stat.value}
           </div>
           <p className="text-gray-400">{stat.label}</p>
