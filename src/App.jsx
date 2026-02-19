@@ -1,13 +1,19 @@
-import Navbar from "./components/Navbar.jsx";
 import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+
+import Navbar from "./components/Navbar.jsx";
 import HeroPage from "./pages/HeroPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
+
 import SeekerDashboard from "./pages/SeekerDashboard.jsx";
 import ProviderDashboard from "./pages/ProviderDashboard.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
+
+import PostJobPage from "./pages/provider/PostJobPage.jsx";
+import FindCandidatesPage from "./pages/provider/FindCandidatesPage.jsx";
+import MyPostingsPage from "./pages/provider/MyPostingsPage.jsx";
 
 function ScrollToTop() {
   const location = useLocation();
@@ -46,7 +52,11 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} />
 
           <Route path="/seeker-dashboard" element={<SeekerDashboard />} />
+
           <Route path="/provider-dashboard" element={<ProviderDashboard />} />
+          <Route path="/provider-dashboard/post-job" element={<PostJobPage />} />
+          <Route path="/provider-dashboard/find-candidates" element={<FindCandidatesPage />} />
+          <Route path="/provider-dashboard/my-postings" element={<MyPostingsPage />} />
           
         </Routes>
       </div>
