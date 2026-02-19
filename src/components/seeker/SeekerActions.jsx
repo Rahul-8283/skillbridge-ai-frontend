@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { Upload, Briefcase, BookOpen } from "lucide-react";
 
 const colorConfig = {
@@ -23,6 +24,12 @@ const colorConfig = {
 };
 
 export default function SeekerActions() {
+  const navigate = useNavigate();
+
+  const handleAction = (path) => {
+    navigate(path);
+  };
+
   const actions = [
     {
       title: "Upload Resume",
@@ -31,6 +38,7 @@ export default function SeekerActions() {
       color: "blue",
       buttonText: "Upload",
       delay: 0.2,
+      path: "/seeker-dashboard/upload-resume",
     },
     {
       title: "Browse Jobs",
@@ -39,6 +47,7 @@ export default function SeekerActions() {
       color: "purple",
       buttonText: "Explore",
       delay: 0.3,
+      path: "/seeker-dashboard/browse-jobs",
     },
     {
       title: "Learning Plan",
@@ -47,6 +56,7 @@ export default function SeekerActions() {
       color: "green",
       buttonText: "View Plan",
       delay: 0.4,
+      path: "/seeker-dashboard/learning-plan",
     },
   ];
 
@@ -62,7 +72,8 @@ export default function SeekerActions() {
               key={index}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: action.delay }}
+              tronClick={() => handleAction(action.path)}
+                ansition={{ duration: 0.6, delay: action.delay }}
               className={`group p-8 rounded-2xl ${colors.bg} transition-all duration-300 cursor-pointer`}
             >
               <div className={colors.icon}>
