@@ -72,8 +72,7 @@ export default function SeekerActions() {
               key={index}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              tronClick={() => handleAction(action.path)}
-                ansition={{ duration: 0.6, delay: action.delay }}
+              transition={{ duration: 0.6, delay: action.delay }}
               className={`group p-8 rounded-2xl ${colors.bg} transition-all duration-300 cursor-pointer`}
             >
               <div className={colors.icon}>
@@ -82,6 +81,7 @@ export default function SeekerActions() {
               <h3 className="text-xl font-bold mb-2">{action.title}</h3>
               <p className="text-gray-400 mb-6">{action.description}</p>
               <button
+                onClick={() => handleAction(action.path)}
                 className={`w-full py-2 px-4 ${colors.button} text-white font-semibold rounded-lg transition-all duration-300`}
               >
                 {action.buttonText}
