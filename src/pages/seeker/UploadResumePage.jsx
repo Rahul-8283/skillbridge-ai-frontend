@@ -241,7 +241,6 @@ export default function UploadResumePage() {
       </div>
 
       <Footer />
-      <div className="h-20" />
     </div>
   );
 }

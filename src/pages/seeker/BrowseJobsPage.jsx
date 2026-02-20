@@ -245,7 +245,6 @@ export default function BrowseJobsPage() {
       </div>
 
       <Footer />
-      <div className="h-20" />
     </div>
   );
 }

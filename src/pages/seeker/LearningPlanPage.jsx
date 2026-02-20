@@ -296,7 +296,6 @@ export default function LearningPlanPage() {
       </div>
 
       <Footer />
-      <div className="h-20" />
     </div>
   );
 }
