@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Award, Flame, Target } from "lucide-react";
+import { Award, Flame, Target, Star } from "lucide-react";
 
 export default function AchievementBadges() {
   const [badges, setBadges] = useState([]);
@@ -40,6 +40,17 @@ export default function AchievementBadges() {
     const mockBadges = [
       {
         id: 1,
+        name: "Newbie",
+        description: "Start your learning journey",
+        icon: Star,
+        color: "from-cyan-600/10 to-cyan-400/10 border-cyan-500/30",
+        iconColor: "text-cyan-400",
+        unlocked: true,
+        requirement: 1,
+        target: 1,
+      },
+      {
+        id: 2,
         name: "10 Day Streak",
         description: "Learn for 10 consecutive days",
         icon: Flame,
@@ -48,17 +59,6 @@ export default function AchievementBadges() {
         unlocked: currentStreak >= 10,
         requirement: currentStreak,
         target: 10,
-      },
-      {
-        id: 2,
-        name: "15 Day Streak",
-        description: "Learn for 15 consecutive days",
-        icon: Flame,
-        color: "from-red-600/10 to-red-400/10 border-red-500/30",
-        iconColor: "text-red-400",
-        unlocked: currentStreak >= 15,
-        requirement: currentStreak,
-        target: 15,
       },
       {
         id: 3,

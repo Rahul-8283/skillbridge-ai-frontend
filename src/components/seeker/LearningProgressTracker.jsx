@@ -82,7 +82,7 @@ export default function LearningProgressTracker() {
               <div
                 key={idx}
                 className="text-xs text-gray-500 font-medium"
-                style={{ height: "16px", lineHeight: "19px", marginBottom: "2px" }}
+                style={{ height: "16px", lineHeight: "19px", marginBottom: "1.7px" }}
               >
                 {day}
               </div>
