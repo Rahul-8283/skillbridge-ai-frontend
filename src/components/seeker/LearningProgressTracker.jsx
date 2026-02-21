@@ -23,14 +23,13 @@ export default function LearningProgressTracker() {
     if (!user) return;
 
     const activities = fetchLearningActivities(user.email);
-    const { monthlyGrids: grids, stats: calculatedStats } =
-      generateMonthlyCalendars(activities);
+    const { monthlyGrids: grids, stats: calculatedStats } = generateMonthlyCalendars(activities);
 
     setMonthlyGrids(grids);
     setStats(calculatedStats);
   };
 
-  const dayLabels = ["Mon", "Wed", "Fri"];
+  const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   if (monthlyGrids.length === 0) {
     return (
@@ -46,7 +45,7 @@ export default function LearningProgressTracker() {
         <div className="flex items-center space-x-3">
           <GraduationCap className="w-6 h-6 text-blue-400" />
           <h2 className="text-2xl font-bold">
-            {stats.totalContributions} contributions in the last year
+            {stats.totalContributions} Learnings in the last year
           </h2>
         </div>
       </div>
@@ -54,7 +53,7 @@ export default function LearningProgressTracker() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-8">
         <div className="bg-gradient-to-br from-blue-600/10 to-blue-400/10 border border-blue-500/30 rounded-2xl p-4">
-          <p className="text-gray-400 text-sm mb-1">Total Contributions</p>
+          <p className="text-gray-400 text-sm mb-1">Total Learnings</p>
           <p className="text-3xl font-bold text-blue-400">
             {stats.totalContributions}
           </p>
@@ -71,16 +70,19 @@ export default function LearningProgressTracker() {
         </div>
       </div>
 
-      {/* Calendar Container - Horizontal Scrollable */}
-      <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 overflow-x-auto">
-        <div className="flex gap-6" style={{ minWidth: "100%" }}>
+      {/* Calendar Container */}
+      <div className="bg-slate-900 rounded-2xl p-4 border border-slate-800 overflow-hidden">
+        <div className="flex gap-3">
           {/* Day Labels - Fixed on Left */}
-          <div className="flex flex-col gap-1 pt-6">
+          <div className="flex flex-col">
+            {/* Spacer for month label area */}
+            <div className="h-5 mb-0.5" />
+            {/* Day labels */}
             {dayLabels.map((day, idx) => (
               <div
                 key={idx}
                 className="text-xs text-gray-500 font-medium"
-                style={{ height: "24px", lineHeight: "24px" }}
+                style={{ height: "16px", lineHeight: "19px", marginBottom: "2px" }}
               >
                 {day}
               </div>
@@ -88,11 +90,11 @@ export default function LearningProgressTracker() {
           </div>
 
           {/* All Months in One Row */}
-          <div className="flex gap-4">
+          <div className="flex gap-5">
             {monthlyGrids.map((monthData, idx) => (
-              <div key={idx} className="flex flex-col items-center">
+              <div key={idx} className="flex flex-col">
                 {/* Month Label */}
-                <div className="text-xs font-semibold text-gray-300 mb-2 h-5">
+                <div className="text-xs font-semibold text-gray-300 h-5 flex items-center justify-center mb-2">
                   {monthData.monthName}
                 </div>
 
@@ -106,7 +108,7 @@ export default function LearningProgressTracker() {
                           return (
                             <div
                               key={`${weekIdx}-${dayIdx}`}
-                              className={`w-4 h-4 rounded-sm cursor-pointer transition-all duration-200 ${
+                              className={`w-[12.6px] h-[13.1px] rounded-xs cursor-pointer transition-all duration-200 ${
                                 cell
                                   ? getContributionColor(cell.count || 0)
                                   : "bg-transparent"
@@ -131,7 +133,7 @@ export default function LearningProgressTracker() {
       {/* Legend */}
       <div className="flex items-center justify-between mt-4">
         <p className="text-gray-500 text-sm">
-          Learn how we count contributions
+          Your learning Streak ...
         </p>
         <div className="flex items-center space-x-3">
           <span className="text-xs text-gray-400">Less</span>
