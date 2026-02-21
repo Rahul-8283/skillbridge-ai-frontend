@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { Upload, Briefcase, BookOpen } from "lucide-react";
 
 const colorConfig = {
@@ -23,6 +24,12 @@ const colorConfig = {
 };
 
 export default function SeekerActions() {
+  const navigate = useNavigate();
+
+  const handleAction = (path) => {
+    navigate(path);
+  };
+
   const actions = [
     {
       title: "Upload Resume",
@@ -31,6 +38,7 @@ export default function SeekerActions() {
       color: "blue",
       buttonText: "Upload",
       delay: 0.2,
+      path: "/seeker-dashboard/upload-resume",
     },
     {
       title: "Browse Jobs",
@@ -39,6 +47,7 @@ export default function SeekerActions() {
       color: "purple",
       buttonText: "Explore",
       delay: 0.3,
+      path: "/seeker-dashboard/browse-jobs",
     },
     {
       title: "Learning Plan",
@@ -47,6 +56,7 @@ export default function SeekerActions() {
       color: "green",
       buttonText: "View Plan",
       delay: 0.4,
+      path: "/seeker-dashboard/learning-plan",
     },
   ];
 
@@ -71,6 +81,7 @@ export default function SeekerActions() {
               <h3 className="text-xl font-bold mb-2">{action.title}</h3>
               <p className="text-gray-400 mb-6">{action.description}</p>
               <button
+                onClick={() => handleAction(action.path)}
                 className={`w-full py-2 px-4 ${colors.button} text-white font-semibold rounded-lg transition-all duration-300`}
               >
                 {action.buttonText}

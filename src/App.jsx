@@ -15,6 +15,10 @@ import PostJobPage from "./pages/provider/PostJobPage.jsx";
 import FindCandidatesPage from "./pages/provider/FindCandidatesPage.jsx";
 import MyPostingsPage from "./pages/provider/MyPostingsPage.jsx";
 
+import UploadResumePage from "./pages/seeker/UploadResumePage.jsx";
+import BrowseJobsPage from "./pages/seeker/BrowseJobsPage.jsx";
+import LearningPlanPage from "./pages/seeker/LearningPlanPage.jsx";
+
 function ScrollToTop() {
   const location = useLocation();
   
@@ -51,12 +55,15 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/profile" element={<ProfilePage />} />
 
-          <Route path="/seeker-dashboard" element={<SeekerDashboard />} />
-
           <Route path="/provider-dashboard" element={<ProviderDashboard />} />
           <Route path="/provider-dashboard/post-job" element={<PostJobPage />} />
           <Route path="/provider-dashboard/find-candidates" element={<FindCandidatesPage />} />
           <Route path="/provider-dashboard/my-postings" element={<MyPostingsPage />} />
+
+          <Route path="/seeker-dashboard" element={<SeekerDashboard />} />
+          <Route path="/seeker-dashboard/upload-resume" element={<UploadResumePage />} />
+          <Route path="/seeker-dashboard/browse-jobs" element={<BrowseJobsPage />} />
+          <Route path="/seeker-dashboard/learning-plan" element={<LearningPlanPage />} />
           
         </Routes>
       </div>
