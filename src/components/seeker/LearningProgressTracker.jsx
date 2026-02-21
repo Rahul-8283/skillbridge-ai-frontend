@@ -2,13 +2,12 @@ import { useEffect, useState } from "react";
 import { GraduationCap } from "lucide-react";
 import {
   fetchLearningActivities,
-  generateCalendarGrid,
+  generateMonthlyCalendars,
   getContributionColor,
 } from "../../utils/learningActivityUtils.js";
 
 export default function LearningProgressTracker() {
-  const [calendarGrid, setCalendarGrid] = useState([]);
-  const [months, setMonths] = useState([]);
+  const [monthlyGrids, setMonthlyGrids] = useState([]);
   const [stats, setStats] = useState({
     totalContributions: 0,
     maxStreak: 0,
@@ -24,17 +23,16 @@ export default function LearningProgressTracker() {
     if (!user) return;
 
     const activities = fetchLearningActivities(user.email);
-    const { grid, months: monthLabels, stats: calculatedStats } =
-      generateCalendarGrid(activities);
+    const { monthlyGrids: grids, stats: calculatedStats } =
+      generateMonthlyCalendars(activities);
 
-    setCalendarGrid(grid);
-    setMonths(monthLabels);
+    setMonthlyGrids(grids);
     setStats(calculatedStats);
   };
 
   const dayLabels = ["Mon", "Wed", "Fri"];
 
-  if (calendarGrid.length === 0) {
+  if (monthlyGrids.length === 0) {
     return (
       <div className="my-12 p-6 bg-slate-900 rounded-2xl border border-slate-800 text-center">
         <p className="text-gray-400">Loading learning progress...</p>
@@ -73,73 +71,59 @@ export default function LearningProgressTracker() {
         </div>
       </div>
 
-      {/* Calendar Container */}
+      {/* Calendar Container - Horizontal Scrollable */}
       <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 overflow-x-auto">
-        <div className="inline-block">
-          {/* Month Labels Row with Proper Alignment */}
-          <div className="flex items-center mb-2">
-            <div className="w-12" />
-            <div className="flex gap-1">
-              {calendarGrid[0] &&
-                calendarGrid[0].map((_, weekIdx) => {
-                  // Find if there's a month label that starts at this week
-                  const monthAtWeek = months.find(
-                    (m) => m.weekIndex === weekIdx
-                  );
-                  return (
-                    <div
-                      key={`month-${weekIdx}`}
-                      className="text-xs text-gray-400 font-semibold flex items-center justify-center"
-                      style={{ width: "24px", height: "20px" }}
-                    >
-                      {monthAtWeek ? monthAtWeek.label : ""}
-                    </div>
-                  );
-                })}
-            </div>
+        <div className="flex gap-6" style={{ minWidth: "100%" }}>
+          {/* Day Labels - Fixed on Left */}
+          <div className="flex flex-col gap-1 pt-6">
+            {dayLabels.map((day, idx) => (
+              <div
+                key={idx}
+                className="text-xs text-gray-500 font-medium"
+                style={{ height: "24px", lineHeight: "24px" }}
+              >
+                {day}
+              </div>
+            ))}
           </div>
 
-          {/* Calendar Grid */}
-          <div className="flex gap-1">
-            {/* Day Labels */}
-            <div className="flex flex-col gap-1 justify-start pt-1">
-              {dayLabels.map((day, idx) => (
-                <div
-                  key={idx}
-                  className="text-xs text-gray-500 font-medium"
-                  style={{ height: "24px", lineHeight: "24px" }}
-                >
-                  {day}
+          {/* All Months in One Row */}
+          <div className="flex gap-4">
+            {monthlyGrids.map((monthData, idx) => (
+              <div key={idx} className="flex flex-col items-center">
+                {/* Month Label */}
+                <div className="text-xs font-semibold text-gray-300 mb-2 h-5">
+                  {monthData.monthName}
                 </div>
-              ))}
-              {/* Fill the remaining space */}
-              <div style={{ height: "24px" }} />
-            </div>
 
-            {/* Weeks */}
-            <div className="flex gap-1">
-              {calendarGrid[0] &&
-                calendarGrid[0].map((_, weekIdx) => (
-                  <div key={weekIdx} className="flex flex-col gap-1">
-                    {calendarGrid.map((_, dayIdx) => {
-                      const cell = calendarGrid[dayIdx][weekIdx];
-                      return (
-                        <div
-                          key={`${weekIdx}-${dayIdx}`}
-                          className={`w-6 h-6 rounded-sm cursor-pointer transition-all duration-200 ${getContributionColor(
-                            cell?.count || 0
-                          )}`}
-                          title={
-                            cell
-                              ? `${cell.displayDate}: ${cell.count} contributions`
-                              : ""
-                          }
-                        />
-                      );
-                    })}
-                  </div>
-                ))}
-            </div>
+                {/* Month Calendar Grid */}
+                <div className="flex gap-1">
+                  {monthData.grid[0] &&
+                    monthData.grid[0].map((_, weekIdx) => (
+                      <div key={`week-${weekIdx}`} className="flex flex-col gap-1">
+                        {monthData.grid.map((_, dayIdx) => {
+                          const cell = monthData.grid[dayIdx][weekIdx];
+                          return (
+                            <div
+                              key={`${weekIdx}-${dayIdx}`}
+                              className={`w-4 h-4 rounded-sm cursor-pointer transition-all duration-200 ${
+                                cell
+                                  ? getContributionColor(cell.count || 0)
+                                  : "bg-transparent"
+                              }`}
+                              title={
+                                cell && cell.day
+                                  ? `${cell.displayDate}: ${cell.count} contributions`
+                                  : ""
+                              }
+                            />
+                          );
+                        })}
+                      </div>
+                    ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

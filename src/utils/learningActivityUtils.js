@@ -166,3 +166,94 @@ export const incrementActivityForDate = (userEmail, dateStr = null) => {
   saveLearningActivities(userEmail, activities);
   return activities;
 };
+
+/**
+ * Generates monthly calendars for the past 12 months
+ * @param {Object} activities - Learning activities object
+ * @returns {Object} Object containing monthlyGrids array and stats
+ */
+export const generateMonthlyCalendars = (activities = {}) => {
+  const today = new Date();
+  const monthlyGrids = [];
+  let totalContributions = 0;
+
+  // Generate calendars for the past 12 months
+  for (let monthOffset = 11; monthOffset >= 0; monthOffset--) {
+    const monthDate = new Date(today);
+    monthDate.setMonth(monthDate.getMonth() - monthOffset);
+    
+    const year = monthDate.getFullYear();
+    const month = monthDate.getMonth();
+    const monthName = monthDate.toLocaleDateString("en-US", { month: "short" });
+    
+    // Get first day of month and number of days in month
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const firstDayOfWeek = firstDay.getDay(); // 0 = Sunday
+    
+    // Create grid: 7 rows (days of week) × weeks needed for this month
+    const weeksNeeded = Math.ceil((daysInMonth + firstDayOfWeek) / 7);
+    const grid = Array(7)
+      .fill(null)
+      .map(() => Array(weeksNeeded).fill(null));
+    
+    let dayCounter = 1;
+    
+    // Fill the grid
+    for (let week = 0; week < weeksNeeded; week++) {
+      for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
+        // Skip days before the first day of the month
+        if (week === 0 && dayOfWeek < firstDayOfWeek) {
+          continue;
+        }
+        
+        // Stop if we've filled all days in the month
+        if (dayCounter > daysInMonth) {
+          break;
+        }
+        
+        const date = new Date(year, month, dayCounter);
+        const dateStr = date.toISOString().split("T")[0];
+        const count = activities[dateStr] || 0;
+        
+        grid[dayOfWeek][week] = {
+          date: dateStr,
+          count: count,
+          day: dayCounter,
+          displayDate: date.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          }),
+        };
+        
+        if (count > 0) {
+          totalContributions += count;
+        }
+        
+        dayCounter++;
+      }
+    }
+    
+    monthlyGrids.push({
+      monthName,
+      year,
+      month,
+      grid,
+      weeksNeeded,
+    });
+  }
+  
+  // Calculate streaks
+  const { maxStreak, currentStreak } = calculateStreaks(activities);
+  
+  return {
+    monthlyGrids,
+    stats: {
+      totalContributions,
+      maxStreak,
+      currentStreak,
+    },
+  };
+};
