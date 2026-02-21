@@ -30,6 +30,11 @@ export default function ProfileCompletion({ user, onProfileComplete }) {
     }
   }, [user, onProfileComplete]);
 
+  // Hide component if profile is 100% complete
+  if (completion === 100) {
+    return null;
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -85,7 +90,7 @@ export default function ProfileCompletion({ user, onProfileComplete }) {
       </div>
       <div className="mt-6 p-4 bg-blue-500/20 border border-blue-500/30 rounded-lg">
         <p className="text-blue-200">
-          Complete your profile to get 3x more job matches and opportunities
+          Complete your profile to unlock achievement badges and access the learning progress tracker
         </p>
       </div>
     </motion.div>
