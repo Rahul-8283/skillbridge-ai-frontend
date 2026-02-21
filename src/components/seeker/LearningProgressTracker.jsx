@@ -1,99 +1,65 @@
 import { useEffect, useState } from "react";
 import { GraduationCap } from "lucide-react";
+import {
+  fetchLearningActivities,
+  generateCalendarGrid,
+  getContributionColor,
+} from "../../utils/learningActivityUtils.js";
 
 export default function LearningProgressTracker() {
-  const [progressData, setProgressData] = useState([]);
+  const [calendarGrid, setCalendarGrid] = useState([]);
+  const [months, setMonths] = useState([]);
   const [stats, setStats] = useState({
-    totalDays: 0,
+    totalContributions: 0,
     maxStreak: 0,
     currentStreak: 0,
   });
 
   useEffect(() => {
-    loadProgressData();
+    generateCalendar();
   }, []);
 
-  const loadProgressData = () => {
+  const generateCalendar = () => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (!user) return;
 
-    // Get learning activities from localStorage
-    const learningActivities =
-      JSON.parse(localStorage.getItem(`${user.email}_learning_activities`)) || {};
+    const activities = fetchLearningActivities(user.email);
+    const { grid, months: monthLabels, stats: calculatedStats } =
+      generateCalendarGrid(activities);
 
-    // Generate calendar data for past 12 months
-    const today = new Date();
-    const calendarData = [];
-    const activityCount = {};
-
-    // Process all months (52 weeks for year view)
-    for (let i = 51; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i * 7);
-
-      const dateStr = date.toISOString().split("T")[0];
-      const count = learningActivities[dateStr] || Math.floor(Math.random() * 5); // Mock data
-
-      calendarData.push({
-        date: dateStr,
-        count: count,
-        weekNumber: Math.floor(i / 7),
-      });
-
-      if (count > 0) {
-        activityCount[dateStr] = count;
-      }
-    }
-
-    // Calculate stats
-    const totalDays = Object.keys(activityCount).length;
-    let maxStreak = 0;
-    let currentStreak = 0;
-    let streak = 0;
-
-    for (let i = 0; i < 365; i++) {
-      const checkDate = new Date(today);
-      checkDate.setDate(checkDate.getDate() - i);
-      const dateStr = checkDate.toISOString().split("T")[0];
-
-      if (activityCount[dateStr]) {
-        streak++;
-        if (i === 0) currentStreak = streak;
-        maxStreak = Math.max(maxStreak, streak);
-      } else {
-        streak = 0;
-      }
-    }
-
-    setProgressData(calendarData);
-    setStats({
-      totalDays,
-      maxStreak,
-      currentStreak,
-    });
+    setCalendarGrid(grid);
+    setMonths(monthLabels);
+    setStats(calculatedStats);
   };
 
-  const getColor = (count) => {
-    if (count === 0) return "bg-slate-800";
-    if (count === 1) return "bg-green-900";
-    if (count === 2) return "bg-green-700";
-    if (count === 3) return "bg-green-600";
-    if (count === 4) return "bg-green-500";
-    return "bg-green-400";
-  };
+  const dayLabels = ["Mon", "Wed", "Fri"];
+
+  if (calendarGrid.length === 0) {
+    return (
+      <div className="my-12 p-6 bg-slate-900 rounded-2xl border border-slate-800 text-center">
+        <p className="text-gray-400">Loading learning progress...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="my-12">
-      <div className="flex items-center space-x-3 mb-6">
-        <GraduationCap className="w-6 h-6 text-blue-400" />
-        <h2 className="text-2xl font-bold">Learning Progress</h2>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-3">
+          <GraduationCap className="w-6 h-6 text-blue-400" />
+          <h2 className="text-2xl font-bold">
+            {stats.totalContributions} contributions in the last year
+          </h2>
+        </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-8">
         <div className="bg-gradient-to-br from-blue-600/10 to-blue-400/10 border border-blue-500/30 rounded-2xl p-4">
-          <p className="text-gray-400 text-sm mb-1">Total Active Days</p>
-          <p className="text-3xl font-bold text-blue-400">{stats.totalDays}</p>
+          <p className="text-gray-400 text-sm mb-1">Total Contributions</p>
+          <p className="text-3xl font-bold text-blue-400">
+            {stats.totalContributions}
+          </p>
         </div>
         <div className="bg-gradient-to-br from-green-600/10 to-green-400/10 border border-green-500/30 rounded-2xl p-4">
           <p className="text-gray-400 text-sm mb-1">Max Streak</p>
@@ -101,42 +67,98 @@ export default function LearningProgressTracker() {
         </div>
         <div className="bg-gradient-to-br from-purple-600/10 to-purple-400/10 border border-purple-500/30 rounded-2xl p-4">
           <p className="text-gray-400 text-sm mb-1">Current Streak</p>
-          <p className="text-3xl font-bold text-purple-400">{stats.currentStreak}</p>
+          <p className="text-3xl font-bold text-purple-400">
+            {stats.currentStreak}
+          </p>
         </div>
       </div>
 
-      {/* Calendar */}
+      {/* Calendar Container */}
       <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 overflow-x-auto">
-        <div className="flex items-end space-x-1 pb-4">
-          {/* Legend */}
-          <div className="flex items-center space-x-2 text-xs text-gray-400 mr-8">
-            <span>Less</span>
-            <div className="w-3 h-3 bg-slate-800 rounded-sm" />
-            <div className="w-3 h-3 bg-green-900 rounded-sm" />
-            <div className="w-3 h-3 bg-green-700 rounded-sm" />
-            <div className="w-3 h-3 bg-green-600 rounded-sm" />
-            <div className="w-3 h-3 bg-green-400 rounded-sm" />
-            <span>More</span>
+        <div className="inline-block">
+          {/* Month Labels Row with Proper Alignment */}
+          <div className="flex items-center mb-2">
+            <div className="w-12" />
+            <div className="flex gap-1">
+              {calendarGrid[0] &&
+                calendarGrid[0].map((_, weekIdx) => {
+                  // Find if there's a month label that starts at this week
+                  const monthAtWeek = months.find(
+                    (m) => m.weekIndex === weekIdx
+                  );
+                  return (
+                    <div
+                      key={`month-${weekIdx}`}
+                      className="text-xs text-gray-400 font-semibold flex items-center justify-center"
+                      style={{ width: "24px", height: "20px" }}
+                    >
+                      {monthAtWeek ? monthAtWeek.label : ""}
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+
+          {/* Calendar Grid */}
+          <div className="flex gap-1">
+            {/* Day Labels */}
+            <div className="flex flex-col gap-1 justify-start pt-1">
+              {dayLabels.map((day, idx) => (
+                <div
+                  key={idx}
+                  className="text-xs text-gray-500 font-medium"
+                  style={{ height: "24px", lineHeight: "24px" }}
+                >
+                  {day}
+                </div>
+              ))}
+              {/* Fill the remaining space */}
+              <div style={{ height: "24px" }} />
+            </div>
+
+            {/* Weeks */}
+            <div className="flex gap-1">
+              {calendarGrid[0] &&
+                calendarGrid[0].map((_, weekIdx) => (
+                  <div key={weekIdx} className="flex flex-col gap-1">
+                    {calendarGrid.map((_, dayIdx) => {
+                      const cell = calendarGrid[dayIdx][weekIdx];
+                      return (
+                        <div
+                          key={`${weekIdx}-${dayIdx}`}
+                          className={`w-6 h-6 rounded-sm cursor-pointer transition-all duration-200 ${getContributionColor(
+                            cell?.count || 0
+                          )}`}
+                          title={
+                            cell
+                              ? `${cell.displayDate}: ${cell.count} contributions`
+                              : ""
+                          }
+                        />
+                      );
+                    })}
+                  </div>
+                ))}
+            </div>
           </div>
         </div>
-
-        {/* Calendar Grid */}
-        <div className="flex flex-wrap gap-1">
-          {progressData.map((day, idx) => (
-            <div
-              key={idx}
-              className={`w-4 h-4 rounded-sm cursor-pointer transition-all hover:ring-2 hover:ring-offset-2 hover:ring-blue-400 ${getColor(
-                day.count
-              )}`}
-              title={`${day.date}: ${day.count} activities`}
-            />
-          ))}
-        </div>
       </div>
 
-      <p className="text-gray-500 text-sm mt-4 text-center">
-        Year of learning - Track your daily progress towards mastery
-      </p>
+      {/* Legend */}
+      <div className="flex items-center justify-between mt-4">
+        <p className="text-gray-500 text-sm">
+          Learn how we count contributions
+        </p>
+        <div className="flex items-center space-x-3">
+          <span className="text-xs text-gray-400">Less</span>
+          <div className="w-3 h-3 bg-slate-800 rounded-sm" />
+          <div className="w-3 h-3 bg-green-900 rounded-sm" />
+          <div className="w-3 h-3 bg-green-700 rounded-sm" />
+          <div className="w-3 h-3 bg-green-600 rounded-sm" />
+          <div className="w-3 h-3 bg-green-400 rounded-sm" />
+          <span className="text-xs text-gray-400">More</span>
+        </div>
+      </div>
     </div>
   );
 }

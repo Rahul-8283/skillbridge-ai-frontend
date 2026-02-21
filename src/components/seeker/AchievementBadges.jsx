@@ -119,20 +119,20 @@ export default function AchievementBadges() {
 
     return (
       <div
-        className={`bg-gradient-to-br ${badge.color} border rounded-2xl p-6 transition-all duration-300 ${
+        className={`bg-gradient-to-br ${badge.color} border rounded-2xl p-4 md:p-6 transition-all duration-300 ${
           badge.unlocked
             ? "hover:shadow-lg hover:shadow-current"
             : "opacity-60 hover:opacity-75"
         }`}
       >
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <h3 className={`font-bold text-lg ${badge.iconColor}`}>
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+          <div className="min-w-0">
+            <h3 className={`font-bold text-base md:text-lg ${badge.iconColor} break-words`}>
               {badge.name}
             </h3>
-            <p className="text-gray-400 text-sm">{badge.description}</p>
+            <p className="text-gray-400 text-xs md:text-sm mt-1">{badge.description}</p>
           </div>
-          <Icon className={`w-8 h-8 ${badge.iconColor} flex-shrink-0`} />
+          <Icon className={`w-6 h-6 md:w-8 md:h-8 ${badge.iconColor} flex-shrink-0`} />
         </div>
 
         {/* Progress Bar */}
@@ -173,12 +173,12 @@ export default function AchievementBadges() {
 
   return (
     <div className="my-12">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div className="flex items-center space-x-3">
           <Award className="w-6 h-6 text-blue-400" />
           <h2 className="text-2xl font-bold">Achievements & Streaks</h2>
         </div>
-        <div className="px-4 py-2 bg-blue-500/10 border border-blue-500/30 rounded-full">
+        <div className="px-4 py-2 bg-blue-500/10 border border-blue-500/30 rounded-full w-fit">
           <p className="text-sm text-blue-400">
             <span className="font-bold">{unlockedBadges.length}</span> Unlocked
           </p>
@@ -186,14 +186,14 @@ export default function AchievementBadges() {
       </div>
 
       {/* Badges Grid */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {badges.map((badge) => (
           <BadgeCard key={badge.id} badge={badge} />
         ))}
       </div>
 
       {/* Info Message */}
-      <div className="mt-8 p-6 bg-slate-900/50 border border-slate-800 rounded-2xl">
+      <div className="mt-8 p-4 md:p-6 bg-slate-900/50 border border-slate-800 rounded-2xl">
         <p className="text-gray-400 text-sm">
           <span className="font-semibold text-blue-400">Pro Tip:</span> Keep
           your learning streak alive by completing topics regularly. Unlock all

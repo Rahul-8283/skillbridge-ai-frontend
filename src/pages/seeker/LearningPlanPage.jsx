@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { trackLearningActivity } from "../../utils/learningActivityUtils.js";
 import {
   ArrowLeft,
   BookOpen,
@@ -119,20 +120,6 @@ export default function LearningPlanPage() {
 
     // Track learning activity
     trackLearningActivity(user.email);
-  };
-
-  const trackLearningActivity = (userEmail) => {
-    const today = new Date().toISOString().split("T")[0];
-    const learningActivities =
-      JSON.parse(localStorage.getItem(`${userEmail}_learning_activities`)) || {};
-
-    // Increment today's activity count
-    learningActivities[today] = (learningActivities[today] || 0) + 1;
-
-    localStorage.setItem(
-      `${userEmail}_learning_activities`,
-      JSON.stringify(learningActivities)
-    );
   };
 
   const ModuleCard = ({ module }) => {

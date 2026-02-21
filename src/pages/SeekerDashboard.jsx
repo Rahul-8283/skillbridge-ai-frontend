@@ -51,7 +51,9 @@ export default function SeekerDashboard() {
           
           {profileCompleted && (
             <>
-              <LearningProgressTracker />
+              <div className="hidden md:block">
+                <LearningProgressTracker />
+              </div>
               <AchievementBadges />
             </>
           )}
