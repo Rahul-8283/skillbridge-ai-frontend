@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
-export default function ProfileCompletion({ user }) {
+export default function ProfileCompletion({ user, onProfileComplete }) {
   const [profileData, setProfileData] = useState({
     resume: "",
     skills: "",
@@ -19,10 +19,16 @@ export default function ProfileCompletion({ user }) {
         // Calculate completion percentage
         const fields = ["resume", "skills", "experience"];
         const filledFields = fields.filter((field) => profile[field] && profile[field].trim().length > 0);
-        setCompletion(Math.round((filledFields.length / fields.length) * 100));
+        const completionPercent = Math.round((filledFields.length / fields.length) * 100);
+        setCompletion(completionPercent);
+
+        // Trigger callback if profile is complete
+        if (completionPercent === 100 && onProfileComplete) {
+          onProfileComplete();
+        }
       }
     }
-  }, [user]);
+  }, [user, onProfileComplete]);
 
   return (
     <motion.div

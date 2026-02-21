@@ -116,6 +116,23 @@ export default function LearningPlanPage() {
       `${user.email}_completed_modules`,
       JSON.stringify(newCompleted)
     );
+
+    // Track learning activity
+    trackLearningActivity(user.email);
+  };
+
+  const trackLearningActivity = (userEmail) => {
+    const today = new Date().toISOString().split("T")[0];
+    const learningActivities =
+      JSON.parse(localStorage.getItem(`${userEmail}_learning_activities`)) || {};
+
+    // Increment today's activity count
+    learningActivities[today] = (learningActivities[today] || 0) + 1;
+
+    localStorage.setItem(
+      `${userEmail}_learning_activities`,
+      JSON.stringify(learningActivities)
+    );
   };
 
   const ModuleCard = ({ module }) => {
