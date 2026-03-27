@@ -54,6 +54,13 @@ function App() {
   // Auth is initialized in useAuth hook automatically
   useAuth();
 
+  // Clear localStorage on app load (removes stale mock data)
+  // Backend will provide fresh tokens when implemented
+  useEffect(() => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user");
+  }, []);
+
   useEffect(() => {
     function handleScroll() {
       setScrolled(window.scrollY > 50);
