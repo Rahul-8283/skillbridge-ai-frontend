@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { useAuth } from "./hooks/useAuth.js";
 
 import Navbar from "./components/Navbar.jsx";
 import HeroPage from "./pages/HeroPage.jsx";
@@ -29,8 +30,29 @@ function ScrollToTop() {
   return null;
 }
 
+/**
+ * Protected Route Component
+ * Redirects to login if not authenticated
+ */
+function ProtectedRoute({ element, requiredRole = null }) {
+  const { isAuthenticated, user } = useAuth();
+
+  if (!isAuthenticated) {
+    window.location.href = "/login";
+    return null;
+  }
+
+  if (requiredRole && user?.role !== requiredRole) {
+    return <div className="flex items-center justify-center h-screen">Access Denied</div>;
+  }
+
+  return element;
+}
+
 function App() {
   const [scrolled, setScrolled] = useState(false);
+  // Auth is initialized in useAuth hook automatically
+  useAuth();
 
   useEffect(() => {
     function handleScroll() {
@@ -48,23 +70,50 @@ function App() {
       <div className="min-h-screen bg-slate-950 text-white overflow-hidden">
         <Navbar scrolled={scrolled} />
         <Routes>
+          {/* Public Routes */}
           <Route path="/" element={<HeroPage />} />
           <Route path="/about" element={<AboutPage />} />
-
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
 
-          <Route path="/provider-dashboard" element={<ProviderDashboard />} />
-          <Route path="/provider-dashboard/post-job" element={<PostJobPage />} />
-          <Route path="/provider-dashboard/find-candidates" element={<FindCandidatesPage />} />
-          <Route path="/provider-dashboard/my-postings" element={<MyPostingsPage />} />
+          {/* Protected Routes - All Users */}
+          <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} />} />
 
-          <Route path="/seeker-dashboard" element={<SeekerDashboard />} />
-          <Route path="/seeker-dashboard/upload-resume" element={<UploadResumePage />} />
-          <Route path="/seeker-dashboard/browse-jobs" element={<BrowseJobsPage />} />
-          <Route path="/seeker-dashboard/learning-plan" element={<LearningPlanPage />} />
-          
+          {/* Protected Routes - Seeker Only */}
+          <Route
+            path="/seeker-dashboard"
+            element={<ProtectedRoute element={<SeekerDashboard />} requiredRole="seeker" />}
+          />
+          <Route
+            path="/seeker-dashboard/upload-resume"
+            element={<ProtectedRoute element={<UploadResumePage />} requiredRole="seeker" />}
+          />
+          <Route
+            path="/seeker-dashboard/browse-jobs"
+            element={<ProtectedRoute element={<BrowseJobsPage />} requiredRole="seeker" />}
+          />
+          <Route
+            path="/seeker-dashboard/learning-plan"
+            element={<ProtectedRoute element={<LearningPlanPage />} requiredRole="seeker" />}
+          />
+
+          {/* Protected Routes - Provider Only */}
+          <Route
+            path="/provider-dashboard"
+            element={<ProtectedRoute element={<ProviderDashboard />} requiredRole="provider" />}
+          />
+          <Route
+            path="/provider-dashboard/post-job"
+            element={<ProtectedRoute element={<PostJobPage />} requiredRole="provider" />}
+          />
+          <Route
+            path="/provider-dashboard/find-candidates"
+            element={<ProtectedRoute element={<FindCandidatesPage />} requiredRole="provider" />}
+          />
+          <Route
+            path="/provider-dashboard/my-postings"
+            element={<ProtectedRoute element={<MyPostingsPage />} requiredRole="provider" />}
+          />
         </Routes>
       </div>
     </BrowserRouter>
