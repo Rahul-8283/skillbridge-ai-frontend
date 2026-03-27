@@ -14,12 +14,12 @@ export const useAuthStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await api.post("/api/auth/login", { email, password });
-      const { user, token } = response;
+      const { user, accessToken } = response;
 
-      localStorage.setItem("access_token", token);
+      localStorage.setItem("access_token", accessToken);
       localStorage.setItem("user", JSON.stringify(user));
 
-      set({ user, token, isAuthenticated: true, isLoading: false });
+      set({ user, token: accessToken, isAuthenticated: true, isLoading: false });
       return { success: true, user };
     } catch (error) {
       set({ error: error.message, isLoading: false });
@@ -36,12 +36,12 @@ export const useAuthStore = create((set, get) => ({
         name,
         role,
       });
-      const { user, token } = response;
+      const { user, accessToken } = response;
 
-      localStorage.setItem("access_token", token);
+      localStorage.setItem("access_token", accessToken);
       localStorage.setItem("user", JSON.stringify(user));
 
-      set({ user, token, isAuthenticated: true, isLoading: false });
+      set({ user, token: accessToken, isAuthenticated: true, isLoading: false });
       return { success: true, user };
     } catch (error) {
       set({ error: error.message, isLoading: false });
