@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogIn } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
 import { useAuth } from "../hooks/useAuth";
 
 export default function LoginPage() {
@@ -16,7 +17,9 @@ export default function LoginPage() {
     setLocalError("");
 
     if (!email || !password) {
-      setLocalError("Email and password are required");
+      const err = "Email and password are required";
+      setLocalError(err);
+      toast.error(err);
       return;
     }
 
@@ -24,10 +27,13 @@ export default function LoginPage() {
     const result = await login(email, password);
 
     if (result.success) {
+      toast.success("Login successful! Redirecting...");
       // Backend set the token and user data, navigate to dashboard
       navigate(result.user?.role === "seeker" ? "/seeker-dashboard" : "/provider-dashboard");
     } else {
-      setLocalError(result.error || "Login failed. Please try again.");
+      const errorMsg = result.error || "Login failed. Please try again.";
+      setLocalError(errorMsg);
+      toast.error(errorMsg);
     }
   };
 

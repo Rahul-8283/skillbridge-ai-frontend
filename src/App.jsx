@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "./hooks/useAuth.js";
 
 import Navbar from "./components/Navbar.jsx";
@@ -74,6 +76,19 @@ function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+        style={{ zIndex: 9999 }}
+      />
       <div className="min-h-screen bg-slate-950 text-white overflow-hidden">
         <Navbar scrolled={scrolled} />
         <Routes>

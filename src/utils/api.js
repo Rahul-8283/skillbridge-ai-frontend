@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toast } from "react-toastify";
 
 // Determine backend URL based on environment
 const mode = import.meta.env.VITE_APP_MODE || "development";
@@ -44,16 +45,54 @@ api.interceptors.response.use(
     // Handle different error scenarios
       if (error.response?.status === 401) {
       // Token expired or invalid
+      toast.error("Session expired. Please login again.", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        draggable: true,
+      });
       console.warn("Unauthorized - redirecting to login");
       localStorage.removeItem("access_token");
       localStorage.removeItem("user");
       window.location.href = "/login";
     } else if (error.response?.status === 403) {
+      toast.error("Forbidden - insufficient permissions.", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        draggable: true,
+      });
       console.error("Forbidden - insufficient permissions");
     } else if (error.response?.status === 404) {
+      toast.error("Resource not found.", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        draggable: true,
+      });
       console.error("Resource not found");
     } else if (error.response?.status === 500) {
+      toast.error("Server error. Backend service might be down. Please try again later.", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        draggable: true,
+      });
       console.error("Server error - Backend service might be down");
+    } else if (!error.response) {
+      // Network error (backend not running)
+      toast.error("Unable to connect to server. Please check if backend is running.", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        draggable: true,
+      });
+      console.error("Network Error:", error.message);
     }
 
     return Promise.reject({

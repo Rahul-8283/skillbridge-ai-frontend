@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserPlus } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
 import { useAuth } from "../hooks/useAuth";
 
 export default function SignUpPage() {
@@ -19,17 +20,23 @@ export default function SignUpPage() {
     setLocalError("");
 
     if (!fullName || !email || !password || !confirmPassword || !userType) {
-      setLocalError("All fields are required");
+      const err = "All fields are required";
+      setLocalError(err);
+      toast.error(err);
       return;
     }
 
     if (password !== confirmPassword) {
-      setLocalError("Passwords do not match");
+      const err = "Passwords do not match";
+      setLocalError(err);
+      toast.error(err);
       return;
     }
 
     if (password.length < 6) {
-      setLocalError("Password must be at least 6 characters");
+      const err = "Password must be at least 6 characters";
+      setLocalError(err);
+      toast.error(err);
       return;
     }
 
@@ -37,10 +44,13 @@ export default function SignUpPage() {
     const result = await signup(email, password, fullName, userType);
 
     if (result.success) {
+      toast.success("Account created successfully! Redirecting...");
       // Backend set the token and user data, navigate to dashboard
       navigate(userType === "seeker" ? "/seeker-dashboard" : "/provider-dashboard");
     } else {
-      setLocalError(result.error || "Sign up failed. Please try again.");
+      const errorMsg = result.error || "Sign up failed. Please try again.";
+      setLocalError(errorMsg);
+      toast.error(errorMsg);
     }
   };
 
