@@ -16,11 +16,11 @@ const api = axios.create({
   timeout: 10000, // 10 seconds timeout
 });
 
-// Request Interceptor - Add Auth0 JWT Token
+// Request Interceptor - Add Access Token
 api.interceptors.request.use(
   (config) => {
-    // Get token from localStorage (set by Auth0)
-    const token = localStorage.getItem("auth0_token");
+    // Get access token from localStorage (set by backend after login)
+    const token = localStorage.getItem("access_token");
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -42,10 +42,10 @@ api.interceptors.response.use(
   },
   (error) => {
     // Handle different error scenarios
-    if (error.response?.status === 401) {
-      // Token expired or unauthorized
+      if (error.response?.status === 401) {
+      // Token expired or invalid
       console.warn("Unauthorized - redirecting to login");
-      localStorage.removeItem("auth0_token");
+      localStorage.removeItem("access_token");
       localStorage.removeItem("user");
       window.location.href = "/login";
     } else if (error.response?.status === 403) {

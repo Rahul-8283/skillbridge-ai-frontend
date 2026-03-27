@@ -16,7 +16,7 @@ export const useAuthStore = create((set, get) => ({
       const response = await api.post("/api/auth/login", { email, password });
       const { user, token } = response;
 
-      localStorage.setItem("auth0_token", token);
+      localStorage.setItem("access_token", token);
       localStorage.setItem("user", JSON.stringify(user));
 
       set({ user, token, isAuthenticated: true, isLoading: false });
@@ -38,7 +38,7 @@ export const useAuthStore = create((set, get) => ({
       });
       const { user, token } = response;
 
-      localStorage.setItem("auth0_token", token);
+      localStorage.setItem("access_token", token);
       localStorage.setItem("user", JSON.stringify(user));
 
       set({ user, token, isAuthenticated: true, isLoading: false });
@@ -50,13 +50,13 @@ export const useAuthStore = create((set, get) => ({
   },
 
   logout: () => {
-    localStorage.removeItem("auth0_token");
+    localStorage.removeItem("access_token");
     localStorage.removeItem("user");
     set({ user: null, token: null, isAuthenticated: false });
   },
 
   initializeAuth: () => {
-    const token = localStorage.getItem("auth0_token");
+    const token = localStorage.getItem("access_token");
     const user = localStorage.getItem("user");
 
     if (token && user) {
