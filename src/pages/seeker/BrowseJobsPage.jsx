@@ -8,8 +8,12 @@ import {
   DollarSign,
   Clock,
   Heart,
+  Loader2,
 } from "lucide-react";
 import Footer from "../../components/Footer";
+import api from "../../utils/api";
+import { useLearning } from "../../hooks/useLearning";
+import { toast } from "react-toastify";
 
 export default function BrowseJobsPage() {
   const navigate = useNavigate();
@@ -18,17 +22,77 @@ export default function BrowseJobsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [savedJobs, setSavedJobs] = useState([]);
+  const [matches, setMatches] = useState([]);
+  const [applying, setApplying] = useState(null);
+  const { generateLearningPlan } = useLearning();
+
+  const handleApply = async (jobId) => {
+    setApplying(jobId);
+    try {
+      // 1. Apply for the job
+      await api.post("/seeker/applications", { jobId });
+      
+      // 2. Generate roadmap for this job
+      toast.info("Application successful! Generating custom learning roadmap...", { autoClose: 3000 });
+      const planRes = await generateLearningPlan(jobId, 2);
+      
+      if (!planRes.success) {
+        throw new Error(planRes.error || "Failed to generate learning roadmap");
+      }
+      
+      toast.success("Learning plan generated successfully!");
+      navigate("/seeker-dashboard/learning-plan");
+    } catch (err) {
+      if (err.message === "You have already applied for this job") {
+         toast.info("You have already applied. Generating roadmap directly...");
+         const planRes = await generateLearningPlan(jobId, 2);
+         if (!planRes.success) {
+           toast.error(planRes.error || "Failed to generate learning roadmap");
+           return;
+         }
+         navigate("/seeker-dashboard/learning-plan");
+      } else {
+         toast.error(err.message || "Failed to apply for the job");
+      }
+    } finally {
+      setApplying(null);
+    }
+  };
 
   useEffect(() => {
     loadJobs();
     loadSavedJobs();
   }, []);
 
-  const loadJobs = () => {
-    const jobPostings = JSON.parse(localStorage.getItem("jobPostings")) || [];
-    const activeJobs = jobPostings.filter((job) => job.status === "active");
-    setJobs(activeJobs);
-    setFilteredJobs(activeJobs);
+  const loadJobs = async () => {
+    try {
+      const res = await api.get("/jobs");
+      const activeJobs = res.data || [];
+      
+      try {
+        const matchRes = await api.get("/seeker/jobs/matches");
+        const matchData = matchRes.data?.matches || [];
+        setMatches(matchData);
+        
+        // Merge match data into jobs
+        const enrichedJobs = activeJobs.map(job => {
+          const match = matchData.find(m => m.job_id === job._id);
+          return {
+            ...job,
+            matchScore: match ? Math.round(match.score * 100) : null,
+            missingSkills: match ? match.missing_skills : []
+          };
+        });
+        setJobs(enrichedJobs);
+        setFilteredJobs(enrichedJobs);
+      } catch(err) {
+        console.warn("Matches not available:", err);
+        setJobs(activeJobs);
+        setFilteredJobs(activeJobs);
+      }
+    } catch (err) {
+      console.error("Error loading jobs:", err);
+    }
   };
 
   const loadSavedJobs = () => {
@@ -47,15 +111,15 @@ export default function BrowseJobsPage() {
     if (searchTerm) {
       filtered = filtered.filter(
         (job) =>
-          job.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          job.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          job.location.toLowerCase().includes(searchTerm.toLowerCase())
+          (job.title?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (job.company?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (job.location?.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
     // Apply job type filter
     if (selectedFilter !== "all") {
-      filtered = filtered.filter((job) => job.jobType === selectedFilter);
+      filtered = filtered.filter((job) => job.type === selectedFilter);
     }
 
     setFilteredJobs(filtered);
@@ -85,18 +149,37 @@ export default function BrowseJobsPage() {
   };
 
   const JobCard = ({ job }) => {
-    const isSaved = savedJobs.includes(job.id);
+    const isSaved = savedJobs.includes(job._id);
     return (
-      <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 hover:border-blue-500/50 transition-all duration-300">
+      <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 hover:border-blue-500/50 transition-all duration-300 relative overflow-hidden">
+        {job.matchScore && job.matchScore > 70 && (
+          <div className="absolute top-0 right-0">
+            <div className="bg-blue-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg transform uppercase tracking-wider">
+              Recommended
+            </div>
+          </div>
+        )}
+        
         <div className="flex justify-between items-start mb-4">
           <div>
-            <h3 className="text-xl font-bold text-white mb-1">
-              {job.jobTitle}
-            </h3>
-            <p className="text-gray-400">{job.companyName}</p>
+            <div className="flex items-center space-x-2 mb-1">
+              <h3 className="text-xl font-bold text-white">
+                {job.title}
+              </h3>
+              {job.matchScore && (
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                  job.matchScore >= 80 ? 'bg-green-500/20 text-green-400' : 
+                  job.matchScore >= 50 ? 'bg-blue-500/20 text-blue-400' : 
+                  'bg-gray-500/20 text-gray-400'
+                }`}>
+                  {job.matchScore}% Match
+                </span>
+              )}
+            </div>
+            <p className="text-gray-400">{job.company}</p>
           </div>
           <button
-            onClick={() => toggleSaveJob(job.id)}
+            onClick={() => toggleSaveJob(job._id)}
             className={`p-2 rounded-lg transition-all duration-300 ${
               isSaved
                 ? "bg-red-500/20 text-red-400"
@@ -109,28 +192,50 @@ export default function BrowseJobsPage() {
 
         <p className="text-gray-400 mb-4 line-clamp-2">{job.description}</p>
 
-        <div className="space-y-2 mb-4">
+        {job.missingSkills?.length > 0 && (
+          <div className="mb-4">
+            <p className="text-xs text-blue-400/80 mb-2 font-semibold">Missing Skills:</p>
+            <div className="flex flex-wrap gap-1.5">
+              {job.missingSkills.map((skill, i) => (
+                <span key={i} className="px-2 py-0.5 bg-blue-500/5 border border-blue-500/20 rounded text-[10px] text-blue-300">
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="space-y-2 mb-6">
           <div className="flex items-center space-x-2 text-gray-400">
             <MapPin className="w-4 h-4" />
-            <span>{job.location}</span>
+            <span className="text-sm">{job.location}</span>
           </div>
           <div className="flex items-center space-x-2 text-gray-400">
             <DollarSign className="w-4 h-4" />
-            <span>${job.salary}/year</span>
+            <span className="text-sm">${job.salary}/year</span>
           </div>
-          <div className="flex items-center space-x-2 text-gray-400">
+          <div className="flex items-center space-x-2 text-gray-400 text-sm">
             <Briefcase className="w-4 h-4" />
-            <span className="capitalize">{job.jobType}</span>
-          </div>
-          <div className="flex items-center space-x-2 text-gray-400">
-            <Clock className="w-4 h-4" />
-            <span>{job.experienceLevel}</span>
+            <span className="capitalize">{job.type}</span>
           </div>
         </div>
 
         <div className="pt-4 border-t border-slate-800">
-          <button className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-300">
-            Apply Now
+          <button 
+            onClick={() => handleApply(job._id)}
+            disabled={applying === job._id}
+            className={`w-full py-2 px-4 font-semibold rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 ${
+              applying === job._id ? 'bg-slate-700 text-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'
+            }`}
+          >
+            {applying === job._id ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>Applying & Generating...</span>
+              </>
+            ) : (
+              <span>Apply Now</span>
+            )}
           </button>
         </div>
       </div>
@@ -229,7 +334,7 @@ export default function BrowseJobsPage() {
           {filteredJobs.length > 0 ? (
             <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-6">
               {filteredJobs.map((job) => (
-                <JobCard key={job.id} job={job} />
+                <JobCard key={job._id} job={job} />
               ))}
             </div>
           ) : (

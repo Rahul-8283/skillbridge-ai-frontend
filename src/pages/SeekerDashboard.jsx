@@ -7,32 +7,36 @@ import SeekerActions from "../components/seeker/SeekerActions.jsx";
 import ProfileCompletion from "../components/seeker/ProfileCompletion.jsx";
 import LearningProgressTracker from "../components/seeker/LearningProgressTracker.jsx";
 import AchievementBadges from "../components/seeker/AchievementBadges.jsx";
+import { useAuth } from "../hooks/useAuth";
+import api from "../utils/api";
 
 export default function SeekerDashboard() {
-  const [user, setUser] = useState(null);
+  const { user, isAuthenticated } = useAuth();
   const [resumeUploaded, setResumeUploaded] = useState(false);
   const [profileCompleted, setProfileCompleted] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const userData = JSON.parse(storedUser);
-      if (userData.role === "job-seeker") {
-        setUser(userData);
-        
-        // Check if profile is completed
-        const profileKey = `${userData.email}_profile`;
-        const profile = JSON.parse(localStorage.getItem(profileKey)) || {};
-        const isProfileComplete = profile.experienceLevel && profile.preferredRole && profile.skills;
-        setProfileCompleted(isProfileComplete);
-      } else {
-        navigate("/provider-dashboard");
+    const checkProfile = async () => {
+      if (isAuthenticated && user) {
+        if (user.role === "seeker") {
+          try {
+            const res = await api.get("/seeker/profile");
+            const profile = res.data;
+            const isProfileComplete = profile && profile.skills && profile.experience;
+            setProfileCompleted(!!isProfileComplete);
+          } catch (err) {
+            console.error("Error checking profile:", err);
+          }
+        } else if (user.role === "provider") {
+          navigate("/provider-dashboard");
+        }
+      } else if (!isAuthenticated && !localStorage.getItem("access_token")) {
+        navigate("/");
       }
-    } else {
-      navigate("/");
-    }
-  }, [navigate]);
+    };
+    checkProfile();
+  }, [isAuthenticated, user, navigate]);
 
 
 
@@ -50,7 +54,7 @@ export default function SeekerDashboard() {
           <div className="hidden md:block">
             <ProfileCompletion user={user} onProfileComplete={() => setProfileCompleted(true)} />
           </div>
-          
+
           {profileCompleted && (
             <>
               <div className="hidden md:block">

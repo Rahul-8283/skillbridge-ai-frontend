@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, Loader2 } from "lucide-react";
+import api from "../../utils/api";
+import { toast } from "react-toastify";
 
 export default function PostJobPage() {
   const navigate = useNavigate();
@@ -24,7 +26,9 @@ export default function PostJobPage() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Validate form
@@ -37,38 +41,32 @@ export default function PostJobPage() {
       !formData.location ||
       !formData.deadline
     ) {
-      alert("Please fill in all fields");
+      toast.error("Please fill in all fields");
       return;
     }
 
-    // Get current user
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user) {
-      alert("You must be logged in to post a job");
-      navigate("/login");
-      return;
+    setSubmitting(true);
+    try {
+      const payload = {
+        title: formData.jobTitle,
+        company: formData.companyName,
+        description: formData.description,
+        location: formData.location,
+        salary: formData.salary,
+        type: formData.jobType === "full-time" ? "Full-time" : (formData.jobType === "part-time" ? "Part-time" : (formData.jobType === "internship" ? "Internship" : "Contract")),
+        skillsRequired: formData.requirements.split('\n').filter(Boolean)
+      };
+      const res = await api.post("/jobs/post", payload);
+      if (res.status === "success") {
+        toast.success("Job posted successfully!");
+        navigate("/provider-dashboard");
+      }
+    } catch (err) {
+      console.error("Error posting job:", err);
+      toast.error(err.message || "Failed to post job. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
-
-    // Create job posting object
-    const newJob = {
-      id: Date.now().toString(),
-      ...formData,
-      postedBy: user.email,
-      postedDate: new Date().toISOString(),
-      status: "active",
-    };
-
-    // Get existing job postings
-    let jobPostings = JSON.parse(localStorage.getItem("jobPostings")) || [];
-
-    // Add new job
-    jobPostings.push(newJob);
-
-    // Save to localStorage
-    localStorage.setItem("jobPostings", JSON.stringify(jobPostings));
-
-    alert("Job posted successfully!");
-    navigate("/provider-dashboard");
   };
 
   return (
@@ -243,10 +241,15 @@ export default function PostJobPage() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full px-6 py-4 bg-gradient-to-b from-blue-600 to-blue-400 rounded-lg font-semibold flex items-center justify-center space-x-2 hover:from-blue-700 hover:to-blue-500 transition-all"
+              disabled={submitting}
+              className="w-full px-6 py-4 bg-gradient-to-b from-blue-600 to-blue-400 rounded-lg font-semibold flex items-center justify-center space-x-2 hover:from-blue-700 hover:to-blue-500 transition-all disabled:opacity-50"
             >
-              <Plus className="w-5 h-5" />
-              <span>Post Job</span>
+              {submitting ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <Plus className="w-5 h-5" />
+              )}
+              <span>{submitting ? "Posting..." : "Post Job"}</span>
             </button>
           </form>
         </div>

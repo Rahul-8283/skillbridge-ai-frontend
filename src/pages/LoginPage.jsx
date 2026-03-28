@@ -1,65 +1,69 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogIn } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
+import { useAuth } from "../hooks/useAuth";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [localError, setLocalError] = useState("");
+  const passwordRef = useRef(null);
   const navigate = useNavigate();
+  const { login, isLoading, error: authError, user, isAuthenticated } = useAuth();
 
-  const handleSubmit = (e) => {
+  // Navigate after successful login
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const dashboard = user.role === "seeker" ? "/seeker-dashboard" : "/provider-dashboard";
+      if (window.innerWidth >= 768) {
+        toast.success(`Welcome ${user.name}! Redirecting to your dashboard...`);
+      }
+      navigate(dashboard);
+    }
+  }, [isAuthenticated, user, navigate]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLocalError("");
 
-    if (!email || !password) {
-      alert("Email and password are required");
+    if (!email) {
+      const err = "Please enter your email address.";
+      setLocalError(err);
       return;
     }
 
-    // Get registered users from localStorage
-    const registeredUsersStr = localStorage.getItem("registeredUsers");
-    const registeredUsers = registeredUsersStr ? JSON.parse(registeredUsersStr) : [];
+    // Call backend API via authStore hook
+    const result = await login(email, password);
 
-    // Check if user exists in registered users
-    const userExists = registeredUsers.find((user) => user.email === email);
-
-    if (!userExists) {
-      alert("User not found. Please sign up first.");
-      return;
+    if (!result.success) {
+      const errorMsg = result.error || "Login failed. Please try again.";
+      setLocalError(errorMsg);
     }
-
-    // Validate password
-    if (userExists.password !== password) {
-      alert("Invalid password. Please try again.");
-      return;
-    }
-
-    // Set current user as logged in
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        name: userExists.name,
-        email: userExists.email,
-        role: userExists.role,
-      })
-    );
-
-    // Navigate to appropriate dashboard based on role
-    navigate(userExists.role === "job-seeker" ? "/seeker-dashboard" : "/provider-dashboard");
+    // If successful, the useEffect above will handle the navigation
   };
+
+  const displayError = localError || authError;
 
   return (
     <div className="min-h-screen bg-slate-950 text-white pt-20 flex items-center justify-center px-4">
       <motion.div className="max-w-md w-full"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        translate={{ duration: 1.1 }}
+        transition={{ duration: 0.6 }}
       > 
         <div className="bg-slate-900 rounded-2xl p-8 border border-slate-800">
           <div className="flex items-center justify-center space-x-3 mb-8">
             <LogIn className="w-8 h-8 text-blue-400" />
             <h1 className="text-3xl font-bold text-blue-400">Sign In</h1>
           </div>
+
+          {displayError && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
+              {displayError}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
@@ -71,7 +75,14 @@ export default function LoginPage() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-slate-800 text-white placeholder-gray-500 px-4 py-3 rounded-lg border border-slate-700 focus:border-blue-400 focus:outline-none transition-colors"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    passwordRef.current?.focus();
+                  }
+                }}
+                disabled={isLoading}
+                className="w-full bg-slate-800 text-white placeholder-gray-500 px-4 py-3 rounded-lg border border-slate-700 focus:border-blue-400 focus:outline-none transition-colors disabled:opacity-50"
               />
             </div>
 
@@ -81,18 +92,21 @@ export default function LoginPage() {
               </label>
               <input
                 type="password"
+                ref={passwordRef}
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-800 text-white placeholder-gray-500 px-4 py-3 rounded-lg border border-slate-700 focus:border-blue-400 focus:outline-none transition-colors"
+                disabled={isLoading}
+                className="w-full bg-slate-800 text-white placeholder-gray-500 px-4 py-3 rounded-lg border border-slate-700 focus:border-blue-400 focus:outline-none transition-colors disabled:opacity-50"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-all duration-300"
+              disabled={isLoading}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white font-semibold py-3 rounded-lg transition-all duration-300 disabled:cursor-not-allowed"
             >
-              Sign In
+              {isLoading ? "Signing in..." : "Sign In"}
             </button>
           </form>
 
@@ -100,7 +114,8 @@ export default function LoginPage() {
             Don't have an account?{" "}
             <button
               onClick={() => navigate("/signup")}
-              className="text-blue-400 hover:text-blue-300 font-semibold"
+              disabled={isLoading}
+              className="text-blue-400 hover:text-blue-300 font-semibold disabled:opacity-50"
             >
               Sign up here
             </button>

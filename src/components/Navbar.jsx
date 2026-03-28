@@ -2,38 +2,27 @@ import { Menu, X, LogIn, LogOut, UserPlus } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 export default function Navbar({ scrolled }) {
   const [mobileMenuIsOpen, setMobileMenuIsOpen] = useState(false);
-  const [user, setUser] = useState(null);
+  const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const userThere = user;
-
-  // Update user state when location changes or component mounts
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if(storedUser){
-      setUser(JSON.parse(storedUser));
-    } 
-    else {
-      setUser(null);
-    }
-  }, [location]);
+  const userThere = isAuthenticated && user;
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    setUser(null);
+    logout();
     navigate("/");
   };
 
   const handleDashboard = () => {
-    if (!user) {
+    if (!userThere) {
       alert("Please sign in to access your dashboard");
       navigate("/login");
       return;
     }
-    const dashboardRoute = user.role === "job-seeker" ? "/seeker-dashboard" : "/provider-dashboard";
+    const dashboardRoute = user.role === "seeker" ? "/seeker-dashboard" : "/provider-dashboard";
     navigate(dashboardRoute);
   };
 
@@ -177,9 +166,9 @@ export default function Navbar({ scrolled }) {
                     className="w-full flex items-center space-x-3 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
                   >
                     <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                      {user.name.charAt(0).toUpperCase()}
+                      {user?.name?.charAt(0).toUpperCase()}
                     </div>
-                    <span className="text-gray-300 text-left">{user.name}</span>
+                    <span className="text-gray-300 text-left">{user?.name}</span>
                   </button>
                   <button
                     onClick={() => {

@@ -15,7 +15,7 @@ export default function ProfileCompletion({ user, onProfileComplete }) {
       if (storedProfile) {
         const profile = JSON.parse(storedProfile);
         setProfileData(profile);
-        
+
         // Calculate completion percentage
         const fields = ["resume", "skills", "experience"];
         const filledFields = fields.filter((field) => profile[field] && profile[field].trim().length > 0);

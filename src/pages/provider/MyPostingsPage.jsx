@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Trash2, Edit2, Eye, Calendar, Briefcase, MapPin, DollarSign, X } from "lucide-react";
+import { ArrowLeft, Trash2, Edit2, Eye, Calendar, Briefcase, MapPin, DollarSign, X, Loader2 } from "lucide-react";
+import api from "../../utils/api";
+import { toast } from "react-toastify";
 
 export default function MyPostingsPage() {
   const navigate = useNavigate();
@@ -13,41 +15,45 @@ export default function MyPostingsPage() {
     loadPostings();
   }, []);
 
-  const loadPostings = () => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user) {
-      navigate("/login");
-      return;
-    }
+  const [loading, setLoading] = useState(false);
 
-    const allPostings = JSON.parse(localStorage.getItem("jobPostings")) || [];
-    const userPostings = allPostings.filter((job) => job.postedBy === user.email);
-    setPostings(userPostings);
+  const loadPostings = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get("/provider/my-jobs");
+      const myJobs = res.data || [];
+      setPostings(myJobs);
+    } catch (err) {
+      console.error("Error loading postings:", err);
+      toast.error("Failed to load job postings");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const deletePosting = (jobId) => {
+  const deletePosting = async (jobId) => {
     if (window.confirm("Are you sure you want to delete this job posting?")) {
-      const allPostings = JSON.parse(localStorage.getItem("jobPostings")) || [];
-      const updatedPostings = allPostings.filter((job) => job.id !== jobId);
-      localStorage.setItem("jobPostings", JSON.stringify(updatedPostings));
-      loadPostings();
-      alert("Job posting deleted successfully!");
+      try {
+        await api.delete(`/jobs/${jobId}`);
+        toast.success("Job posting deleted successfully!");
+        loadPostings();
+      } catch (err) {
+        console.error("Error deleting posting:", err);
+        toast.error("Failed to delete job posting");
+      }
     }
   };
 
-  const toggleStatus = (jobId) => {
-    const allPostings = JSON.parse(localStorage.getItem("jobPostings")) || [];
-    const updated = allPostings.map((job) => {
-      if (job.id === jobId) {
-        return {
-          ...job,
-          status: job.status === "active" ? "closed" : "active",
-        };
-      }
-      return job;
-    });
-    localStorage.setItem("jobPostings", JSON.stringify(updated));
-    loadPostings();
+  const toggleStatus = async (jobId, currentStatus) => {
+    try {
+      const newStatus = currentStatus === "active" ? "closed" : "active";
+      await api.put(`/jobs/${jobId}`, { status: newStatus });
+      toast.success(`Job ${newStatus === "active" ? "reopened" : "closed"} successfully!`);
+      loadPostings();
+    } catch (err) {
+      console.error("Error toggling status:", err);
+      toast.error("Failed to update job status");
+    }
   };
 
   const getStatusColor = (status) => {
@@ -84,19 +90,17 @@ export default function MyPostingsPage() {
     }));
   };
 
-  const handleSaveEdit = () => {
-    const allPostings = JSON.parse(localStorage.getItem("jobPostings")) || [];
-    const updated = allPostings.map((job) => {
-      if (job.id === editingJob.id) {
-        return editFormData;
-      }
-      return job;
-    });
-    localStorage.setItem("jobPostings", JSON.stringify(updated));
-    loadPostings();
-    setEditingJob(null);
-    setEditFormData(null);
-    alert("Job posting updated successfully!");
+  const handleSaveEdit = async () => {
+    try {
+      await api.put(`/jobs/${editingJob._id}`, editFormData);
+      toast.success("Job posting updated successfully!");
+      setEditingJob(null);
+      setEditFormData(null);
+      loadPostings();
+    } catch (err) {
+      console.error("Error updating posting:", err);
+      toast.error("Failed to update job posting");
+    }
   };
 
   return (
@@ -136,11 +140,10 @@ export default function MyPostingsPage() {
               <button
                 key={tab}
                 onClick={() => setFilter(tab)}
-                className={`px-4 py-2 rounded-lg font-medium transition-all capitalize ${
-                  filter === tab
+                className={`px-4 py-2 rounded-lg font-medium transition-all capitalize ${filter === tab
                     ? "bg-blue-600 text-white"
                     : "bg-slate-800 text-gray-400 hover:bg-slate-700"
-                }`}
+                  }`}
               >
                 {tab} ({postings.filter((p) => tab === "all" || p.status === tab).length})
               </button>
@@ -156,16 +159,16 @@ export default function MyPostingsPage() {
             <div className="space-y-6">
               {filteredPostings.map((posting) => (
                 <div
-                  key={posting.id}
+                  key={posting._id}
                   className="bg-slate-900 rounded-xl p-6 border border-slate-800 hover:border-blue-500/50 transition-all"
                 >
                   {/* Top Row */}
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
                     <div>
                       <h3 className="text-2xl font-bold mb-1">
-                        {posting.jobTitle}
+                        {posting.title}
                       </h3>
-                      <p className="text-gray-400">{posting.companyName}</p>
+                      <p className="text-gray-400">{posting.company}</p>
                     </div>
                     <div
                       className={`px-4 py-2 rounded-full border text-sm font-semibold ${getStatusColor(
@@ -193,13 +196,13 @@ export default function MyPostingsPage() {
                     <div className="flex items-center space-x-2">
                       <Briefcase className="w-4 h-4 text-purple-400" />
                       <span className="text-sm text-gray-300 capitalize">
-                        {posting.jobType}
+                        {posting.type}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Calendar className="w-4 h-4 text-blue-400" />
                       <span className="text-sm text-gray-300">
-                        Posted {formatDate(posting.postedDate)}
+                        Posted {formatDate(posting.createdAt)}
                       </span>
                     </div>
                   </div>
@@ -235,17 +238,16 @@ export default function MyPostingsPage() {
                       <span>Edit</span>
                     </button>
                     <button
-                      onClick={() => toggleStatus(posting.id)}
-                      className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-                        posting.status === "active"
+                      onClick={() => toggleStatus(posting._id, posting.status)}
+                      className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${posting.status === "active"
                           ? "bg-red-600/20 hover:bg-red-600/30 border border-red-500/30 text-red-300"
                           : "bg-green-600/20 hover:bg-green-600/30 border border-green-500/30 text-green-300"
-                      }`}
+                        }`}
                     >
                       {posting.status === "active" ? "Close Posting" : "Reopen"}
                     </button>
                     <button
-                      onClick={() => deletePosting(posting.id)}
+                      onClick={() => deletePosting(posting._id)}
                       className="px-4 py-2 bg-red-600/20 hover:bg-red-600/30 border border-red-500/30 rounded-lg font-medium text-sm flex items-center space-x-2 transition-colors text-red-300"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -295,8 +297,8 @@ export default function MyPostingsPage() {
                 <label className="block text-sm font-semibold mb-3">Job Title</label>
                 <input
                   type="text"
-                  name="jobTitle"
-                  value={editFormData?.jobTitle || ""}
+                  name="title"
+                  value={editFormData?.title || ""}
                   onChange={handleEditChange}
                   className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
                 />
@@ -307,8 +309,8 @@ export default function MyPostingsPage() {
                 <label className="block text-sm font-semibold mb-3">Company Name</label>
                 <input
                   type="text"
-                  name="companyName"
-                  value={editFormData?.companyName || ""}
+                  name="company"
+                  value={editFormData?.company || ""}
                   onChange={handleEditChange}
                   className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
                 />
@@ -330,8 +332,8 @@ export default function MyPostingsPage() {
               <div>
                 <label className="block text-sm font-semibold mb-3">Requirements</label>
                 <textarea
-                  name="requirements"
-                  value={editFormData?.requirements || ""}
+                  name="skillsRequired"
+                  value={Array.isArray(editFormData?.skillsRequired) ? editFormData.skillsRequired.join('\n') : (editFormData?.skillsRequired || "")}
                   onChange={handleEditChange}
                   rows="3"
                   className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none transition-colors resize-none"
@@ -384,15 +386,16 @@ export default function MyPostingsPage() {
                 <div>
                   <label className="block text-sm font-semibold mb-3">Job Type</label>
                   <select
-                    name="jobType"
-                    value={editFormData?.jobType || "full-time"}
+                    name="type"
+                    value={editFormData?.type || "Full-time"}
                     onChange={handleEditChange}
                     className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
                   >
-                    <option value="full-time">Full Time</option>
-                    <option value="part-time">Part Time</option>
-                    <option value="contract">Contract</option>
-                    <option value="internship">Internship</option>
+                    <option value="Full-time">Full Time</option>
+                    <option value="Part-time">Part Time</option>
+                    <option value="Contract">Contract</option>
+                    <option value="Internship">Internship</option>
+                    <option value="Remote">Remote</option>
                   </select>
                 </div>
               </div>

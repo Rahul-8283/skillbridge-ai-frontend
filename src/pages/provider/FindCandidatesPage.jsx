@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, User, Mail, MapPin, Briefcase, GraduationCap, CheckCircle, XCircle, Eye } from "lucide-react";
+import api from "../../utils/api";
+import { toast } from "react-toastify";
 import Footer from "../../components/Footer";
 
 export default function FindCandidatesPage() {
@@ -16,85 +18,49 @@ export default function FindCandidatesPage() {
     loadCandidates();
   }, []);
 
-  const loadCandidates = () => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    
-    // Get all registered users who are job seekers
-    const registeredUsers = JSON.parse(localStorage.getItem("registeredUsers")) || [];
-    const seekers = registeredUsers.filter((u) => u.role === "job-seeker");
+  const [loading, setLoading] = useState(false);
 
-    // Get hired and rejected candidates for this provider from storage
-    const hiredCandidatesStorage = JSON.parse(localStorage.getItem("hiredCandidates")) || [];
-    const rejectedCandidatesStorage = JSON.parse(localStorage.getItem("rejectedCandidates")) || [];
+  const loadCandidates = async () => {
+    setLoading(true);
+    try {
+      // 1. Fetch provider profile to get status arrays
+      const profileRes = await api.get("/provider/profile");
+      const profile = profileRes.data || {};
+      const selectedEmails = new Set(profile.selectedCandidates || []);
+      const rejectedEmails = new Set(profile.rejectedCandidates || []);
 
-    const hiredEmails = new Set(
-      hiredCandidatesStorage
-        .filter((h) => h.providerId === user?.email)
-        .map((h) => h.candidateEmail)
-    );
-    const rejectedEmails = new Set(
-      rejectedCandidatesStorage
-        .filter((r) => r.providerId === user?.email)
-        .map((r) => r.candidateEmail)
-    );
+      // 2. Fetch all candidates
+      const candidatesRes = await api.get("/provider/candidates");
+      const enrichedCandidates = candidatesRes.data || [];
 
-    // Enrich with profile data
-    const enrichedCandidates = seekers.map((seeker) => {
-      const profileKey = `${seeker.email}_profile`;
-      const profile = JSON.parse(localStorage.getItem(profileKey)) || {};
-      return {
-        ...seeker,
-        profile,
-      };
-    });
+      // 3. Categorize candidates
+      const selected = enrichedCandidates.filter((c) => selectedEmails.has(c.email));
+      const rejected = enrichedCandidates.filter((c) => rejectedEmails.has(c.email));
+      const unviewed = enrichedCandidates.filter(
+        (c) => !selectedEmails.has(c.email) && !rejectedEmails.has(c.email)
+      );
 
-    // Categorize candidates
-    const selected = enrichedCandidates.filter((c) => hiredEmails.has(c.email));
-    const rejected = enrichedCandidates.filter((c) => rejectedEmails.has(c.email));
-    const unviewed = enrichedCandidates.filter(
-      (c) => !hiredEmails.has(c.email) && !rejectedEmails.has(c.email)
-    );
-
-    setAllCandidates(enrichedCandidates);
-    setSelectedCandidates(selected);
-    setRejectedCandidates(rejected);
-    setUnviewedCandidates(unviewed);
+      setAllCandidates(enrichedCandidates);
+      setSelectedCandidates(selected);
+      setRejectedCandidates(rejected);
+      setUnviewedCandidates(unviewed);
+    } catch (err) {
+      console.error("Error loading candidates:", err);
+      toast.error("Failed to load candidates");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const updateCandidateStatus = (candidateEmail, newStatus) => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    const hiredCandidatesStorage = JSON.parse(localStorage.getItem("hiredCandidates")) || [];
-    const rejectedCandidatesStorage = JSON.parse(localStorage.getItem("rejectedCandidates")) || [];
-
-    // Remove from hired list
-    const filteredHired = hiredCandidatesStorage.filter(
-      (h) => !(h.candidateEmail === candidateEmail && h.providerId === user.email)
-    );
-
-    // Remove from rejected list
-    const filteredRejected = rejectedCandidatesStorage.filter(
-      (r) => !(r.candidateEmail === candidateEmail && r.providerId === user.email)
-    );
-
-    // Add to appropriate list based on new status
-    if (newStatus === "selected") {
-      filteredHired.push({
-        providerId: user.email,
-        candidateEmail,
-        hiredDate: new Date().toISOString(),
-      });
-    } else if (newStatus === "rejected") {
-      filteredRejected.push({
-        providerId: user.email,
-        candidateEmail,
-        rejectedDate: new Date().toISOString(),
-      });
+  const updateCandidateStatus = async (candidateEmail, newStatus) => {
+    try {
+      await api.put("/provider/candidates/status", { candidateEmail, status: newStatus });
+      toast.success(`Candidate moved to ${newStatus}`);
+      loadCandidates();
+    } catch (err) {
+      console.error("Error updating candidate status:", err);
+      toast.error("Failed to update candidate status");
     }
-
-    localStorage.setItem("hiredCandidates", JSON.stringify(filteredHired));
-    localStorage.setItem("rejectedCandidates", JSON.stringify(filteredRejected));
-
-    loadCandidates();
   };
 
   const handleSearch = (e) => {
@@ -196,33 +162,30 @@ export default function FindCandidatesPage() {
       <div className="flex gap-2 mt-6">
         <button
           onClick={() => updateCandidateStatus(candidate.email, "selected")}
-          className={`flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center justify-center space-x-2 ${
-            status === "selected"
+          className={`flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center justify-center space-x-2 ${status === "selected"
               ? "bg-green-600/20 border border-green-500/30 text-green-300 cursor-default"
               : "bg-green-600 hover:bg-green-700 text-white"
-          }`}
+            }`}
         >
           <CheckCircle className="w-4 h-4" />
           <span>Select</span>
         </button>
         <button
           onClick={() => updateCandidateStatus(candidate.email, "rejected")}
-          className={`flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center justify-center space-x-2 ${
-            status === "rejected"
+          className={`flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center justify-center space-x-2 ${status === "rejected"
               ? "bg-red-600/20 border border-red-500/30 text-red-300 cursor-default"
               : "bg-red-600 hover:bg-red-700 text-white"
-          }`}
+            }`}
         >
           <XCircle className="w-4 h-4" />
           <span>Reject</span>
         </button>
         <button
           onClick={() => updateCandidateStatus(candidate.email, "unviewed")}
-          className={`flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center justify-center space-x-2 ${
-            status === "unviewed"
+          className={`flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center justify-center space-x-2 ${status === "unviewed"
               ? "bg-gray-600/20 border border-gray-500/30 text-gray-300 cursor-default"
               : "bg-gray-600 hover:bg-gray-700 text-white"
-          }`}
+            }`}
         >
           <Eye className="w-4 h-4" />
           <span>Clear</span>
@@ -269,31 +232,28 @@ export default function FindCandidatesPage() {
           <div className="flex items-center space-x-4 flex-wrap">
             <button
               onClick={() => setActiveTab("unviewed")}
-              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                activeTab === "unviewed"
+              className={`px-6 py-2 rounded-lg font-medium transition-colors ${activeTab === "unviewed"
                   ? "bg-blue-600 text-white"
                   : "bg-slate-800 text-gray-300 hover:bg-slate-700"
-              }`}
+                }`}
             >
               Unviewed ({filterCandidates(unviewedCandidates).length})
             </button>
             <button
               onClick={() => setActiveTab("selected")}
-              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                activeTab === "selected"
+              className={`px-6 py-2 rounded-lg font-medium transition-colors ${activeTab === "selected"
                   ? "bg-blue-600 text-white"
                   : "bg-slate-800 text-gray-300 hover:bg-slate-700"
-              }`}
+                }`}
             >
               Selected ({filterCandidates(selectedCandidates).length})
             </button>
             <button
               onClick={() => setActiveTab("rejected")}
-              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                activeTab === "rejected"
+              className={`px-6 py-2 rounded-lg font-medium transition-colors ${activeTab === "rejected"
                   ? "bg-blue-600 text-white"
                   : "bg-slate-800 text-gray-300 hover:bg-slate-700"
-              }`}
+                }`}
             >
               Rejected ({filterCandidates(rejectedCandidates).length})
             </button>

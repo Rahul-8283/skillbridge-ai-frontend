@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { trackLearningActivity } from "../../utils/learningActivityUtils.js";
+import { useLearning } from "../../hooks/useLearning";
 import {
   ArrowLeft,
   BookOpen,
@@ -13,93 +14,36 @@ import Footer from "../../components/Footer";
 
 export default function LearningPlanPage() {
   const navigate = useNavigate();
+  const { currentPlan, learningPlans, isLoading } = useLearning();
   const [learningPlan, setLearningPlan] = useState(null);
   const [completedModules, setCompletedModules] = useState([]);
 
   useEffect(() => {
-    loadLearningPlan();
-  }, []);
+    // If we have a currentPlan (freshly generated), use it.
+    // Otherwise, find the latest plan from the user's list.
+    const activePlan = currentPlan || (learningPlans && learningPlans.length > 0 ? learningPlans[0] : null);
 
-  const loadLearningPlan = () => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user) {
-      navigate("/login");
-      return;
+    if (activePlan) {
+      const roadmap = activePlan;
+      const mappedPlan = {
+        currentLevel: "Beginner",
+        targetRole: roadmap.targetRole || `Learning Path`,
+        completionTime: roadmap.overallDays ? `${Math.round(roadmap.overallDays)} days` : (roadmap.overall_days ? `${Math.round(roadmap.overall_days)} days` : "Unknown"),
+        modules: roadmap.skills ? roadmap.skills.map((skill, index) => ({
+          id: index + 1,
+          title: skill.keyword || `Module ${index + 1}`,
+          duration: skill.total_days ? `${Math.round(skill.total_days)} days` : "Unknown",
+          lessons: skill.roadmap ? skill.roadmap.length : 0,
+          description: skill.summary || "Guided steps to learn this skill.",
+          difficulty: "intermediate",
+          topics: skill.roadmap || [],
+          videoUrl: skill.video_url || skill.videoUrl,
+          githubUrl: skill.github_url || skill.githubUrl
+        })) : []
+      };
+      setLearningPlan(mappedPlan);
     }
-
-    // Load completed modules
-    const completed =
-      JSON.parse(localStorage.getItem(`${user.email}_completed_modules`)) || [];
-    setCompletedModules(completed);
-
-    // Create personalized learning plan based on profile
-    const profileKey = `${user.email}_profile`;
-    const profile = JSON.parse(localStorage.getItem(profileKey)) || {};
-
-    const mockPlan = {
-      currentLevel: profile.experienceLevel || "intermediate",
-      targetRole: profile.preferredRole || "Full Stack Developer",
-      completionTime: "12 weeks",
-      modules: [
-        {
-          id: 1,
-          title: "JavaScript Advanced Concepts",
-          duration: "2 weeks",
-          lessons: 12,
-          description: "Master closures, async/await, and modern JS features",
-          difficulty: "intermediate",
-          topics: ["Closures", "Promises", "Async/Await", "Generators"],
-        },
-        {
-          id: 2,
-          title: "React Deep Dive",
-          duration: "3 weeks",
-          lessons: 18,
-          description: "Advanced React patterns and performance optimization",
-          difficulty: "intermediate",
-          topics: ["Hooks", "Context API", "Performance", "State Management"],
-        },
-        {
-          id: 3,
-          title: "Node.js & Express Backend",
-          duration: "3 weeks",
-          lessons: 15,
-          description: "Build scalable server-side applications",
-          difficulty: "intermediate",
-          topics: ["Express", "Middleware", "REST APIs", "Authentication"],
-        },
-        {
-          id: 4,
-          title: "Database Design & SQL",
-          duration: "2 weeks",
-          lessons: 14,
-          description: "SQL optimization and database design patterns",
-          difficulty: "intermediate",
-          topics: ["SQL Queries", "Indexes", "Transactions", "Performance"],
-        },
-        {
-          id: 5,
-          title: "System Design",
-          duration: "2 weeks",
-          lessons: 10,
-          description: "Design scalable systems for production",
-          difficulty: "advanced",
-          topics: ["Architecture", "Scalability", "Caching", "Microservices"],
-        },
-        {
-          id: 6,
-          title: "DevOps & Deployment",
-          duration: "2 weeks",
-          lessons: 11,
-          description: "CI/CD pipelines and cloud deployment",
-          difficulty: "advanced",
-          topics: ["Docker", "Kubernetes", "CI/CD", "AWS/GCP"],
-        },
-      ],
-    };
-
-    setLearningPlan(mockPlan);
-  };
+  }, [currentPlan, learningPlans]);
 
   const toggleModuleComplete = (moduleId) => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -113,11 +57,6 @@ export default function LearningPlanPage() {
     }
 
     setCompletedModules(newCompleted);
-    localStorage.setItem(
-      `${user.email}_completed_modules`,
-      JSON.stringify(newCompleted)
-    );
-
     // Track learning activity
     trackLearningActivity(user.email);
   };
@@ -156,13 +95,46 @@ export default function LearningPlanPage() {
           </div>
         </div>
 
+        <div className="mb-6">
+          <p className="text-gray-400 text-sm font-semibold mb-3">Resources:</p>
+          <div className="flex flex-wrap gap-3">
+            {module.videoUrl && (
+              <a
+                href={module.videoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-2 px-4 py-2 bg-red-500/10 border border-red-500/30 rounded-lg text-xs text-red-400 hover:bg-red-500/20 transition-all font-semibold"
+              >
+                <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                <span>Watch Tutorial</span>
+              </a>
+            )}
+            {module.githubUrl && (
+              <a
+                href={module.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-2 px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs text-gray-300 hover:bg-slate-700 transition-all font-semibold"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
+                </svg>
+                <span>GitHub Repo</span>
+              </a>
+            )}
+            {!module.videoUrl && !module.githubUrl && (
+              <span className="text-gray-500 text-xs italic">No external resource links provided</span>
+            )}
+          </div>
+        </div>
+
         <div className="mb-4">
-          <p className="text-gray-400 text-sm font-semibold mb-2">Topics:</p>
+          <p className="text-gray-400 text-sm font-semibold mb-2">Curriculum Topics:</p>
           <div className="flex flex-wrap gap-2">
             {module.topics.map((topic, index) => (
               <span
                 key={index}
-                className="px-3 py-1 bg-blue-500/10 border border-blue-500/30 rounded-full text-xs text-blue-400"
+                className="px-3 py-1 bg-blue-500/5 border border-blue-500/20 rounded-full text-[10px] text-blue-300"
               >
                 {topic}
               </span>
@@ -184,12 +156,34 @@ export default function LearningPlanPage() {
     );
   };
 
-  if (!learningPlan) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center pb-20">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-blue-600 border-t-blue-400 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">Loading your learning plan...</p>
+          <p className="text-gray-400">Fetching your AI learning plan...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!learningPlan || !learningPlan.modules || learningPlan.modules.length === 0) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center pb-20">
+        <div className="max-w-md w-full p-8 bg-slate-900 border border-slate-800 rounded-2xl text-center">
+          <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <TrendingUp className="w-8 h-8 text-blue-400" />
+          </div>
+          <h2 className="text-2xl font-bold mb-2">No Learning Plan Found</h2>
+          <p className="text-gray-400 mb-8">
+            You haven't generated an AI learning roadmap yet. Find a job that interests you and we'll create a custom path for you!
+          </p>
+          <button
+            onClick={() => navigate("/seeker-dashboard/browse-jobs")}
+            className="w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all"
+          >
+            Browse Jobs to Start
+          </button>
         </div>
       </div>
     );
