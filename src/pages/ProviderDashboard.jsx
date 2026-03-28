@@ -16,42 +16,45 @@ export default function ProviderDashboard() {
   const [profile, setProfile] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (isAuthenticated && user) {
-        if (user.role === "provider") {
-          try {
-            // Fetch Profile
-            const profileRes = await api.get("/provider/profile");
-            const profileData = profileRes.data || {};
-            setProfile(profileData);
+  const fetchData = async () => {
+    if (isAuthenticated && user && user.role === "provider") {
+      try {
+        // Fetch Profile
+        const profileRes = await api.get("/provider/profile");
+        const profileData = profileRes.data || {};
+        setProfile(profileData);
 
-            // Fetch My Jobs
-            const jobsRes = await api.get("/provider/my-jobs");
-            const activeJobs = jobsRes.data.filter(j => j.status === 'active').length;
-            
-            // Fetch Candidates
-            const candidatesRes = await api.get("/provider/candidates");
-            const candidatesData = candidatesRes.data || [];
-            
-            setStats({
-              activeJobs,
-              totalCandidates: candidatesData.length,
-              hired: profileData.selectedCandidates?.length || 0
-            });
-            setCandidates(candidatesData);
+        // Fetch My Jobs
+        const jobsRes = await api.get("/provider/my-jobs");
+        const activeJobs = jobsRes.data.filter(j => j.status === 'active').length;
+        
+        // Fetch Candidates
+        const candidatesRes = await api.get("/provider/candidates");
+        const candidatesData = candidatesRes.data || [];
+        
+        setStats({
+          activeJobs,
+          totalCandidates: candidatesData.length,
+          hired: profileData.selectedCandidates?.length || 0
+        });
+        setCandidates(candidatesData);
 
-          } catch (err) {
-            console.error("Error fetching provider data:", err);
-          }
-        } else if (user.role === "seeker") {
-          navigate("/seeker-dashboard");
-        }
-      } else if (!isAuthenticated && !localStorage.getItem("access_token")) {
-        navigate("/");
+      } catch (err) {
+        console.error("Error fetching provider data:", err);
       }
-    };
-    fetchData();
+    }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      if (user.role === "provider") {
+        fetchData();
+      } else if (user.role === "seeker") {
+        navigate("/seeker-dashboard");
+      }
+    } else if (!isAuthenticated && !localStorage.getItem("access_token")) {
+      navigate("/");
+    }
   }, [isAuthenticated, user, navigate]);
 
 
@@ -67,7 +70,7 @@ export default function ProviderDashboard() {
           <ProviderHeader user={user} profile={profile} />
           <ProviderStats stats={stats} />
           <ProviderActions />
-          <ProviderCandidates candidates={candidates} />
+          <ProviderCandidates candidates={candidates} onStatusUpdate={fetchData} />
           <ProviderTips />
         </div>
       </div>

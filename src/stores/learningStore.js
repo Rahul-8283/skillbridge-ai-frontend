@@ -19,11 +19,14 @@ export const useLearningStore = create((set, get) => ({
         userId,
         jobId,
         hoursPerDay
+      }, {
+        timeout: 120000 // 2 minutes for AI generation
       });
 
+      const newPlan = response.data;
       set({
-        currentPlan: response,
-        learningPlans: [...get().learningPlans, response],
+        currentPlan: newPlan,
+        learningPlans: [...get().learningPlans, newPlan],
         isLoading: false,
       });
       return { success: true, plan: response };
@@ -37,8 +40,13 @@ export const useLearningStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await api.get(`/user/${userId}/learning-plans`);
-      set({ learningPlans: response, isLoading: false });
-      return { success: true, plans: response };
+      const plans = response.data || [];
+      set({ 
+        learningPlans: plans, 
+        currentPlan: get().currentPlan || (plans.length > 0 ? plans[0] : null),
+        isLoading: false 
+      });
+      return { success: true, plans };
     } catch (error) {
       set({ error: error.message, isLoading: false });
       return { success: false, error: error.message };

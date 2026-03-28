@@ -65,6 +65,7 @@ export default function UploadResumePage() {
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        timeout: 120000, // 2 minutes for AI analysis
       });
 
       if (res.status === "success") {
