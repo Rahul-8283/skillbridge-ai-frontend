@@ -39,7 +39,7 @@ export default function ProfilePage() {
           </motion.button>
 
           {/* Profile Form */}
-          {user.role === "job-seeker" ? (
+          {user.role === "seeker" ? (
             <SeekerProfileForm user={user} onSave={() => navigate(-1)} />
           ) : (
             <ProviderProfileForm user={user} onSave={() => navigate(-1)} />

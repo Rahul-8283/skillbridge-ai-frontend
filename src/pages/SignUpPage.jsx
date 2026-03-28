@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserPlus } from "lucide-react";
 import { motion } from "framer-motion";
@@ -13,7 +13,16 @@ export default function SignUpPage() {
   const [userType, setUserType] = useState("seeker");
   const [localError, setLocalError] = useState("");
   const navigate = useNavigate();
-  const { signup, isLoading, error: authError } = useAuth();
+  const { signup, isLoading, error: authError, user, isAuthenticated } = useAuth();
+
+  // Navigate after successful signup
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const dashboard = user.role === "seeker" ? "/seeker-dashboard" : "/provider-dashboard";
+      toast.success(`Welcome ${user.name}! Your account has been created.`);
+      navigate(dashboard);
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -43,15 +52,12 @@ export default function SignUpPage() {
     // Call backend API via authStore hook
     const result = await signup(email, password, fullName, userType);
 
-    if (result.success) {
-      toast.success("Account created successfully! Redirecting...");
-      // Backend set the token and user data, navigate to dashboard
-      navigate(userType === "seeker" ? "/seeker-dashboard" : "/provider-dashboard");
-    } else {
+    if (!result.success) {
       const errorMsg = result.error || "Sign up failed. Please try again.";
       setLocalError(errorMsg);
       toast.error(errorMsg);
     }
+    // If successful, the useEffect above will handle the navigation
   };
 
   const displayError = localError || authError;

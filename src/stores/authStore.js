@@ -41,7 +41,14 @@ export const useAuthStore = create((set, get) => ({
       localStorage.setItem("access_token", accessToken);
       localStorage.setItem("user", JSON.stringify(user));
 
-      set({ user, token: accessToken, isAuthenticated: true, isLoading: false });
+      // Use a functional update to ensure the new user data is correctly merged
+      set((state) => ({
+        ...state,
+        user,
+        token: accessToken,
+        isAuthenticated: true,
+        isLoading: false,
+      }));
       return { success: true, user };
     } catch (error) {
       set({ error: error.message, isLoading: false });

@@ -6,24 +6,23 @@ import ProviderStats from "../components/provider/ProviderStats.jsx";
 import ProviderActions from "../components/provider/ProviderActions.jsx";
 import ProviderCandidates from "../components/provider/ProviderCandidates.jsx";
 import ProviderTips from "../components/provider/ProviderTips.jsx";
+import { useAuth } from "../hooks/useAuth";
 
 export default function ProviderDashboard() {
-  const [user, setUser] = useState(null);
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const userData = JSON.parse(storedUser);
-      if (userData.role === "job-provider") {
-        setUser(userData);
-      } else {
+    if (isAuthenticated && user) {
+      if (user.role === "provider") {
+        // Provider specific logic if any
+      } else if (user.role === "seeker") {
         navigate("/seeker-dashboard");
       }
-    } else {
+    } else if (!isAuthenticated && !localStorage.getItem("access_token")) {
       navigate("/");
     }
-  }, [navigate]);
+  }, [isAuthenticated, user, navigate]);
 
 
 

@@ -40,7 +40,7 @@ export default function ProviderStats() {
     // Count total candidates (job seekers)
     const registeredUsers = JSON.parse(localStorage.getItem("registeredUsers")) || [];
     const totalCandidates = registeredUsers.filter(
-      (u) => u.role === "job-seeker"
+      (u) => u.role === "seeker"
     ).length;
 
     // Count hired candidates for this provider

@@ -21,7 +21,7 @@ export default function FindCandidatesPage() {
     
     // Get all registered users who are job seekers
     const registeredUsers = JSON.parse(localStorage.getItem("registeredUsers")) || [];
-    const seekers = registeredUsers.filter((u) => u.role === "job-seeker");
+    const seekers = registeredUsers.filter((u) => u.role === "seeker");
 
     // Get hired and rejected candidates for this provider from storage
     const hiredCandidatesStorage = JSON.parse(localStorage.getItem("hiredCandidates")) || [];

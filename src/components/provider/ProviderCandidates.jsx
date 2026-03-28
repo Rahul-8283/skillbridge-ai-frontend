@@ -12,7 +12,7 @@ export default function ProviderCandidates() {
   const loadCandidates = () => {
     // Get all registered users who are job seekers
     const registeredUsers = JSON.parse(localStorage.getItem("registeredUsers")) || [];
-    const seekers = registeredUsers.filter((u) => u.role === "job-seeker");
+    const seekers = registeredUsers.filter((u) => u.role === "seeker");
 
     // Enrich with profile data
     const enrichedCandidates = seekers.map((seeker) => {

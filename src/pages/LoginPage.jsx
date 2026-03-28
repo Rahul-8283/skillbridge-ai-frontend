@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogIn } from "lucide-react";
 import { motion } from "framer-motion";
@@ -9,8 +9,18 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState("");
+  const passwordRef = useRef(null);
   const navigate = useNavigate();
-  const { login, isLoading, error: authError } = useAuth();
+  const { login, isLoading, error: authError, user, isAuthenticated } = useAuth();
+
+  // Navigate after successful login
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const dashboard = user.role === "seeker" ? "/seeker-dashboard" : "/provider-dashboard";
+      toast.success(`Welcome ${user.name}! Redirecting to your dashboard...`);
+      navigate(dashboard);
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,15 +36,12 @@ export default function LoginPage() {
     // Call backend API via authStore hook
     const result = await login(email, password);
 
-    if (result.success) {
-      toast.success("Login successful! Redirecting...");
-      // Backend set the token and user data, navigate to dashboard
-      navigate(result.user?.role === "seeker" ? "/seeker-dashboard" : "/provider-dashboard");
-    } else {
+    if (!result.success) {
       const errorMsg = result.error || "Login failed. Please try again.";
       setLocalError(errorMsg);
       toast.error(errorMsg);
     }
+    // If successful, the useEffect above will handle the navigation
   };
 
   const displayError = localError || authError;
@@ -68,6 +75,12 @@ export default function LoginPage() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    passwordRef.current?.focus();
+                  }
+                }}
                 disabled={isLoading}
                 className="w-full bg-slate-800 text-white placeholder-gray-500 px-4 py-3 rounded-lg border border-slate-700 focus:border-blue-400 focus:outline-none transition-colors disabled:opacity-50"
               />
@@ -79,6 +92,7 @@ export default function LoginPage() {
               </label>
               <input
                 type="password"
+                ref={passwordRef}
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
