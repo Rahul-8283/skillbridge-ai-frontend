@@ -17,7 +17,9 @@ export default function LoginPage() {
   useEffect(() => {
     if (isAuthenticated && user) {
       const dashboard = user.role === "seeker" ? "/seeker-dashboard" : "/provider-dashboard";
-      toast.success(`Welcome ${user.name}! Redirecting to your dashboard...`);
+      if (window.innerWidth >= 768) {
+        toast.success(`Welcome ${user.name}! Redirecting to your dashboard...`);
+      }
       navigate(dashboard);
     }
   }, [isAuthenticated, user, navigate]);
@@ -26,10 +28,9 @@ export default function LoginPage() {
     e.preventDefault();
     setLocalError("");
 
-    if (!email || !password) {
-      const err = "Email and password are required";
+    if (!email) {
+      const err = "Please enter your email address.";
       setLocalError(err);
-      toast.error(err);
       return;
     }
 
@@ -39,7 +40,6 @@ export default function LoginPage() {
     if (!result.success) {
       const errorMsg = result.error || "Login failed. Please try again.";
       setLocalError(errorMsg);
-      toast.error(errorMsg);
     }
     // If successful, the useEffect above will handle the navigation
   };

@@ -19,7 +19,9 @@ export default function SignUpPage() {
   useEffect(() => {
     if (isAuthenticated && user) {
       const dashboard = user.role === "seeker" ? "/seeker-dashboard" : "/provider-dashboard";
-      toast.success(`Welcome ${user.name}! Your account has been created.`);
+      if (window.innerWidth >= 768) {
+        toast.success(`Welcome ${user.name}! Your account has been created.`);
+      }
       navigate(dashboard);
     }
   }, [isAuthenticated, user, navigate]);
@@ -31,21 +33,18 @@ export default function SignUpPage() {
     if (!fullName || !email || !password || !confirmPassword || !userType) {
       const err = "All fields are required";
       setLocalError(err);
-      toast.error(err);
       return;
     }
 
     if (password !== confirmPassword) {
       const err = "Passwords do not match";
       setLocalError(err);
-      toast.error(err);
       return;
     }
 
     if (password.length < 6) {
       const err = "Password must be at least 6 characters";
       setLocalError(err);
-      toast.error(err);
       return;
     }
 
@@ -55,7 +54,6 @@ export default function SignUpPage() {
     if (!result.success) {
       const errorMsg = result.error || "Sign up failed. Please try again.";
       setLocalError(errorMsg);
-      toast.error(errorMsg);
     }
     // If successful, the useEffect above will handle the navigation
   };
