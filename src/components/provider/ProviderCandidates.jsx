@@ -2,31 +2,7 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { User, Mail, MapPin, Briefcase, GraduationCap } from "lucide-react";
 
-export default function ProviderCandidates() {
-  const [candidates, setCandidates] = useState([]);
-
-  useEffect(() => {
-    loadCandidates();
-  }, []);
-
-  const loadCandidates = () => {
-    // Get all registered users who are job seekers
-    const registeredUsers = JSON.parse(localStorage.getItem("registeredUsers")) || [];
-    const seekers = registeredUsers.filter((u) => u.role === "seeker");
-
-    // Enrich with profile data
-    const enrichedCandidates = seekers.map((seeker) => {
-      const profileKey = `${seeker.email}_profile`;
-      const profile = JSON.parse(localStorage.getItem(profileKey)) || {};
-      return {
-        ...seeker,
-        profile,
-      };
-    });
-
-    setCandidates(enrichedCandidates);
-  };
-
+export default function ProviderCandidates({ candidates = [] }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -47,7 +23,7 @@ export default function ProviderCandidates() {
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center flex-shrink-0">
                   <User className="w-6 h-6" />
                 </div>
-                
+
                 <div className="flex-1">
                   <h3 className="font-semibold text-white">{candidate.name}</h3>
                   <p className="text-xs text-gray-400">{candidate.email}</p>

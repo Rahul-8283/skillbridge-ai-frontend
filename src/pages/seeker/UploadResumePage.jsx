@@ -4,6 +4,8 @@ import { ArrowLeft, Upload, FileText, CheckCircle, Loader2 } from "lucide-react"
 import Footer from "../../components/Footer";
 import api from "../../utils/api";
 import { toast } from "react-toastify";
+import { useLearning } from "../../hooks/useLearning";
+
 
 export default function UploadResumePage() {
   const navigate = useNavigate();
@@ -11,6 +13,23 @@ export default function UploadResumePage() {
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState(null);
+
+  const { generateLearningPlan } = useLearning();
+  const [roadmapLoading, setRoadmapLoading] = useState(null);
+
+  const handleGenerateRoadmap = async (jobId) => {
+    setRoadmapLoading(jobId);
+    try {
+      await generateLearningPlan(jobId, 2);
+      toast.success("Learning roadmap generated successfully!");
+      navigate("/learning-plan");
+    } catch(err) {
+      console.error(err);
+      toast.error("Failed to generate learning roadmap.");
+    } finally {
+      setRoadmapLoading(null);
+    }
+  };
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -48,11 +67,15 @@ export default function UploadResumePage() {
         },
       });
 
-      if (res.status === "success" && res.data.analysis) {
-        setAiAnalysis(res.data.analysis);
-        setUploadSuccess(true);
-        if (window.innerWidth >= 768) {
-          toast.success("Resume uploaded and analyzed successfully!");
+      if (res.status === "success") {
+        if (res.data.analysis) {
+          setAiAnalysis(res.data.analysis);
+          setUploadSuccess(true);
+          if (window.innerWidth >= 768) {
+            toast.success("Resume uploaded and analyzed successfully!");
+          }
+        } else {
+          throw new Error("AI analysis failed in the backend. Please try a different resume.");
         }
       }
     } catch (err) {
@@ -203,6 +226,24 @@ export default function UploadResumePage() {
                             <p className="text-sm text-gray-500 italic">None!</p>
                           )}
                         </div>
+                      </div>
+
+                      {/* Generate Roadmap Button */}
+                      <div className="mt-6 flex justify-end border-t border-slate-800 pt-4">
+                        <button
+                          onClick={() => handleGenerateRoadmap(match.job_id)}
+                          disabled={roadmapLoading === match.job_id}
+                          className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+                        >
+                          {roadmapLoading === match.job_id ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <span>Generating...</span>
+                            </>
+                          ) : (
+                            <span>Generate Learning Roadmap</span>
+                          )}
+                        </button>
                       </div>
                     </div>
                   )) : (

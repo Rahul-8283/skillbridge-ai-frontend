@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { trackLearningActivity } from "../../utils/learningActivityUtils.js";
+import { useLearning } from "../../hooks/useLearning";
 import {
   ArrowLeft,
   BookOpen,
@@ -15,10 +16,32 @@ export default function LearningPlanPage() {
   const navigate = useNavigate();
   const [learningPlan, setLearningPlan] = useState(null);
   const [completedModules, setCompletedModules] = useState([]);
+  
+  const { currentPlan } = useLearning();
 
   useEffect(() => {
-    loadLearningPlan();
-  }, []);
+    if (currentPlan && currentPlan.data) {
+      const roadmap = currentPlan.data;
+      const mappedPlan = {
+        currentLevel: "Beginner",
+        targetRole: `Matched Job Setup`,
+        completionTime: roadmap.overall_days ? `${Math.round(roadmap.overall_days)} days` : "Unknown",
+        modules: roadmap.skills ? roadmap.skills.map((skill, index) => ({
+          id: index + 1,
+          title: skill.keyword || `Missing Skill ${index + 1}`,
+          duration: skill.total_days ? `${Math.round(skill.total_days)} days` : "Unknown",
+          lessons: skill.roadmap ? skill.roadmap.length : 0,
+          description: skill.summary || "Guided steps to learn this missing skill.",
+          difficulty: "intermediate",
+          topics: skill.roadmap ? skill.roadmap.slice(0, 4) : []
+        })) : []
+      };
+      setLearningPlan(mappedPlan);
+    } else {
+      loadLearningPlan();
+    }
+  }, [currentPlan]);
+
 
   const loadLearningPlan = () => {
     const user = JSON.parse(localStorage.getItem("user"));

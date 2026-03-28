@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Trash2, Edit2, Eye, Calendar, Briefcase, MapPin, DollarSign, X, Loader2 } from "lucide-react";
 import api from "../../utils/api";
 import { toast } from "react-toastify";
@@ -18,12 +20,9 @@ export default function MyPostingsPage() {
   const loadPostings = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/jobs");
-      // Since we don't have a "my jobs" endpoint yet, we filter on client
-      // or implement the "postedBy" check on backend.
-      // For now, let's just show all jobs or filter by current user if we had user context.
-      const allJobs = res.data || [];
-      setPostings(allJobs);
+      const res = await api.get("/provider/my-jobs");
+      const myJobs = res.data || [];
+      setPostings(myJobs);
     } catch (err) {
       console.error("Error loading postings:", err);
       toast.error("Failed to load job postings");
@@ -141,11 +140,10 @@ export default function MyPostingsPage() {
               <button
                 key={tab}
                 onClick={() => setFilter(tab)}
-                className={`px-4 py-2 rounded-lg font-medium transition-all capitalize ${
-                  filter === tab
+                className={`px-4 py-2 rounded-lg font-medium transition-all capitalize ${filter === tab
                     ? "bg-blue-600 text-white"
                     : "bg-slate-800 text-gray-400 hover:bg-slate-700"
-                }`}
+                  }`}
               >
                 {tab} ({postings.filter((p) => tab === "all" || p.status === tab).length})
               </button>
@@ -168,9 +166,9 @@ export default function MyPostingsPage() {
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
                     <div>
                       <h3 className="text-2xl font-bold mb-1">
-                        {posting.jobTitle}
+                        {posting.title}
                       </h3>
-                      <p className="text-gray-400">{posting.companyName}</p>
+                      <p className="text-gray-400">{posting.company}</p>
                     </div>
                     <div
                       className={`px-4 py-2 rounded-full border text-sm font-semibold ${getStatusColor(
@@ -198,13 +196,13 @@ export default function MyPostingsPage() {
                     <div className="flex items-center space-x-2">
                       <Briefcase className="w-4 h-4 text-purple-400" />
                       <span className="text-sm text-gray-300 capitalize">
-                        {posting.jobType}
+                        {posting.type}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Calendar className="w-4 h-4 text-blue-400" />
                       <span className="text-sm text-gray-300">
-                        Posted {formatDate(posting.postedDate)}
+                        Posted {formatDate(posting.createdAt)}
                       </span>
                     </div>
                   </div>
@@ -241,11 +239,10 @@ export default function MyPostingsPage() {
                     </button>
                     <button
                       onClick={() => toggleStatus(posting._id, posting.status)}
-                      className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-                        posting.status === "active"
+                      className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${posting.status === "active"
                           ? "bg-red-600/20 hover:bg-red-600/30 border border-red-500/30 text-red-300"
                           : "bg-green-600/20 hover:bg-green-600/30 border border-green-500/30 text-green-300"
-                      }`}
+                        }`}
                     >
                       {posting.status === "active" ? "Close Posting" : "Reopen"}
                     </button>
@@ -300,8 +297,8 @@ export default function MyPostingsPage() {
                 <label className="block text-sm font-semibold mb-3">Job Title</label>
                 <input
                   type="text"
-                  name="jobTitle"
-                  value={editFormData?.jobTitle || ""}
+                  name="title"
+                  value={editFormData?.title || ""}
                   onChange={handleEditChange}
                   className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
                 />
@@ -312,8 +309,8 @@ export default function MyPostingsPage() {
                 <label className="block text-sm font-semibold mb-3">Company Name</label>
                 <input
                   type="text"
-                  name="companyName"
-                  value={editFormData?.companyName || ""}
+                  name="company"
+                  value={editFormData?.company || ""}
                   onChange={handleEditChange}
                   className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
                 />
@@ -335,8 +332,8 @@ export default function MyPostingsPage() {
               <div>
                 <label className="block text-sm font-semibold mb-3">Requirements</label>
                 <textarea
-                  name="requirements"
-                  value={editFormData?.requirements || ""}
+                  name="skillsRequired"
+                  value={Array.isArray(editFormData?.skillsRequired) ? editFormData.skillsRequired.join('\n') : (editFormData?.skillsRequired || "")}
                   onChange={handleEditChange}
                   rows="3"
                   className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none transition-colors resize-none"
@@ -389,15 +386,16 @@ export default function MyPostingsPage() {
                 <div>
                   <label className="block text-sm font-semibold mb-3">Job Type</label>
                   <select
-                    name="jobType"
-                    value={editFormData?.jobType || "full-time"}
+                    name="type"
+                    value={editFormData?.type || "Full-time"}
                     onChange={handleEditChange}
                     className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
                   >
-                    <option value="full-time">Full Time</option>
-                    <option value="part-time">Part Time</option>
-                    <option value="contract">Contract</option>
-                    <option value="internship">Internship</option>
+                    <option value="Full-time">Full Time</option>
+                    <option value="Part-time">Part Time</option>
+                    <option value="Contract">Contract</option>
+                    <option value="Internship">Internship</option>
+                    <option value="Remote">Remote</option>
                   </select>
                 </div>
               </div>

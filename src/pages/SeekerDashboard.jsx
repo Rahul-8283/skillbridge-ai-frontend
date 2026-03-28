@@ -54,7 +54,7 @@ export default function SeekerDashboard() {
           <div className="hidden md:block">
             <ProfileCompletion user={user} onProfileComplete={() => setProfileCompleted(true)} />
           </div>
-          
+
           {profileCompleted && (
             <>
               <div className="hidden md:block">

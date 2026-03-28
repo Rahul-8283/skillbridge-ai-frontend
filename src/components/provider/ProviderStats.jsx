@@ -15,47 +15,13 @@ const textColorMap = {
   amber: "text-amber-400",
 };
 
-export default function ProviderStats() {
-  const [stats, setStats] = useState([
-    { label: "Active Jobs", value: "0", color: "blue" },
-    { label: "Candidates", value: "0", color: "purple" },
+export default function ProviderStats({ stats = { activeJobs: 0, totalCandidates: 0, hired: 0 } }) {
+  const displayStats = [
+    { label: "Active Jobs", value: stats.activeJobs.toString(), color: "blue" },
+    { label: "Candidates", value: stats.totalCandidates.toString(), color: "purple" },
     { label: "Matches", value: "0", color: "green" },
-    { label: "Hired", value: "0", color: "amber" },
-  ]);
-
-  useEffect(() => {
-    loadStats();
-  }, []);
-
-  const loadStats = () => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user) return;
-
-    // Count active jobs posted by current provider
-    const allPostings = JSON.parse(localStorage.getItem("jobPostings")) || [];
-    const activeJobs = allPostings.filter(
-      (job) => job.postedBy === user.email && job.status === "active"
-    ).length;
-
-    // Count total candidates (job seekers)
-    const registeredUsers = JSON.parse(localStorage.getItem("registeredUsers")) || [];
-    const totalCandidates = registeredUsers.filter(
-      (u) => u.role === "seeker"
-    ).length;
-
-    // Count hired candidates for this provider
-    const hiredCandidates = JSON.parse(localStorage.getItem("hiredCandidates")) || [];
-    const hiredCount = hiredCandidates.filter(
-      (hire) => hire.providerId === user.email
-    ).length;
-
-    setStats([
-      { label: "Active Jobs", value: activeJobs.toString(), color: "blue" },
-      { label: "Candidates", value: totalCandidates.toString(), color: "purple" },
-      { label: "Matches", value: "0", color: "green" },
-      { label: "Hired", value: hiredCount.toString(), color: "amber" },
-    ]);
-  };
+    { label: "Hired", value: stats.hired.toString(), color: "amber" },
+  ];
 
   return (
     <motion.div
@@ -64,7 +30,7 @@ export default function ProviderStats() {
       transition={{ duration: 0.6, delay: 0.1 }}
       className="grid md:grid-cols-4 gap-6 mb-12"
     >
-      {stats.map((stat, index) => (
+      {displayStats.map((stat, index) => (
         <div
           key={index}
           className={`p-6 rounded-2xl bg-gradient-to-br ${colorStyles[stat.color]} border`}

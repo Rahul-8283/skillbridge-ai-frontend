@@ -22,8 +22,8 @@ export default function ProviderProfileForm({ user, onSave }) {
     const fetchProfile = async () => {
       try {
         const res = await api.get("/provider/profile");
-        if (res.data.data) {
-          setProfile(res.data.data);
+        if (res.data) {
+          setProfile(res.data);
         }
       } catch (err) {
         console.error("Error fetching profile:", err);

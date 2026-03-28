@@ -21,8 +21,8 @@ export default function SeekerProfileForm({ user, onSave }) {
     const fetchProfile = async () => {
       try {
         const res = await api.get("/seeker/profile");
-        if (res.data.data) {
-          setProfile(res.data.data);
+        if (res.data) {
+          setProfile(res.data);
         }
       } catch (err) {
         console.error("Error fetching profile:", err);
