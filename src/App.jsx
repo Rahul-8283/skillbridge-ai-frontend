@@ -54,14 +54,7 @@ function ProtectedRoute({ element, requiredRole = null }) {
 function App() {
   const [scrolled, setScrolled] = useState(false);
   // Auth is initialized in useAuth hook automatically
-  useAuth();
-
-  // Clear localStorage on app load (removes stale mock data)
-  // Backend will provide fresh tokens when implemented
-  useEffect(() => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("user");
-  }, []);
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     function handleScroll() {

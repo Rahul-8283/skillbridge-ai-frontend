@@ -56,24 +56,26 @@ export const useAuthStore = create((set, get) => ({
   },
 
   initializeAuth: () => {
-    // TODO: Once backend is ready, this will restore JWT tokens from localStorage
-    // For now, do NOT auto-login from localStorage to avoid mock data conflicts
-    // Backend will provide real tokens that we'll store here
+    // Restore JWT tokens from localStorage if they exist
+    const token = localStorage.getItem("access_token");
+    const user = localStorage.getItem("user");
     
-    // const token = localStorage.getItem("access_token");
-    // const user = localStorage.getItem("user");
-    // if (token && user) {
-    //   set({
-    //     token,
-    //     user: JSON.parse(user),
-    //     isAuthenticated: true,
-    //   });
-    // }
-    
-    // Clean up any existing mock data on init
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("user");
-    set({ user: null, token: null, isAuthenticated: false });
+    if (token && user) {
+      try {
+        set({
+          token,
+          user: JSON.parse(user),
+          isAuthenticated: true,
+        });
+      } catch (err) {
+        // If parsing fails, clear the invalid data
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("user");
+        set({ user: null, token: null, isAuthenticated: false });
+      }
+    } else {
+      set({ user: null, token: null, isAuthenticated: false });
+    }
   },
 
   updateUser: async (userData) => {

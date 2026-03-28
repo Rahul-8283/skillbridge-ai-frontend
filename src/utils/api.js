@@ -43,19 +43,35 @@ api.interceptors.response.use(
   },
   (error) => {
     // Handle different error scenarios
-      if (error.response?.status === 401) {
-      // Token expired or invalid
-      toast.error("Session expired. Please login again.", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        draggable: true,
-      });
-      console.warn("Unauthorized - redirecting to login");
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("user");
-      window.location.href = "/login";
+    if (error.response?.status === 401) {
+      // Check if this is a login/signup request or a token-related error
+      const isAuthRequest = error.config?.url?.includes('/auth/login') || error.config?.url?.includes('/auth/signup');
+      
+      if (isAuthRequest) {
+        // For login/signup errors, show the specific error message from backend
+        const errorMessage = error.response?.data?.message || 'Authentication failed. Please try again.';
+        toast.error(errorMessage, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          draggable: true,
+        });
+        console.warn("Auth error:", errorMessage);
+      } else {
+        // For other 401 (token expired), redirect to login
+        toast.error("Session expired. Please login again.", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          draggable: true,
+        });
+        console.warn("Unauthorized - redirecting to login");
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+      }
     } else if (error.response?.status === 403) {
       toast.error("Forbidden - insufficient permissions.", {
         position: "top-right",
