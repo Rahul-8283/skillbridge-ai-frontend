@@ -41,24 +41,27 @@ export const useLearning = () => {
   }, [user?._id, fetchLearningPlans, fetchAchievements, fetchProgressStats]);
 
   const handleGenerateLearningPlan = async (jobId, hoursPerDay = 2) => {
-    if (!user?._id) {
+    const userId = user?._id || user?.id;
+    if (!userId) {
       throw new Error("User not authenticated");
     }
-    return generateLearningPlan(user._id, jobId, hoursPerDay);
+    return generateLearningPlan(userId, jobId, hoursPerDay);
   };
 
   const handleLogActivity = async (activity) => {
-    if (!user?._id) {
+    const userId = user?._id || user?.id;
+    if (!userId) {
       throw new Error("User not authenticated");
     }
-    return logActivity(user._id, activity);
+    return logActivity(userId, activity);
   };
 
   const handleFetchActivities = async (dateRange = {}) => {
-    if (!user?._id) {
+    const userId = user?._id || user?.id;
+    if (!userId) {
       throw new Error("User not authenticated");
     }
-    return fetchActivities(user._id, dateRange);
+    return fetchActivities(userId, dateRange);
   };
 
   return {
@@ -125,10 +128,11 @@ export const useLearningActivities = () => {
   }, [user?._id, fetchActivities]);
 
   const handleLogActivity = async (activity) => {
-    if (!user?._id) {
+    const userId = user?._id || user?.id;
+    if (!userId) {
       throw new Error("User not authenticated");
     }
-    return logActivity(user._id, activity);
+    return logActivity(userId, activity);
   };
 
   return { activities, isLoading, logActivity: handleLogActivity };

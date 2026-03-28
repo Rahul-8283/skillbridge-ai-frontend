@@ -23,8 +23,8 @@ export default function LearningPlanPage() {
     // Otherwise, find the latest plan from the user's list.
     const activePlan = currentPlan || (learningPlans && learningPlans.length > 0 ? learningPlans[0] : null);
 
-    if (activePlan && activePlan.data) {
-      const roadmap = activePlan.data;
+    if (activePlan) {
+      const roadmap = activePlan;
       const mappedPlan = {
         currentLevel: "Beginner",
         targetRole: roadmap.targetRole || `Learning Path`,
@@ -43,7 +43,7 @@ export default function LearningPlanPage() {
       };
       setLearningPlan(mappedPlan);
     }
-  }, [currentPlan]);
+  }, [currentPlan, learningPlans]);
 
   const toggleModuleComplete = (moduleId) => {
     const user = JSON.parse(localStorage.getItem("user"));

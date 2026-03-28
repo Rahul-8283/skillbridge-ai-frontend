@@ -20,9 +20,13 @@ export default function UploadResumePage() {
   const handleGenerateRoadmap = async (jobId) => {
     setRoadmapLoading(jobId);
     try {
-      await generateLearningPlan(jobId, 2);
+      const planRes = await generateLearningPlan(jobId, 2);
+      if (!planRes.success) {
+         toast.error(planRes.error || "Failed to generate learning roadmap");
+         return;
+      }
       toast.success("Learning roadmap generated successfully!");
-      navigate("/learning-plan");
+      navigate("/seeker-dashboard/learning-plan");
     } catch(err) {
       console.error(err);
       toast.error("Failed to generate learning roadmap.");
@@ -65,7 +69,7 @@ export default function UploadResumePage() {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-        timeout: 120000, // 2 minutes for AI analysis
+        timeout: 180000, // 3 minutes for AI analysis
       });
 
       if (res.status === "success") {

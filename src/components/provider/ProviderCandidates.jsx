@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { User, Mail, MapPin, Briefcase, Check, X, Loader2 } from "lucide-react";
 import api from "../../utils/api";

@@ -20,7 +20,7 @@ export const useLearningStore = create((set, get) => ({
         jobId,
         hoursPerDay
       }, {
-        timeout: 120000 // 2 minutes for AI generation
+        timeout: 180000 // 3 minutes for AI generation
       });
 
       const newPlan = response.data;

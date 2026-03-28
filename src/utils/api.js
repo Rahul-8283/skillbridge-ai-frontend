@@ -14,7 +14,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 30000, // 30 seconds timeout
+  timeout: 180000, // 180 seconds timeout for Render AI cold starts
 });
 
 // Request Interceptor - Add Access Token

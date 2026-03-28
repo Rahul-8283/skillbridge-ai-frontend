@@ -8,9 +8,12 @@ import {
   DollarSign,
   Clock,
   Heart,
+  Loader2,
 } from "lucide-react";
 import Footer from "../../components/Footer";
 import api from "../../utils/api";
+import { useLearning } from "../../hooks/useLearning";
+import { toast } from "react-toastify";
 
 export default function BrowseJobsPage() {
   const navigate = useNavigate();
@@ -20,6 +23,41 @@ export default function BrowseJobsPage() {
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [savedJobs, setSavedJobs] = useState([]);
   const [matches, setMatches] = useState([]);
+  const [applying, setApplying] = useState(null);
+  const { generateLearningPlan } = useLearning();
+
+  const handleApply = async (jobId) => {
+    setApplying(jobId);
+    try {
+      // 1. Apply for the job
+      await api.post("/seeker/applications", { jobId });
+      
+      // 2. Generate roadmap for this job
+      toast.info("Application successful! Generating custom learning roadmap...", { autoClose: 3000 });
+      const planRes = await generateLearningPlan(jobId, 2);
+      
+      if (!planRes.success) {
+        throw new Error(planRes.error || "Failed to generate learning roadmap");
+      }
+      
+      toast.success("Learning plan generated successfully!");
+      navigate("/seeker-dashboard/learning-plan");
+    } catch (err) {
+      if (err.message === "You have already applied for this job") {
+         toast.info("You have already applied. Generating roadmap directly...");
+         const planRes = await generateLearningPlan(jobId, 2);
+         if (!planRes.success) {
+           toast.error(planRes.error || "Failed to generate learning roadmap");
+           return;
+         }
+         navigate("/seeker-dashboard/learning-plan");
+      } else {
+         toast.error(err.message || "Failed to apply for the job");
+      }
+    } finally {
+      setApplying(null);
+    }
+  };
 
   useEffect(() => {
     loadJobs();
@@ -183,8 +221,21 @@ export default function BrowseJobsPage() {
         </div>
 
         <div className="pt-4 border-t border-slate-800">
-          <button className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-300">
-            Apply Now
+          <button 
+            onClick={() => handleApply(job._id)}
+            disabled={applying === job._id}
+            className={`w-full py-2 px-4 font-semibold rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 ${
+              applying === job._id ? 'bg-slate-700 text-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'
+            }`}
+          >
+            {applying === job._id ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>Applying & Generating...</span>
+              </>
+            ) : (
+              <span>Apply Now</span>
+            )}
           </button>
         </div>
       </div>
