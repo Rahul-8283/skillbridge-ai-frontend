@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Upload, FileText, CheckCircle } from "lucide-react";
+import { ArrowLeft, Upload, FileText, CheckCircle, Loader2 } from "lucide-react";
 import Footer from "../../components/Footer";
+import api from "../../utils/api";
+import { toast } from "react-toastify";
 
 export default function UploadResumePage() {
   const navigate = useNavigate();
@@ -26,7 +28,7 @@ export default function UploadResumePage() {
     }
   };
 
-  const handleUpload = (e) => {
+  const handleUpload = async (e) => {
     e.preventDefault();
 
     if (!file) {
@@ -36,41 +38,31 @@ export default function UploadResumePage() {
 
     setUploading(true);
 
-    // Simulate file upload and AI analysis
-    setTimeout(() => {
-      const user = JSON.parse(localStorage.getItem("user"));
-      if (!user) {
-        alert("You must be logged in");
-        navigate("/login");
-        return;
+    try {
+      const formData = new FormData();
+      formData.append("resume", file);
+
+      const res = await api.post("/seeker/resume/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (res.status === "success" && res.data.analysis) {
+        setAiAnalysis(res.data.analysis);
+        setUploadSuccess(true);
+        if (window.innerWidth >= 768) {
+          toast.success("Resume uploaded and analyzed successfully!");
+        }
       }
-
-      // Store resume file info in localStorage
-      const resumeData = {
-        fileName: file.name,
-        uploadedAt: new Date().toISOString(),
-        userEmail: user.email,
-        fileSize: file.size,
-      };
-
-      localStorage.setItem(`${user.email}_resume`, JSON.stringify(resumeData));
-
-      // Simulate AI analysis
-      const mockAnalysis = {
-        skills: ["JavaScript", "React", "Node.js", "MongoDB", "REST APIs"],
-        experience: "3-5 years",
-        matchScore: 85,
-        recommendations: [
-          "Add more specific project examples",
-          "Highlight AWS or cloud technologies",
-          "Include metrics and achievements",
-        ],
-      };
-
-      setAiAnalysis(mockAnalysis);
-      setUploadSuccess(true);
+    } catch (err) {
+      console.error("Upload error:", err);
+      if (window.innerWidth >= 768) {
+        toast.error(err.message || "Failed to upload resume. Please try again.");
+      }
+    } finally {
       setUploading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -137,13 +129,20 @@ export default function UploadResumePage() {
                 <button
                   type="submit"
                   disabled={uploading}
-                  className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-300 ${
+                  className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${
                     uploading
                       ? "bg-slate-700 text-gray-400 cursor-not-allowed"
                       : "bg-blue-600 hover:bg-blue-700 text-white"
                   }`}
                 >
-                  {uploading ? "Analyzing..." : "Upload & Analyze"}
+                  {uploading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Analyzing...</span>
+                    </>
+                  ) : (
+                    <span>Upload & Analyze</span>
+                  )}
                 </button>
               </form>
             </div>
@@ -163,56 +162,52 @@ export default function UploadResumePage() {
               </div>
 
               {/* AI Analysis Results */}
-              {aiAnalysis && (
-                <div className="grid md:grid-cols-2 gap-6">
-                  {/* Skills Detected */}
-                  <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
-                    <h3 className="text-xl font-bold mb-4">Skills Detected</h3>
-                    <div className="space-y-2">
-                      {aiAnalysis.skills.map((skill, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center space-x-2 p-2 bg-slate-800 rounded-lg"
-                        >
-                          <div className="w-2 h-2 bg-blue-400 rounded-full" />
-                          <span className="text-gray-300">{skill}</span>
+              {aiAnalysis && aiAnalysis.matches && (
+                <div className="space-y-6 mt-8">
+                  <h3 className="text-2xl font-bold mb-4">Top Job Matches</h3>
+                  {aiAnalysis.matches.length > 0 ? aiAnalysis.matches.map((match, index) => (
+                    <div key={index} className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
+                      <div className="flex justify-between items-center mb-4">
+                        <h4 className="text-xl font-bold text-blue-400">Job ID: {match.job_id}</h4>
+                        <div className="px-4 py-2 bg-blue-500/10 border border-blue-500/30 rounded-lg text-blue-400 font-semibold">
+                          Match Score: {Number(match.score).toFixed(2)}%
                         </div>
-                      ))}
+                      </div>
+                      
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div>
+                          <h5 className="font-semibold text-gray-300 mb-2">Matched Skills</h5>
+                          {match.matched_skills && match.matched_skills.length > 0 ? (
+                            <div className="flex flex-wrap gap-2">
+                              {match.matched_skills.map((skill, i) => (
+                                <span key={i} className="px-3 py-1 bg-green-500/10 text-green-400 border border-green-500/20 rounded-full text-sm">
+                                  {skill}
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-gray-500 italic">No exact matches</p>
+                          )}
+                        </div>
+                        <div>
+                          <h5 className="font-semibold text-gray-300 mb-2">Missing Skills to Learn</h5>
+                          {match.missing_skills && match.missing_skills.length > 0 ? (
+                            <div className="flex flex-wrap gap-2">
+                              {match.missing_skills.map((skill, i) => (
+                                <span key={i} className="px-3 py-1 bg-red-500/10 text-red-400 border border-red-500/20 rounded-full text-sm">
+                                  {skill}
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-gray-500 italic">None!</p>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-
-                  {/* Match Score */}
-                  <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
-                    <h3 className="text-xl font-bold mb-4">Job Match Score</h3>
-                    <div className="text-5xl font-bold text-blue-400 mb-2">
-                      {aiAnalysis.matchScore}%
-                    </div>
-                    <p className="text-gray-400">
-                      Your profile matches available opportunities
-                    </p>
-                  </div>
-
-                  {/* Experience */}
-                  <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
-                    <h3 className="text-xl font-bold mb-4">Experience Level</h3>
-                    <p className="text-2xl font-semibold text-green-400">
-                      {aiAnalysis.experience}
-                    </p>
-                  </div>
-
-                  {/* Recommendations */}
-                  <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
-                    <h3 className="text-xl font-bold mb-4">
-                      Improvement Tips
-                    </h3>
-                    <ul className="space-y-2">
-                      {aiAnalysis.recommendations.map((tip, index) => (
-                        <li key={index} className="text-gray-300 text-sm">
-                          • {tip}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  )) : (
+                    <div className="text-gray-400 italic">No job matches found for your skill profile yet.</div>
+                  )}
                 </div>
               )}
 

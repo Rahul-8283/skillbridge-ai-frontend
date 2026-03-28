@@ -19,7 +19,7 @@ export const useResumeStore = create((set, get) => ({
       formData.append("userId", userId);
 
       // Upload with progress tracking
-      const response = await api.post("/api/resume/upload", formData, {
+      const response = await api.post("/resume/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
         onUploadProgress: (progressEvent) => {
           const progress = Math.round(
@@ -45,7 +45,7 @@ export const useResumeStore = create((set, get) => ({
   fetchResume: async (resumeId) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get(`/api/resume/${resumeId}`);
+      const response = await api.get(`/resume/${resumeId}`);
       set({
         resume: response,
         extractedSkills: response.extractedSkills || [],
@@ -61,7 +61,7 @@ export const useResumeStore = create((set, get) => ({
   fetchUserResumes: async (userId) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get(`/api/user/${userId}/resumes`);
+      const response = await api.get(`/user/${userId}/resumes`);
       set({ resumes: response, isLoading: false });
       return { success: true, resumes: response };
     } catch (error) {
@@ -73,7 +73,7 @@ export const useResumeStore = create((set, get) => ({
   deleteResume: async (resumeId) => {
     set({ isLoading: true, error: null });
     try {
-      await api.delete(`/api/resume/${resumeId}`);
+      await api.delete(`/resume/${resumeId}`);
       set({
         resumes: get().resumes.filter((r) => r._id !== resumeId),
         isLoading: false,
@@ -88,7 +88,7 @@ export const useResumeStore = create((set, get) => ({
   extractSkillsManually: async (text) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.post("/api/resume/extract-skills", { text });
+      const response = await api.post("/resume/extract-skills", { text });
       set({ extractedSkills: response.skills, isLoading: false });
       return { success: true, skills: response.skills };
     } catch (error) {

@@ -10,6 +10,7 @@ import {
   Heart,
 } from "lucide-react";
 import Footer from "../../components/Footer";
+import api from "../../utils/api";
 
 export default function BrowseJobsPage() {
   const navigate = useNavigate();
@@ -24,14 +25,19 @@ export default function BrowseJobsPage() {
     loadSavedJobs();
   }, []);
 
-  const loadJobs = () => {
-    const jobPostings = JSON.parse(localStorage.getItem("jobPostings")) || [];
-    const activeJobs = jobPostings.filter((job) => job.status === "active");
-    setJobs(activeJobs);
-    setFilteredJobs(activeJobs);
+  const loadJobs = async () => {
+    try {
+      const res = await api.get("/jobs");
+      const activeJobs = res.data || [];
+      setJobs(activeJobs);
+      setFilteredJobs(activeJobs);
+    } catch (err) {
+      console.error("Error loading jobs:", err);
+    }
   };
 
   const loadSavedJobs = () => {
+    // For now, keep saved jobs in localStorage or implement backend later
     const user = JSON.parse(localStorage.getItem("user"));
     if (user) {
       const saved =
@@ -85,7 +91,7 @@ export default function BrowseJobsPage() {
   };
 
   const JobCard = ({ job }) => {
-    const isSaved = savedJobs.includes(job.id);
+    const isSaved = savedJobs.includes(job._id);
     return (
       <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 hover:border-blue-500/50 transition-all duration-300">
         <div className="flex justify-between items-start mb-4">
@@ -229,7 +235,7 @@ export default function BrowseJobsPage() {
           {filteredJobs.length > 0 ? (
             <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-6">
               {filteredJobs.map((job) => (
-                <JobCard key={job.id} job={job} />
+                <JobCard key={job._id} job={job} />
               ))}
             </div>
           ) : (

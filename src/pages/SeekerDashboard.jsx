@@ -8,6 +8,7 @@ import ProfileCompletion from "../components/seeker/ProfileCompletion.jsx";
 import LearningProgressTracker from "../components/seeker/LearningProgressTracker.jsx";
 import AchievementBadges from "../components/seeker/AchievementBadges.jsx";
 import { useAuth } from "../hooks/useAuth";
+import api from "../utils/api";
 
 export default function SeekerDashboard() {
   const { user, isAuthenticated } = useAuth();
@@ -16,19 +17,25 @@ export default function SeekerDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isAuthenticated && user) {
-      if (user.role === "seeker") {
-        // Check if profile is completed
-        const profileKey = `${user.email}_profile`;
-        const profile = JSON.parse(localStorage.getItem(profileKey)) || {};
-        const isProfileComplete = profile.experienceLevel && profile.preferredRole && profile.skills;
-        setProfileCompleted(isProfileComplete);
-      } else if (user.role === "provider") {
-        navigate("/provider-dashboard");
+    const checkProfile = async () => {
+      if (isAuthenticated && user) {
+        if (user.role === "seeker") {
+          try {
+            const res = await api.get("/seeker/profile");
+            const profile = res.data;
+            const isProfileComplete = profile && profile.skills && profile.experience;
+            setProfileCompleted(!!isProfileComplete);
+          } catch (err) {
+            console.error("Error checking profile:", err);
+          }
+        } else if (user.role === "provider") {
+          navigate("/provider-dashboard");
+        }
+      } else if (!isAuthenticated && !localStorage.getItem("access_token")) {
+        navigate("/");
       }
-    } else if (!isAuthenticated && !localStorage.getItem("access_token")) {
-      navigate("/");
-    }
+    };
+    checkProfile();
   }, [isAuthenticated, user, navigate]);
 
 

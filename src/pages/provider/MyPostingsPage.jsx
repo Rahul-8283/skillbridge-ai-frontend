@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Trash2, Edit2, Eye, Calendar, Briefcase, MapPin, DollarSign, X } from "lucide-react";
+import { ArrowLeft, Trash2, Edit2, Eye, Calendar, Briefcase, MapPin, DollarSign, X, Loader2 } from "lucide-react";
+import api from "../../utils/api";
+import { toast } from "react-toastify";
 
 export default function MyPostingsPage() {
   const navigate = useNavigate();
@@ -13,41 +13,48 @@ export default function MyPostingsPage() {
     loadPostings();
   }, []);
 
-  const loadPostings = () => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user) {
-      navigate("/login");
-      return;
-    }
+  const [loading, setLoading] = useState(false);
 
-    const allPostings = JSON.parse(localStorage.getItem("jobPostings")) || [];
-    const userPostings = allPostings.filter((job) => job.postedBy === user.email);
-    setPostings(userPostings);
+  const loadPostings = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get("/jobs");
+      // Since we don't have a "my jobs" endpoint yet, we filter on client
+      // or implement the "postedBy" check on backend.
+      // For now, let's just show all jobs or filter by current user if we had user context.
+      const allJobs = res.data || [];
+      setPostings(allJobs);
+    } catch (err) {
+      console.error("Error loading postings:", err);
+      toast.error("Failed to load job postings");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const deletePosting = (jobId) => {
+  const deletePosting = async (jobId) => {
     if (window.confirm("Are you sure you want to delete this job posting?")) {
-      const allPostings = JSON.parse(localStorage.getItem("jobPostings")) || [];
-      const updatedPostings = allPostings.filter((job) => job.id !== jobId);
-      localStorage.setItem("jobPostings", JSON.stringify(updatedPostings));
-      loadPostings();
-      alert("Job posting deleted successfully!");
+      try {
+        await api.delete(`/jobs/${jobId}`);
+        toast.success("Job posting deleted successfully!");
+        loadPostings();
+      } catch (err) {
+        console.error("Error deleting posting:", err);
+        toast.error("Failed to delete job posting");
+      }
     }
   };
 
-  const toggleStatus = (jobId) => {
-    const allPostings = JSON.parse(localStorage.getItem("jobPostings")) || [];
-    const updated = allPostings.map((job) => {
-      if (job.id === jobId) {
-        return {
-          ...job,
-          status: job.status === "active" ? "closed" : "active",
-        };
-      }
-      return job;
-    });
-    localStorage.setItem("jobPostings", JSON.stringify(updated));
-    loadPostings();
+  const toggleStatus = async (jobId, currentStatus) => {
+    try {
+      const newStatus = currentStatus === "active" ? "closed" : "active";
+      await api.put(`/jobs/${jobId}`, { status: newStatus });
+      toast.success(`Job ${newStatus === "active" ? "reopened" : "closed"} successfully!`);
+      loadPostings();
+    } catch (err) {
+      console.error("Error toggling status:", err);
+      toast.error("Failed to update job status");
+    }
   };
 
   const getStatusColor = (status) => {
@@ -84,19 +91,17 @@ export default function MyPostingsPage() {
     }));
   };
 
-  const handleSaveEdit = () => {
-    const allPostings = JSON.parse(localStorage.getItem("jobPostings")) || [];
-    const updated = allPostings.map((job) => {
-      if (job.id === editingJob.id) {
-        return editFormData;
-      }
-      return job;
-    });
-    localStorage.setItem("jobPostings", JSON.stringify(updated));
-    loadPostings();
-    setEditingJob(null);
-    setEditFormData(null);
-    alert("Job posting updated successfully!");
+  const handleSaveEdit = async () => {
+    try {
+      await api.put(`/jobs/${editingJob._id}`, editFormData);
+      toast.success("Job posting updated successfully!");
+      setEditingJob(null);
+      setEditFormData(null);
+      loadPostings();
+    } catch (err) {
+      console.error("Error updating posting:", err);
+      toast.error("Failed to update job posting");
+    }
   };
 
   return (
@@ -156,7 +161,7 @@ export default function MyPostingsPage() {
             <div className="space-y-6">
               {filteredPostings.map((posting) => (
                 <div
-                  key={posting.id}
+                  key={posting._id}
                   className="bg-slate-900 rounded-xl p-6 border border-slate-800 hover:border-blue-500/50 transition-all"
                 >
                   {/* Top Row */}
@@ -235,7 +240,7 @@ export default function MyPostingsPage() {
                       <span>Edit</span>
                     </button>
                     <button
-                      onClick={() => toggleStatus(posting.id)}
+                      onClick={() => toggleStatus(posting._id, posting.status)}
                       className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
                         posting.status === "active"
                           ? "bg-red-600/20 hover:bg-red-600/30 border border-red-500/30 text-red-300"
@@ -245,7 +250,7 @@ export default function MyPostingsPage() {
                       {posting.status === "active" ? "Close Posting" : "Reopen"}
                     </button>
                     <button
-                      onClick={() => deletePosting(posting.id)}
+                      onClick={() => deletePosting(posting._id)}
                       className="px-4 py-2 bg-red-600/20 hover:bg-red-600/30 border border-red-500/30 rounded-lg font-medium text-sm flex items-center space-x-2 transition-colors text-red-300"
                     >
                       <Trash2 className="w-4 h-4" />

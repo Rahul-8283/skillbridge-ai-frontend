@@ -17,7 +17,7 @@ export const useJobStore = create((set, get) => ({
   fetchAllJobs: async (filters = {}) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get("/api/jobs", { params: filters });
+      const response = await api.get("/jobs", { params: filters });
       set({ jobs: response.jobs || [], isLoading: false });
       return { success: true, jobs: response.jobs };
     } catch (error) {
@@ -29,7 +29,7 @@ export const useJobStore = create((set, get) => ({
   fetchMatchedJobs: async (userId, filters = {}) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get(`/api/jobs/matches/${userId}`, {
+      const response = await api.get(`/jobs/matches/${userId}`, {
         params: filters,
       });
       set({
@@ -47,7 +47,7 @@ export const useJobStore = create((set, get) => ({
   fetchJobDetails: async (jobId) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get(`/api/jobs/${jobId}`);
+      const response = await api.get(`/jobs/${jobId}`);
       set({ jobDetails: response, isLoading: false });
       return { success: true, job: response };
     } catch (error) {
@@ -60,7 +60,7 @@ export const useJobStore = create((set, get) => ({
   applyForJob: async (jobId, userId, coverLetter = "") => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.post(`/api/jobs/${jobId}/apply`, {
+      const response = await api.post(`/jobs/${jobId}/apply`, {
         userId,
         coverLetter,
       });
@@ -78,7 +78,7 @@ export const useJobStore = create((set, get) => ({
   fetchUserApplications: async (userId) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get(`/api/user/${userId}/applications`);
+      const response = await api.get(`/user/${userId}/applications`);
       const appliedJobIds = response.map((app) => app.jobId);
       set({ userApplications: response, appliedJobs: appliedJobIds, isLoading: false });
       return { success: true, applications: response };
@@ -92,7 +92,7 @@ export const useJobStore = create((set, get) => ({
   postJob: async (jobData) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.post("/api/jobs/post", jobData);
+      const response = await api.post("/jobs/post", jobData);
       set({ jobs: [...get().jobs, response], isLoading: false });
       return { success: true, job: response };
     } catch (error) {
@@ -104,7 +104,7 @@ export const useJobStore = create((set, get) => ({
   updateJob: async (jobId, jobData) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.put(`/api/jobs/${jobId}`, jobData);
+      const response = await api.put(`/jobs/${jobId}`, jobData);
       const updatedJobs = get().jobs.map((job) =>
         job._id === jobId ? response : job
       );
@@ -119,7 +119,7 @@ export const useJobStore = create((set, get) => ({
   deleteJob: async (jobId) => {
     set({ isLoading: true, error: null });
     try {
-      await api.delete(`/api/jobs/${jobId}`);
+      await api.delete(`/jobs/${jobId}`);
       set({ jobs: get().jobs.filter((job) => job._id !== jobId), isLoading: false });
       return { success: true };
     } catch (error) {
@@ -133,7 +133,7 @@ export const useJobStore = create((set, get) => ({
 
   getSkillGap: async (jobId, userId) => {
     try {
-      const response = await api.get(`/api/jobs/${jobId}/skill-gap/${userId}`);
+      const response = await api.get(`/jobs/${jobId}/skill-gap/${userId}`);
       return { success: true, gap: response };
     } catch (error) {
       return { success: false, error: error.message };

@@ -40,11 +40,11 @@ export const useLearning = () => {
     }
   }, [user?._id, fetchLearningPlans, fetchAchievements, fetchProgressStats]);
 
-  const handleGenerateLearningPlan = async (skillGaps) => {
+  const handleGenerateLearningPlan = async (jobId, hoursPerDay = 2) => {
     if (!user?._id) {
       throw new Error("User not authenticated");
     }
-    return generateLearningPlan(user._id, skillGaps);
+    return generateLearningPlan(user._id, jobId, hoursPerDay);
   };
 
   const handleLogActivity = async (activity) => {

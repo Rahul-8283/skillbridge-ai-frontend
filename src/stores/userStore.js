@@ -14,7 +14,7 @@ export const useUserStore = create((set, get) => ({
   fetchProfile: async (userId) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get(`/api/user/profile/${userId}`);
+      const response = await api.get(`/user/profile/${userId}`);
       set({ profile: response, isLoading: false });
       return { success: true, profile: response };
     } catch (error) {
@@ -26,7 +26,7 @@ export const useUserStore = create((set, get) => ({
   updateProfile: async (userId, profileData) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.put(`/api/user/profile/${userId}`, profileData);
+      const response = await api.put(`/user/profile/${userId}`, profileData);
       set({ profile: response, isLoading: false });
       return { success: true, profile: response };
     } catch (error) {

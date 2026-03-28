@@ -13,7 +13,7 @@ export const useAuthStore = create((set, get) => ({
   login: async (email, password) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.post("/api/auth/login", { email, password });
+      const response = await api.post("/auth/login", { email, password });
       const { user, accessToken } = response;
 
       localStorage.setItem("access_token", accessToken);
@@ -30,7 +30,7 @@ export const useAuthStore = create((set, get) => ({
   signup: async (email, password, name, role) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.post("/api/auth/signup", {
+      const response = await api.post("/auth/signup", {
         email,
         password,
         name,
@@ -88,7 +88,7 @@ export const useAuthStore = create((set, get) => ({
   updateUser: async (userData) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.put("/api/user/profile", userData);
+      const response = await api.put("/user/profile", userData);
       const updatedUser = { ...get().user, ...response };
 
       localStorage.setItem("user", JSON.stringify(updatedUser));

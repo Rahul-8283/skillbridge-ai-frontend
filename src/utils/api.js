@@ -10,7 +10,7 @@ const backendURL =
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: backendURL,
+  baseURL: `${backendURL}/api`,
   headers: {
     "Content-Type": "application/json",
   },

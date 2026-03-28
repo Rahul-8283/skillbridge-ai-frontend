@@ -12,13 +12,15 @@ export const useLearningStore = create((set, get) => ({
   error: null,
 
   // Actions - Learning Plans
-  generateLearningPlan: async (userId, skillGaps) => {
+  generateLearningPlan: async (userId, jobId, hoursPerDay = 2) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.post("/api/learning-plan/generate", {
+      const response = await api.post("/learning-plan/generate", {
         userId,
-        skillGaps,
+        jobId,
+        hoursPerDay
       });
+
       set({
         currentPlan: response,
         learningPlans: [...get().learningPlans, response],
@@ -34,7 +36,7 @@ export const useLearningStore = create((set, get) => ({
   fetchLearningPlans: async (userId) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get(`/api/user/${userId}/learning-plans`);
+      const response = await api.get(`/user/${userId}/learning-plans`);
       set({ learningPlans: response, isLoading: false });
       return { success: true, plans: response };
     } catch (error) {
@@ -46,7 +48,7 @@ export const useLearningStore = create((set, get) => ({
   fetchLearningPlan: async (planId) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get(`/api/learning-plan/${planId}`);
+      const response = await api.get(`/learning-plan/${planId}`);
       set({ currentPlan: response, isLoading: false });
       return { success: true, plan: response };
     } catch (error) {
@@ -58,7 +60,7 @@ export const useLearningStore = create((set, get) => ({
   updateLearningPlan: async (planId, planData) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.put(`/api/learning-plan/${planId}`, planData);
+      const response = await api.put(`/learning-plan/${planId}`, planData);
       const updated = get().learningPlans.map((plan) =>
         plan._id === planId ? response : plan
       );
@@ -78,7 +80,7 @@ export const useLearningStore = create((set, get) => ({
   deleteLearningPlan: async (planId) => {
     set({ isLoading: true, error: null });
     try {
-      await api.delete(`/api/learning-plan/${planId}`);
+      await api.delete(`/learning-plan/${planId}`);
       set({
         learningPlans: get().learningPlans.filter((p) => p._id !== planId),
         currentPlan:
@@ -96,7 +98,7 @@ export const useLearningStore = create((set, get) => ({
   logActivity: async (userId, activity) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.post("/api/learning-activity/log", {
+      const response = await api.post("/learning-activity/log", {
         userId,
         ...activity,
       });
@@ -114,7 +116,7 @@ export const useLearningStore = create((set, get) => ({
   fetchActivities: async (userId, dateRange = {}) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get(`/api/user/${userId}/activities`, {
+      const response = await api.get(`/user/${userId}/activities`, {
         params: dateRange,
       });
       set({ activities: response, isLoading: false });
@@ -129,7 +131,7 @@ export const useLearningStore = create((set, get) => ({
   fetchAchievements: async (userId) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get(`/api/user/${userId}/achievements`);
+      const response = await api.get(`/user/${userId}/achievements`);
       set({ achievements: response, isLoading: false });
       return { success: true, achievements: response };
     } catch (error) {
@@ -142,7 +144,7 @@ export const useLearningStore = create((set, get) => ({
   fetchProgressStats: async (userId) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get(`/api/user/${userId}/progress`);
+      const response = await api.get(`/user/${userId}/progress`);
       set({ progressStats: response, isLoading: false });
       return { success: true, stats: response };
     } catch (error) {
