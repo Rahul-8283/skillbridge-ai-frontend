@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, User, Mail, MapPin, Briefcase, GraduationCap, CheckCircle, XCircle, Eye } from "lucide-react";
+import api from "../../utils/api";
+import { toast } from "react-toastify";
 import Footer from "../../components/Footer";
 
 export default function FindCandidatesPage() {
