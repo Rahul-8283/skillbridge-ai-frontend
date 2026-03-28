@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Save } from "lucide-react";
+import { Save, Loader2 } from "lucide-react";
+import api from "../../../utils/api";
+import { toast } from "react-toastify";
 
 export default function SeekerProfileForm({ user, onSave }) {
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [profile, setProfile] = useState({
     resume: "",
     skills: "",
@@ -14,11 +18,20 @@ export default function SeekerProfileForm({ user, onSave }) {
   });
 
   useEffect(() => {
-    const storedProfile = localStorage.getItem(`${user.email}_profile`);
-    if (storedProfile) {
-      setProfile(JSON.parse(storedProfile));
-    }
-  }, [user.email]);
+    const fetchProfile = async () => {
+      try {
+        const res = await api.get("/seeker/profile");
+        if (res.data.data) {
+          setProfile(res.data.data);
+        }
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+      } finally {
+        setFetching(false);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,10 +41,22 @@ export default function SeekerProfileForm({ user, onSave }) {
     }));
   };
 
-  const handleSave = () => {
-    localStorage.setItem(`${user.email}_profile`, JSON.stringify(profile));
-    alert("Profile saved successfully!");
-    if (onSave) onSave();
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      await api.post("/seeker/profile", profile);
+      if (window.innerWidth >= 768) {
+        toast.success("Profile saved successfully!");
+      }
+      if (onSave) onSave();
+    } catch (err) {
+      console.error("Error saving profile:", err);
+      if (window.innerWidth >= 768) {
+        toast.error("Failed to save profile. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -141,10 +166,15 @@ export default function SeekerProfileForm({ user, onSave }) {
         {/* Save Button */}
         <button
           onClick={handleSave}
-          className="w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 mt-8"
+          disabled={loading || fetching}
+          className="w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 mt-8 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Save className="w-5 h-5" />
-          <span>Save Profile</span>
+          {loading ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <Save className="w-5 h-5" />
+          )}
+          <span>{loading ? "Saving..." : "Save Profile"}</span>
         </button>
       </div>
     </motion.div>
