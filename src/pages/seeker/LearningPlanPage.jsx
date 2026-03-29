@@ -18,6 +18,49 @@ export default function LearningPlanPage() {
   const [learningPlan, setLearningPlan] = useState(null);
   const [completedModules, setCompletedModules] = useState([]);
 
+  const normalizeModuleResources = (skill) => {
+    const youtubeItems = Array.isArray(skill.youtube) ? skill.youtube : [];
+    const githubItems = Array.isArray(skill.github) ? skill.github : [];
+    const directResources = Array.isArray(skill.resources) ? skill.resources : [];
+
+    const videoUrl =
+      skill.youtube_url ||
+      skill.video_url ||
+      skill.videoUrl ||
+      skill.youtubeUrl ||
+      youtubeItems[0]?.url ||
+      null;
+
+    const githubUrl =
+      skill.github_url ||
+      skill.githubUrl ||
+      skill.github_repo_url ||
+      githubItems[0]?.url ||
+      githubItems[0]?.html_url ||
+      null;
+
+    const githubRepos = Array.isArray(skill.github_repos)
+      ? skill.github_repos
+      : githubItems;
+
+    const normalizedResourceLinks = directResources
+      .map((resource) => {
+        if (!resource || typeof resource !== "object") return null;
+        return {
+          title: resource.title || resource.label || resource.name || "Open Resource",
+          url: resource.url || resource.link || resource.href || null,
+        };
+      })
+      .filter((resource) => resource?.url);
+
+    return {
+      videoUrl,
+      githubUrl,
+      githubRepos,
+      resourceLinks: normalizedResourceLinks,
+    };
+  };
+
   useEffect(() => {
     // If we have a currentPlan (freshly generated), use it.
     // Otherwise, find the latest plan from the user's list.
@@ -29,23 +72,23 @@ export default function LearningPlanPage() {
         currentLevel: "Beginner",
         targetRole: roadmap.targetRole || `Learning Path`,
         completionTime: roadmap.overallDays ? `${Math.round(roadmap.overallDays)} days` : (roadmap.overall_days ? `${Math.round(roadmap.overall_days)} days` : "Unknown"),
-        modules: roadmap.skills ? roadmap.skills.map((skill, index) => ({
-          id: index + 1,
-          title: skill.skill || skill.keyword || `Module ${index + 1}`,
-          duration: skill.total_days ? `${Number(skill.total_days).toFixed(2)} days` : "Unknown",
-          lessons: skill.roadmap ? skill.roadmap.length : 0,
-          description: skill.summary || "Guided steps to learn this skill.",
-          difficulty: "intermediate",
-          topics: skill.roadmap || [],
-          videoUrl: skill.youtube_url || skill.video_url || skill.videoUrl || skill.youtubeUrl,
-          githubUrl: skill.github_url || skill.githubUrl || skill.github_repo_url,
-          githubRepos: Array.isArray(skill.github_repos)
-            ? skill.github_repos
-            : Array.isArray(skill.github)
-              ? skill.github
-              : [],
-          resourceLinks: Array.isArray(skill.resources) ? skill.resources : []
-        })) : []
+        modules: Array.isArray(roadmap.skills)
+          ? roadmap.skills.map((skill, index) => {
+              const normalizedResources = normalizeModuleResources(skill);
+              return {
+                id: index + 1,
+                title: skill.skill || skill.keyword || skill.name || `Module ${index + 1}`,
+                duration: Number.isFinite(Number(skill.total_days))
+                  ? `${Number(skill.total_days).toFixed(2)} days`
+                  : "Unknown",
+                lessons: Array.isArray(skill.roadmap) ? skill.roadmap.length : 0,
+                description: skill.summary || "Guided steps to learn this skill.",
+                difficulty: "intermediate",
+                topics: Array.isArray(skill.roadmap) ? skill.roadmap : [],
+                ...normalizedResources,
+              };
+            })
+          : []
       };
       setLearningPlan(mappedPlan);
       setCompletedModules(Array.isArray(roadmap.completedModules) ? roadmap.completedModules : []);
