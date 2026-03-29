@@ -238,6 +238,8 @@ npm run dev
 
 ## 🏗️ System Architecture
 
+![SkillBridge AI Overall Diagram](images/Overall_diagram.png)
+
 ### **Three-Tier Microservices Architecture**
 
 ```
