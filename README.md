@@ -34,6 +34,74 @@
 
 ---
 
+## 🏗️ System Architecture
+
+![SkillBridge AI Overall Diagram](images/Overall_diagram.png)
+
+### **Three-Tier Microservices Architecture**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                   PRESENTATION LAYER                        │
+│         (React + Vite on Vercel)                            │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │  • Login & Role Selection                            │   │
+│  │  • Resume Upload & Analysis Display                  │   │
+│  │  • Job Browsing with Match Scores                    │   │
+│  │  • Learning Roadmap UI                               │   │
+│  │  • Applications Tracking Dashboard                   │   │
+│  │  • Provider Job Management                           │   │
+│  └──────────────────────────────────────────────────────┘   │
+│                         ↓ (Axios)                           │
+├─────────────────────────────────────────────────────────────┤
+│                   API GATEWAY LAYER                         │
+│      (Express.js + Node.js on Render)                       │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │  Routes:                                             │   │
+│  │  • /api/auth - Authentication, JWT tokens            │   │
+│  │  • /api/user - User profiles, role mgmt              │   │
+│  │  • /api/seeker - Resume, applications                │   │
+│  │  • /api/provider - Job posting, candidates           │   │
+│  │  • /api/jobs - Job CRUD, matching                    │   │
+│  │  • /api/learning-plan - Roadmap operations           │   │
+│  │                                                      │   │
+│  │  Middleware:                                         │   │
+│  │  • JWT verification & role-based access              │   │
+│  │  • Rate limiting (Redis)                             │   │
+│  │  • Error handling & logging                          │   │
+│  │  • File upload (Multer)                              │   │
+│  └──────────────────────────────────────────────────────┘   │
+│                ↓ (HTTP Calls)         ↓ (MongoDB)           │
+├─────────────────────────────────────────────────────────────┤
+│          AI SERVICE LAYER          │    DATA LAYER          │
+│    (FastAPI + Python)              │  (MongoDB, Redis)      │
+│ ┌─────────────────────────────┐    │ ┌──────────────────┐   │
+│ │  Resume Analyzer Agent      │    │ │  Collections:    │   │
+│ │  • PDF parsing              │    │ │  • users         │   │
+│ │  • Skill extraction         │    │ │  • resumes       │   │
+│ │  • NLP processing           │    │ │  • jobs          │   │
+│ │                             │    │ │  • applications  │   │
+│ │  Job Matcher Agent          │    │ │  • learning      │   │
+│ │  • Semantic similarity      │    │ │    plans         │   │
+│ │  • Skill gap analysis       │    │ │  • profiles      │   │
+│ │  • Score calculation        │    │ │                  │   │
+│ │                             │    │ │  Redis Cache:    │   │
+│ │  Roadmap Generator Agent    │    │ │  • Job listings  │   │
+│ │  • Prerequisite mapping     │    │ │  • Rate limits   │   │
+│ │  • Time estimation          │    │ │  • Sessions      │   │
+│ │  • Resource ranking         │    │ │                  │   │
+│ │                             │    │ │  Neo4j Graph:    │   │
+│ │  ↓ (LLM Calls)  ↓ (Graph)   │    │ │  • Skills graph  │   │
+│ └─────────────────────────────┘    │ │  • Prerequisites │   │
+│     ↓         ↓                    │ │  • Relationships │   │
+│  Gemini/   Neo4j          ChromaDB │ │                  │   │
+│  Groq      (Knowledge)    (Vector) │ └──────────────────┘   │
+│            Graph          Store    │                        │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
 ## 🚀 Complete Setup Guide
 
 ### **Step 1: Clone All Repositories**
@@ -234,73 +302,7 @@ npm run dev
 - **Semantic Understanding:** Recognizes skill variations (e.g., "JS" = "JavaScript").
 - **Career Progression:** Suggests next roles based on current skills and market trends.
 
----
 
-## 🏗️ System Architecture
-
-![SkillBridge AI Overall Diagram](images/Overall_diagram.png)
-
-### **Three-Tier Microservices Architecture**
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                   PRESENTATION LAYER                        │
-│         (React + Vite on Vercel)                            │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │  • Login & Role Selection                            │   │
-│  │  • Resume Upload & Analysis Display                  │   │
-│  │  • Job Browsing with Match Scores                    │   │
-│  │  • Learning Roadmap UI                               │   │
-│  │  • Applications Tracking Dashboard                   │   │
-│  │  • Provider Job Management                           │   │
-│  └──────────────────────────────────────────────────────┘   │
-│                         ↓ (Axios)                           │
-├─────────────────────────────────────────────────────────────┤
-│                   API GATEWAY LAYER                         │
-│      (Express.js + Node.js on Render)                       │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │  Routes:                                             │   │
-│  │  • /api/auth - Authentication, JWT tokens            │   │
-│  │  • /api/user - User profiles, role mgmt              │   │
-│  │  • /api/seeker - Resume, applications                │   │
-│  │  • /api/provider - Job posting, candidates           │   │
-│  │  • /api/jobs - Job CRUD, matching                    │   │
-│  │  • /api/learning-plan - Roadmap operations           │   │
-│  │                                                      │   │
-│  │  Middleware:                                         │   │
-│  │  • JWT verification & role-based access              │   │
-│  │  • Rate limiting (Redis)                             │   │
-│  │  • Error handling & logging                          │   │
-│  │  • File upload (Multer)                              │   │
-│  └──────────────────────────────────────────────────────┘   │
-│                ↓ (HTTP Calls)         ↓ (MongoDB)           │
-├─────────────────────────────────────────────────────────────┤
-│          AI SERVICE LAYER          │    DATA LAYER          │
-│    (FastAPI + Python)              │  (MongoDB, Redis)      │
-│ ┌─────────────────────────────┐    │ ┌──────────────────┐   │
-│ │  Resume Analyzer Agent      │    │ │  Collections:    │   │
-│ │  • PDF parsing              │    │ │  • users         │   │
-│ │  • Skill extraction         │    │ │  • resumes       │   │
-│ │  • NLP processing           │    │ │  • jobs          │   │
-│ │                             │    │ │  • applications  │   │
-│ │  Job Matcher Agent          │    │ │  • learning      │   │
-│ │  • Semantic similarity      │    │ │    plans         │   │
-│ │  • Skill gap analysis       │    │ │  • profiles      │   │
-│ │  • Score calculation        │    │ │                  │   │
-│ │                             │    │ │  Redis Cache:    │   │
-│ │  Roadmap Generator Agent    │    │ │  • Job listings  │   │
-│ │  • Prerequisite mapping     │    │ │  • Rate limits   │   │
-│ │  • Time estimation          │    │ │  • Sessions      │   │
-│ │  • Resource ranking         │    │ │                  │   │
-│ │                             │    │ │  Neo4j Graph:    │   │
-│ │  ↓ (LLM Calls)  ↓ (Graph)   │    │ │  • Skills graph  │   │
-│ └─────────────────────────────┘    │ │  • Prerequisites │   │
-│     ↓         ↓                    │ │  • Relationships │   │
-│  Gemini/   Neo4j          ChromaDB │ │                  │   │
-│  Groq      (Knowledge)    (Vector) │ └──────────────────┘   │
-│            Graph          Store    │                        │
-└─────────────────────────────────────────────────────────────┘
-```
 
 ### **Data Flow Pipelines**
 
