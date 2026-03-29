@@ -56,7 +56,7 @@ export default function PostJobPage() {
         type: formData.jobType === "full-time" ? "Full-time" : (formData.jobType === "part-time" ? "Part-time" : (formData.jobType === "internship" ? "Internship" : "Contract")),
         skillsRequired: formData.requirements.split('\n').filter(Boolean)
       };
-      const res = await api.post("/jobs/post", payload);
+      const res = await api.post("/provider/jobs", payload);
       if (res.status === "success") {
         toast.success("Job posted successfully!");
         navigate("/provider-dashboard");

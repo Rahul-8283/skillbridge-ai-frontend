@@ -37,13 +37,13 @@ export const useLearningStore = create((set, get) => ({
   },
 
   fetchLearningPlans: async (userId) => {
+    if (!userId) return { success: false, error: "User ID is required" };
     set({ isLoading: true, error: null });
     try {
       const response = await api.get(`/user/${userId}/learning-plans`);
       const plans = response.data || [];
       set({ 
         learningPlans: plans, 
-        currentPlan: get().currentPlan || (plans.length > 0 ? plans[0] : null),
         isLoading: false 
       });
       return { success: true, plans };

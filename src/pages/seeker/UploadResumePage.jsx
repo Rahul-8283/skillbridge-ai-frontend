@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Upload, FileText, CheckCircle, Loader2 } from "lucide-react";
 import Footer from "../../components/Footer";
@@ -6,13 +6,32 @@ import api from "../../utils/api";
 import { toast } from "react-toastify";
 import { useLearning } from "../../hooks/useLearning";
 
-
 export default function UploadResumePage() {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState(null);
+
+  useEffect(() => {
+    const fetchLatestResume = async () => {
+      try {
+        const res = await api.get("/seeker/resumes");
+        if (res.status === "success" && res.data.length > 0) {
+          // Get the most recent resume
+          const latestResume = res.data[0];
+          if (latestResume.analysis) {
+            setAiAnalysis(latestResume.analysis);
+            setUploadSuccess(true);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch latest resume:", err);
+      }
+    };
+
+    fetchLatestResume();
+  }, []);
 
   const { generateLearningPlan } = useLearning();
   const [roadmapLoading, setRoadmapLoading] = useState(null);
