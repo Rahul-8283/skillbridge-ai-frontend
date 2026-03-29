@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import api from "../../utils/api";
 
 const colorStyles = {
   blue: "from-blue-600/20 to-blue-400/20 border-blue-500/30",
@@ -17,6 +18,11 @@ const textColorMap = {
 
 export default function SeekerStats({ user }) {
   const [profileCompletion, setProfileCompletion] = useState("0%");
+  const [statsData, setStatsData] = useState({
+    applications: "0",
+    matches: "0",
+    interviews: "0",
+  });
 
   useEffect(() => {
     if (user) {
@@ -31,11 +37,31 @@ export default function SeekerStats({ user }) {
     }
   }, [user]);
 
+  useEffect(() => {
+    const fetchStats = async () => {
+      const uId = user?._id || user?.id;
+      if (!uId) return;
+      try {
+        const appsRes = await api.get(`/user/${uId}/applications`);
+        const matchesRes = await api.get(`/jobs/matches/${uId}`);
+        
+        setStatsData({
+          applications: appsRes.data?.length?.toString() || "0",
+          matches: matchesRes.data?.matches?.length?.toString() || "0",
+          interviews: "0",
+        });
+      } catch (err) {
+        console.error("Error fetching live stats:", err);
+      }
+    };
+    fetchStats();
+  }, [user]);
+
   const stats = [
-    { label: "Applications", value: "0", color: "blue" },
-    { label: "Job Matches", value: "0", color: "purple" },
+    { label: "Applications", value: statsData.applications, color: "blue" },
+    { label: "Job Matches", value: statsData.matches, color: "purple" },
     { label: "Profile Complete", value: profileCompletion, color: "green" },
-    { label: "Interviews", value: "0", color: "amber" },
+    { label: "Interviews", value: statsData.interviews, color: "amber" },
   ];
 
   return (

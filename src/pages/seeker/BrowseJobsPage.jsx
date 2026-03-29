@@ -30,7 +30,7 @@ export default function BrowseJobsPage() {
     setApplying(jobId);
     try {
       // 1. Apply for the job
-      await api.post("/seeker/applications", { jobId });
+      await api.post(`/jobs/${jobId}/apply`);
       
       // 2. Generate roadmap for this job
       toast.info("Application successful! Generating custom learning roadmap...", { autoClose: 3000 });
@@ -70,16 +70,17 @@ export default function BrowseJobsPage() {
       const activeJobs = res.data || [];
       
       try {
-        const matchRes = await api.get("/seeker/jobs/matches");
+        const user = JSON.parse(localStorage.getItem("user"));
+        const matchRes = await api.get(`/jobs/matches/${user._id || user.id}`);
         const matchData = matchRes.data?.matches || [];
         setMatches(matchData);
         
         // Merge match data into jobs
         const enrichedJobs = activeJobs.map(job => {
-          const match = matchData.find(m => m.job_id === job._id);
+          const match = matchData.find(m => m.job_id === job._id || m.job_id === job._id.toString());
           return {
             ...job,
-            matchScore: match ? Math.round(match.score * 100) : null,
+            matchScore: match ? Math.round(Number(match.score) * 100) : null,
             missingSkills: match ? match.missing_skills : []
           };
         });

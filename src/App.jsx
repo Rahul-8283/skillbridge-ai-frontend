@@ -17,10 +17,12 @@ import ProfilePage from "./pages/ProfilePage.jsx";
 import PostJobPage from "./pages/provider/PostJobPage.jsx";
 import FindCandidatesPage from "./pages/provider/FindCandidatesPage.jsx";
 import MyPostingsPage from "./pages/provider/MyPostingsPage.jsx";
+import JobApplicationsPage from "./pages/provider/JobApplicationsPage.jsx";
 
 import UploadResumePage from "./pages/seeker/UploadResumePage.jsx";
 import BrowseJobsPage from "./pages/seeker/BrowseJobsPage.jsx";
 import LearningPlanPage from "./pages/seeker/LearningPlanPage.jsx";
+import MyApplicationsPage from "./pages/seeker/MyApplicationsPage.jsx";
 
 function ScrollToTop() {
   const location = useLocation();
@@ -111,6 +113,10 @@ function App() {
             path="/seeker-dashboard/learning-plan"
             element={<ProtectedRoute element={<LearningPlanPage />} requiredRole="seeker" />}
           />
+          <Route
+            path="/seeker-dashboard/applications"
+            element={<ProtectedRoute element={<MyApplicationsPage />} requiredRole="seeker" />}
+          />
 
           {/* Protected Routes - Provider Only */}
           <Route
@@ -128,6 +134,10 @@ function App() {
           <Route
             path="/provider-dashboard/my-postings"
             element={<ProtectedRoute element={<MyPostingsPage />} requiredRole="provider" />}
+          />
+          <Route
+            path="/provider-dashboard/job/:id/applications"
+            element={<ProtectedRoute element={<JobApplicationsPage />} requiredRole="provider" />}
           />
         </Routes>
       </div>

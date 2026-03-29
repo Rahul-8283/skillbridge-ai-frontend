@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Trash2, Edit2, Eye, Calendar, Briefcase, MapPin, DollarSign, X, Loader2 } from "lucide-react";
+import { ArrowLeft, Trash2, Edit2, Eye, Calendar, Briefcase, MapPin, DollarSign, X, Loader2, Users } from "lucide-react";
 import api from "../../utils/api";
 import { toast } from "react-toastify";
 
@@ -226,6 +226,13 @@ export default function MyPostingsPage() {
 
                   {/* Action Buttons */}
                   <div className="flex flex-wrap gap-3">
+                    <button
+                      onClick={() => navigate(`/provider-dashboard/job/${posting._id}/applications`)}
+                      className="px-4 py-2 bg-slate-800 hover:bg-blue-600 text-white rounded-lg flex items-center transition-colors text-sm font-medium"
+                    >
+                      <Users className="w-4 h-4 mr-2" />
+                      View Applicants
+                    </button>
                     <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg font-medium text-sm flex items-center space-x-2 transition-colors">
                       <Eye className="w-4 h-4" />
                       <span>View Details</span>

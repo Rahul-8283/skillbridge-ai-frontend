@@ -58,12 +58,21 @@ export default function SeekerActions() {
       delay: 0.4,
       path: "/seeker-dashboard/learning-plan",
     },
+    {
+      title: "My Applications",
+      description: "Track the status of your job applications",
+      icon: Briefcase,
+      color: "blue",
+      buttonText: "View Applications",
+      delay: 0.5,
+      path: "/seeker-dashboard/applications",
+    },
   ];
 
   return (
     <div className="mb-12">
       <h2 className="text-2xl font-bold mb-6">Quick Actions</h2>
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid md:grid-cols-4 gap-6">
         {actions.map((action, index) => {
           const Icon = action.icon;
           const colors = colorConfig[action.color];

@@ -20,9 +20,22 @@ export default function UploadResumePage() {
         if (res.status === "success" && res.data.length > 0) {
           // Get the most recent resume
           const latestResume = res.data[0];
+          
           if (latestResume.analysis) {
             setAiAnalysis(latestResume.analysis);
             setUploadSuccess(true);
+          } else {
+             // Fallback if analysis is missing on object but user has matches
+             const user = JSON.parse(localStorage.getItem('user'));
+             if (user) {
+               try {
+                  const matchRes = await api.get(`/jobs/matches/${user._id || user.id}`);
+                  if (matchRes.data?.matches?.length > 0) {
+                     setAiAnalysis({ matches: matchRes.data.matches });
+                     setUploadSuccess(true);
+                  }
+               } catch(e) {}
+             }
           }
         }
       } catch (err) {
@@ -92,7 +105,13 @@ export default function UploadResumePage() {
       });
 
       if (res.status === "success") {
-        if (res.data.analysis) {
+        if (res.data.matches && res.data.matches.length > 0) {
+          setAiAnalysis({ matches: res.data.matches });
+          setUploadSuccess(true);
+          if (window.innerWidth >= 768) {
+            toast.success("Resume uploaded and analyzed successfully!");
+          }
+        } else if (res.data.analysis) {
           setAiAnalysis(res.data.analysis);
           setUploadSuccess(true);
           if (window.innerWidth >= 768) {
