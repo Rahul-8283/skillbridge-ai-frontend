@@ -10,6 +10,8 @@ import LoginPage from "./pages/LoginPage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
 
+import SplashScreen from "./components/SplashScreen.jsx";
+
 import SeekerDashboard from "./pages/SeekerDashboard.jsx";
 import ProviderDashboard from "./pages/ProviderDashboard.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
@@ -69,79 +71,81 @@ function App() {
   }, []);
   
   return (
-    <BrowserRouter>
-      <ScrollToTop />
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-        style={{ zIndex: 9999 }}
-      />
-      <div className="min-h-screen bg-slate-950 text-white overflow-hidden">
-        <Navbar scrolled={scrolled} />
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<HeroPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/signup" element={<SignUpPage />} />
-          <Route path="/login" element={<LoginPage />} />
+    <SplashScreen>
+      <BrowserRouter>
+        <ScrollToTop />
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+          style={{ zIndex: 9999 }}
+        />
+        <div className="min-h-screen bg-slate-950 text-white overflow-hidden">
+          <Navbar scrolled={scrolled} />
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<HeroPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/login" element={<LoginPage />} />
 
-          {/* Protected Routes - All Users */}
-          <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} />} />
+            {/* Protected Routes - All Users */}
+            <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} />} />
 
-          {/* Protected Routes - Seeker Only */}
-          <Route
-            path="/seeker-dashboard"
-            element={<ProtectedRoute element={<SeekerDashboard />} requiredRole="seeker" />}
-          />
-          <Route
-            path="/seeker-dashboard/upload-resume"
-            element={<ProtectedRoute element={<UploadResumePage />} requiredRole="seeker" />}
-          />
-          <Route
-            path="/seeker-dashboard/browse-jobs"
-            element={<ProtectedRoute element={<BrowseJobsPage />} requiredRole="seeker" />}
-          />
-          <Route
-            path="/seeker-dashboard/learning-plan"
-            element={<ProtectedRoute element={<LearningPlanPage />} requiredRole="seeker" />}
-          />
-          <Route
-            path="/seeker-dashboard/applications"
-            element={<ProtectedRoute element={<MyApplicationsPage />} requiredRole="seeker" />}
-          />
+            {/* Protected Routes - Seeker Only */}
+            <Route
+              path="/seeker-dashboard"
+              element={<ProtectedRoute element={<SeekerDashboard />} requiredRole="seeker" />}
+            />
+            <Route
+              path="/seeker-dashboard/upload-resume"
+              element={<ProtectedRoute element={<UploadResumePage />} requiredRole="seeker" />}
+            />
+            <Route
+              path="/seeker-dashboard/browse-jobs"
+              element={<ProtectedRoute element={<BrowseJobsPage />} requiredRole="seeker" />}
+            />
+            <Route
+              path="/seeker-dashboard/learning-plan"
+              element={<ProtectedRoute element={<LearningPlanPage />} requiredRole="seeker" />}
+            />
+            <Route
+              path="/seeker-dashboard/applications"
+              element={<ProtectedRoute element={<MyApplicationsPage />} requiredRole="seeker" />}
+            />
 
-          {/* Protected Routes - Provider Only */}
-          <Route
-            path="/provider-dashboard"
-            element={<ProtectedRoute element={<ProviderDashboard />} requiredRole="provider" />}
-          />
-          <Route
-            path="/provider-dashboard/post-job"
-            element={<ProtectedRoute element={<PostJobPage />} requiredRole="provider" />}
-          />
-          <Route
-            path="/provider-dashboard/find-candidates"
-            element={<ProtectedRoute element={<FindCandidatesPage />} requiredRole="provider" />}
-          />
-          <Route
-            path="/provider-dashboard/my-postings"
-            element={<ProtectedRoute element={<MyPostingsPage />} requiredRole="provider" />}
-          />
-          <Route
-            path="/provider-dashboard/job/:id/applications"
-            element={<ProtectedRoute element={<JobApplicationsPage />} requiredRole="provider" />}
-          />
-        </Routes>
-      </div>
-    </BrowserRouter>
+            {/* Protected Routes - Provider Only */}
+            <Route
+              path="/provider-dashboard"
+              element={<ProtectedRoute element={<ProviderDashboard />} requiredRole="provider" />}
+            />
+            <Route
+              path="/provider-dashboard/post-job"
+              element={<ProtectedRoute element={<PostJobPage />} requiredRole="provider" />}
+            />
+            <Route
+              path="/provider-dashboard/find-candidates"
+              element={<ProtectedRoute element={<FindCandidatesPage />} requiredRole="provider" />}
+            />
+            <Route
+              path="/provider-dashboard/my-postings"
+              element={<ProtectedRoute element={<MyPostingsPage />} requiredRole="provider" />}
+            />
+            <Route
+              path="/provider-dashboard/job/:id/applications"
+              element={<ProtectedRoute element={<JobApplicationsPage />} requiredRole="provider" />}
+            />
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </SplashScreen>
   );
 }
 
