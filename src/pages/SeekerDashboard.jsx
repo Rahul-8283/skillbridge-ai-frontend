@@ -38,6 +38,25 @@ export default function SeekerDashboard() {
     checkProfile();
   }, [isAuthenticated, user, navigate]);
 
+  useEffect(() => {
+    const checkResume = async () => {
+      if (isAuthenticated && user) {
+        try {
+          const res = await api.get("/seeker/resumes");
+          if (res.status === "success" && res.data && res.data.length > 0) {
+            setResumeUploaded(true);
+          } else {
+            setResumeUploaded(false);
+          }
+        } catch (err) {
+          console.error("Error checking resume:", err);
+          setResumeUploaded(false);
+        }
+      }
+    };
+    checkResume();
+  }, [isAuthenticated, user]);
+
 
 
   if (!user) {
@@ -50,7 +69,7 @@ export default function SeekerDashboard() {
         <div className="max-w-7xl mx-auto">
           <SeekerHeader user={user} />
           <SeekerStats user={user} />
-          <SeekerActions />
+          <SeekerActions resumeUploaded={resumeUploaded} />
           <div className="hidden md:block">
             <ProfileCompletion user={user} onProfileComplete={() => setProfileCompleted(true)} />
           </div>

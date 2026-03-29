@@ -23,7 +23,7 @@ const colorConfig = {
   },
 };
 
-export default function SeekerActions() {
+export default function SeekerActions({ resumeUploaded = false }) {
   const navigate = useNavigate();
 
   const handleAction = (path) => {
@@ -48,6 +48,8 @@ export default function SeekerActions() {
       buttonText: "Explore",
       delay: 0.3,
       path: "/seeker-dashboard/browse-jobs",
+      disabled: !resumeUploaded,
+      disabledText: "Upload resume first",
     },
     {
       title: "Learning Plan",
@@ -57,6 +59,8 @@ export default function SeekerActions() {
       buttonText: "View Plan",
       delay: 0.4,
       path: "/seeker-dashboard/learning-plan",
+      disabled: !resumeUploaded,
+      disabledText: "Generate from upload",
     },
     {
       title: "My Applications",
@@ -82,7 +86,7 @@ export default function SeekerActions() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: action.delay }}
-              className={`group p-8 rounded-2xl ${colors.bg} transition-all duration-300 cursor-pointer`}
+              className={`group p-8 rounded-2xl ${colors.bg} transition-all duration-300 ${action.disabled ? 'opacity-50' : 'cursor-pointer'}`}
             >
               <div className={colors.icon}>
                 <Icon className={colors.iconColor} />
@@ -90,10 +94,12 @@ export default function SeekerActions() {
               <h3 className="text-xl font-bold mb-2">{action.title}</h3>
               <p className="text-gray-400 mb-6">{action.description}</p>
               <button
-                onClick={() => handleAction(action.path)}
-                className={`w-full py-2 px-4 ${colors.button} text-white font-semibold rounded-lg transition-all duration-300`}
+                onClick={() => !action.disabled && handleAction(action.path)}
+                disabled={action.disabled}
+                className={`w-full py-2 px-4 ${action.disabled ? 'bg-gray-600 cursor-not-allowed' : colors.button} text-white font-semibold rounded-lg transition-all duration-300`}
+                title={action.disabled ? action.disabledText : ''}
               >
-                {action.buttonText}
+                {action.disabled ? action.disabledText : action.buttonText}
               </button>
             </motion.div>
           );
