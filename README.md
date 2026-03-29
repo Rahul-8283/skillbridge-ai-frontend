@@ -86,6 +86,7 @@ JWT_EXPIRES_IN=7d
 
 # AI Service
 FASTAPI_URL=http://localhost:8000
+EOF
 ```
 
 #### **C) AI Service (`.env`)**
@@ -103,6 +104,7 @@ NEO4J_PASSWORD=your_neo4j_password
 
 # ChromaDB
 CHROMA_DB_PATH=./chroma_data
+EOF
 ```
 
 ---
