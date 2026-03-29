@@ -12,28 +12,27 @@ export default function UploadResumePage() {
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState(null);
+  const [hasExistingResume, setHasExistingResume] = useState(false);
 
   useEffect(() => {
     const fetchLatestResume = async () => {
       try {
         const res = await api.get("/seeker/resumes");
         if (res.status === "success" && res.data.length > 0) {
+          setHasExistingResume(true);
+          setUploadSuccess(true);
           // Get the most recent resume
           const latestResume = res.data[0];
           
           if (latestResume.analysis) {
             setAiAnalysis(latestResume.analysis);
-            setUploadSuccess(true);
           } else {
              // Fallback if analysis is missing on object but user has matches
              const user = JSON.parse(localStorage.getItem('user'));
              if (user) {
                try {
                   const matchRes = await api.get(`/jobs/matches/${user._id || user.id}`);
-                  if (matchRes.data?.matches?.length > 0) {
-                     setAiAnalysis({ matches: matchRes.data.matches });
-                     setUploadSuccess(true);
-                  }
+                  setAiAnalysis({ matches: matchRes.data?.matches || [] });
                } catch(e) {}
              }
           }
@@ -70,15 +69,17 @@ export default function UploadResumePage() {
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
-      // Only allow PDF and text files
+      // Keep accepted file types aligned with backend upload middleware.
       if (
         selectedFile.type === "application/pdf" ||
-        selectedFile.type === "text/plain"
+        selectedFile.type === "application/msword" ||
+        selectedFile.type ===
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
       ) {
         setFile(selectedFile);
         setUploadSuccess(false);
       } else {
-        alert("Please upload a PDF or text file");
+        alert("Please upload a PDF or Word document");
       }
     }
   };
@@ -105,6 +106,7 @@ export default function UploadResumePage() {
       });
 
       if (res.status === "success") {
+        setHasExistingResume(true);
         if (res.data.matches && res.data.matches.length > 0) {
           setAiAnalysis({ matches: res.data.matches });
           setUploadSuccess(true);
@@ -143,9 +145,13 @@ export default function UploadResumePage() {
             <ArrowLeft className="w-5 h-5" />
             <span>Back to Dashboard</span>
           </button>
-          <h1 className="text-4xl font-bold mb-2">Upload Your Resume</h1>
+          <h1 className="text-4xl font-bold mb-2">
+            {hasExistingResume ? "Update Your Resume" : "Upload Your Resume"}
+          </h1>
           <p className="text-gray-400">
-            Upload your resume for AI-powered analysis and skill matching
+            {hasExistingResume
+              ? "Your latest resume analysis is shown below. Upload a new resume anytime to refresh your matches."
+              : "Upload your resume for AI-powered analysis and skill matching"}
           </p>
         </div>
       </div>
@@ -164,7 +170,7 @@ export default function UploadResumePage() {
                   <div className="border-2 border-dashed border-slate-700 rounded-lg p-8 text-center hover:border-blue-500 transition-colors cursor-pointer">
                     <input
                       type="file"
-                      accept=".pdf,.txt"
+                      accept=".pdf,.doc,.docx"
                       onChange={handleFileChange}
                       className="hidden"
                       id="file-input"
@@ -178,7 +184,7 @@ export default function UploadResumePage() {
                         Click to upload or drag and drop
                       </p>
                       <p className="text-gray-400 text-sm">
-                        PDF or TXT files up to 10MB
+                        PDF or Word files up to 5MB
                       </p>
                     </label>
                   </div>
@@ -207,7 +213,7 @@ export default function UploadResumePage() {
                       <span>Analyzing...</span>
                     </>
                   ) : (
-                    <span>Upload & Analyze</span>
+                    <span>{hasExistingResume ? "Update & Re-Analyze" : "Upload & Analyze"}</span>
                   )}
                 </button>
               </form>
@@ -295,6 +301,12 @@ export default function UploadResumePage() {
                 </div>
               )}
 
+              {(!aiAnalysis || !aiAnalysis.matches) && (
+                <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 text-gray-300">
+                  Resume exists in your account, but no match details are available yet. Click Update Resume to re-run analysis.
+                </div>
+              )}
+
               {/* Action Buttons */}
               <div className="flex space-x-4">
                 <button
@@ -305,7 +317,7 @@ export default function UploadResumePage() {
                   }}
                   className="flex-1 py-3 px-6 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-lg transition-all duration-300"
                 >
-                  Upload Another Resume
+                  Update Resume
                 </button>
                 <button
                   onClick={() => navigate("/seeker-dashboard")}

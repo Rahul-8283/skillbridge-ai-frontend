@@ -30,18 +30,18 @@ export const useLearning = () => {
   } = useLearningStore();
 
   const { user } = useAuth();
+  const userId = user?._id || user?.id;
 
   // Fetch learning plans on mount
   useEffect(() => {
-    if (user?._id) {
-      fetchLearningPlans(user._id);
-      fetchAchievements(user._id);
-      fetchProgressStats(user._id);
+    if (userId) {
+      fetchLearningPlans(userId);
+      fetchAchievements(userId);
+      fetchProgressStats(userId);
     }
-  }, [user?._id, fetchLearningPlans, fetchAchievements, fetchProgressStats]);
+  }, [userId, fetchLearningPlans, fetchAchievements, fetchProgressStats]);
 
   const handleGenerateLearningPlan = async (jobId, hoursPerDay = 2) => {
-    const userId = user?._id || user?.id;
     if (!userId) {
       throw new Error("User not authenticated");
     }
@@ -49,7 +49,6 @@ export const useLearning = () => {
   };
 
   const handleLogActivity = async (activity) => {
-    const userId = user?._id || user?.id;
     if (!userId) {
       throw new Error("User not authenticated");
     }
@@ -57,7 +56,6 @@ export const useLearning = () => {
   };
 
   const handleFetchActivities = async (dateRange = {}) => {
-    const userId = user?._id || user?.id;
     if (!userId) {
       throw new Error("User not authenticated");
     }
@@ -73,14 +71,14 @@ export const useLearning = () => {
     isLoading,
     error,
     generateLearningPlan: handleGenerateLearningPlan,
-    fetchLearningPlans: () => fetchLearningPlans(user?._id),
+    fetchLearningPlans: () => fetchLearningPlans(userId),
     fetchLearningPlan,
     updateLearningPlan,
     deleteLearningPlan,
     logActivity: handleLogActivity,
     fetchActivities: handleFetchActivities,
-    fetchAchievements: () => fetchAchievements(user?._id),
-    fetchProgressStats: () => fetchProgressStats(user?._id),
+    fetchAchievements: () => fetchAchievements(userId),
+    fetchProgressStats: () => fetchProgressStats(userId),
     addActivity,
     clearCurrentPlan,
     clearError,
@@ -93,12 +91,13 @@ export const useLearning = () => {
 export const useLearningPlans = () => {
   const { learningPlans, isLoading, fetchLearningPlans } = useLearningStore();
   const { user } = useAuth();
+  const userId = user?._id || user?.id;
 
   useEffect(() => {
-    if (user?._id) {
-      fetchLearningPlans(user._id);
+    if (userId) {
+      fetchLearningPlans(userId);
     }
-  }, [user?._id, fetchLearningPlans]);
+  }, [userId, fetchLearningPlans]);
 
   return { learningPlans, isLoading };
 };
@@ -120,15 +119,15 @@ export const useLearningActivities = () => {
   const { activities, isLoading, logActivity, fetchActivities } =
     useLearningStore();
   const { user } = useAuth();
+  const userId = user?._id || user?.id;
 
   useEffect(() => {
-    if (user?._id) {
-      fetchActivities(user._id);
+    if (userId) {
+      fetchActivities(userId);
     }
-  }, [user?._id, fetchActivities]);
+  }, [userId, fetchActivities]);
 
   const handleLogActivity = async (activity) => {
-    const userId = user?._id || user?.id;
     if (!userId) {
       throw new Error("User not authenticated");
     }
@@ -145,12 +144,13 @@ export const useAchievements = () => {
   const { achievements, progressStats, isLoading, fetchAchievements } =
     useLearningStore();
   const { user } = useAuth();
+  const userId = user?._id || user?.id;
 
   useEffect(() => {
-    if (user?._id) {
-      fetchAchievements(user._id);
+    if (userId) {
+      fetchAchievements(userId);
     }
-  }, [user?._id, fetchAchievements]);
+  }, [userId, fetchAchievements]);
 
   return { achievements, progressStats, isLoading };
 };

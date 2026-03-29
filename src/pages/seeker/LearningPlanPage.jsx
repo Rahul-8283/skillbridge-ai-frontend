@@ -31,17 +31,24 @@ export default function LearningPlanPage() {
         completionTime: roadmap.overallDays ? `${Math.round(roadmap.overallDays)} days` : (roadmap.overall_days ? `${Math.round(roadmap.overall_days)} days` : "Unknown"),
         modules: roadmap.skills ? roadmap.skills.map((skill, index) => ({
           id: index + 1,
-          title: skill.keyword || `Module ${index + 1}`,
-          duration: skill.total_days ? `${Math.round(skill.total_days)} days` : "Unknown",
+          title: skill.skill || skill.keyword || `Module ${index + 1}`,
+          duration: skill.total_days ? `${Number(skill.total_days).toFixed(2)} days` : "Unknown",
           lessons: skill.roadmap ? skill.roadmap.length : 0,
           description: skill.summary || "Guided steps to learn this skill.",
           difficulty: "intermediate",
           topics: skill.roadmap || [],
-          videoUrl: skill.video_url || skill.videoUrl,
-          githubUrl: skill.github_url || skill.githubUrl
+          videoUrl: skill.youtube_url || skill.video_url || skill.videoUrl || skill.youtubeUrl,
+          githubUrl: skill.github_url || skill.githubUrl || skill.github_repo_url,
+          githubRepos: Array.isArray(skill.github_repos)
+            ? skill.github_repos
+            : Array.isArray(skill.github)
+              ? skill.github
+              : [],
+          resourceLinks: Array.isArray(skill.resources) ? skill.resources : []
         })) : []
       };
       setLearningPlan(mappedPlan);
+      setCompletedModules(Array.isArray(roadmap.completedModules) ? roadmap.completedModules : []);
     }
   }, [currentPlan, learningPlans]);
 
@@ -122,7 +129,35 @@ export default function LearningPlanPage() {
                 <span>GitHub Repo</span>
               </a>
             )}
-            {!module.videoUrl && !module.githubUrl && (
+            {module.githubRepos
+              .filter((repo) => repo?.url || repo?.html_url)
+              .slice(0, 2)
+              .map((repo, idx) => (
+                <a
+                  key={`${module.id}-repo-${idx}`}
+                  href={repo.url || repo.html_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center space-x-2 px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs text-gray-300 hover:bg-slate-700 transition-all font-semibold"
+                >
+                  <span>{repo.name || repo.full_name || "Open Repo"}</span>
+                </a>
+              ))}
+            {module.resourceLinks
+              .filter((resource) => resource?.url)
+              .slice(0, 2)
+              .map((resource, idx) => (
+                <a
+                  key={`${module.id}-resource-${idx}`}
+                  href={resource.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center space-x-2 px-4 py-2 bg-blue-500/10 border border-blue-500/30 rounded-lg text-xs text-blue-300 hover:bg-blue-500/20 transition-all font-semibold"
+                >
+                  <span>{resource.title || resource.label || "Open Resource"}</span>
+                </a>
+              ))}
+            {!module.videoUrl && !module.githubUrl && module.githubRepos.length === 0 && module.resourceLinks.length === 0 && (
               <span className="text-gray-500 text-xs italic">No external resource links provided</span>
             )}
           </div>
