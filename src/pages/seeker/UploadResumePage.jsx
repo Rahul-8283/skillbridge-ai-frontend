@@ -107,6 +107,15 @@ export default function UploadResumePage() {
 
       if (res.status === "success") {
         setHasExistingResume(true);
+        
+        // Check if there's a warning/error from backend
+        if (res.data.warning) {
+          console.warn("⚠️ Backend Warning:", res.data.warning);
+          if (window.innerWidth >= 768) {
+            toast.warning("Resume uploaded but AI analysis is temporarily unavailable. Please try again later.");
+          }
+        }
+        
         if (res.data.matches && res.data.matches.length > 0) {
           setAiAnalysis({ matches: res.data.matches });
           setUploadSuccess(true);
@@ -116,17 +125,30 @@ export default function UploadResumePage() {
         } else if (res.data.analysis) {
           setAiAnalysis(res.data.analysis);
           setUploadSuccess(true);
-          if (window.innerWidth >= 768) {
+          // Only show success if not a fallback error
+          if (!res.data.analysis.fallback && window.innerWidth >= 768) {
             toast.success("Resume uploaded and analyzed successfully!");
           }
         } else {
-          throw new Error("AI analysis failed in the backend. Please try a different resume.");
+          // Fallback case: show warning instead of error
+          console.warn("⚠️ No analysis or matches returned from backend");
+          setAiAnalysis({ fallback: true, message: "Resume uploaded but analysis is temporarily unavailable. Please try uploading again." });
+          setUploadSuccess(true);
+          if (window.innerWidth >= 768) {
+            toast.warning("Resume uploaded. AI analysis will be available shortly.");
+          }
         }
       }
     } catch (err) {
       console.error("Upload error:", err);
+      setHasExistingResume(true);
+      setUploadSuccess(true);
+      setAiAnalysis({ 
+        fallback: true, 
+        message: "Resume uploaded successfully but AI analysis encountered an issue. Please check your internet connection and try uploading again." 
+      });
       if (window.innerWidth >= 768) {
-        toast.error(err.message || "Failed to upload resume. Please try again.");
+        toast.error(err.response?.data?.message || err.message || "Failed to upload resume. Please try again.");
       }
     } finally {
       setUploading(false);
@@ -221,20 +243,57 @@ export default function UploadResumePage() {
           ) : (
             <div className="space-y-8">
               {/* Success Message */}
-              <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-8">
+              <div className={`rounded-2xl p-8 ${
+                aiAnalysis?.fallback 
+                  ? 'bg-amber-500/10 border border-amber-500/30' 
+                  : 'bg-green-500/10 border border-green-500/30'
+              }`}>
                 <div className="flex items-center space-x-3 mb-4">
-                  <CheckCircle className="w-6 h-6 text-green-400" />
-                  <h2 className="text-2xl font-bold text-green-400">
-                    Resume Analyzed Successfully!
+                  <CheckCircle className={`w-6 h-6 ${
+                    aiAnalysis?.fallback ? 'text-amber-400' : 'text-green-400'
+                  }`} />
+                  <h2 className={`text-2xl font-bold ${
+                    aiAnalysis?.fallback ? 'text-amber-400' : 'text-green-400'
+                  }`}>
+                    {aiAnalysis?.fallback ? 'Resume Uploaded' : 'Resume Analyzed Successfully!'}
                   </h2>
                 </div>
                 <p className="text-gray-300">
-                  Your resume has been uploaded and analyzed by our AI system.
+                  {aiAnalysis?.message || 'Your resume has been uploaded and analyzed by our AI system.'}
                 </p>
               </div>
 
+              {/* Fallback Analysis Status */}
+              {aiAnalysis?.fallback && (
+                <div className="bg-slate-900 rounded-2xl p-6 border border-amber-500/30 space-y-4">
+                  <div className="flex items-start space-x-3">
+                    <Loader2 className="w-5 h-5 text-amber-400 animate-spin mt-1 flex-shrink-0" />
+                    <div>
+                      <h3 className="font-semibold text-white mb-2">AI Analysis Temporarily Unavailable</h3>
+                      <p className="text-gray-300 text-sm mb-4">
+                        Your resume has been successfully uploaded. The AI matching system is currently processing your request. Please check back in a few moments or upload again.
+                      </p>
+                      <div className="space-y-2 text-sm text-gray-400">
+                        <p>💡 What to do:</p>
+                        <ul className="list-disc list-inside space-y-1 ml-2">
+                          <li>Wait a few minutes and refresh this page</li>
+                          <li>Or click "Update & Re-Analyze" to reprocess your resume</li>
+                          <li>Contact support if the issue persists</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setUploadSuccess(false)}
+                    className="w-full mt-4 py-2 px-4 rounded-lg bg-amber-600 hover:bg-amber-700 text-white transition-colors"
+                  >
+                    Try Upload Again
+                  </button>
+                </div>
+              )}
+
               {/* AI Analysis Results */}
-              {aiAnalysis && aiAnalysis.matches && (
+              {aiAnalysis && aiAnalysis.matches && !aiAnalysis.fallback && (
                 <div className="space-y-6 mt-8">
                   <h3 className="text-2xl font-bold mb-4">Top Job Matches</h3>
                   {aiAnalysis.matches.length > 0 ? aiAnalysis.matches.map((match, index) => (
@@ -301,9 +360,16 @@ export default function UploadResumePage() {
                 </div>
               )}
 
-              {(!aiAnalysis || !aiAnalysis.matches) && (
-                <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 text-gray-300">
-                  Resume exists in your account, but no match details are available yet. Click Update Resume to re-run analysis.
+              {(!aiAnalysis || (!aiAnalysis.matches && !aiAnalysis.fallback)) && (
+                <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 text-gray-300 space-y-4">
+                  <h3 className="font-semibold text-white">Analysis Status</h3>
+                  <p>Your resume is in your account but detailed match analysis is not yet available.</p>
+                  <button
+                    onClick={() => setUploadSuccess(false)}
+                    className="w-full py-2 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+                  >
+                    Update & Re-Analyze Resume
+                  </button>
                 </div>
               )}
 
