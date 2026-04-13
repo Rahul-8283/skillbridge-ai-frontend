@@ -102,51 +102,44 @@ export default function UploadResumePage() {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-        timeout: 180000, // 3 minutes for AI analysis
+        timeout: 30000, // Reduced to 30 seconds - backend processes in background
       });
 
       if (res.status === "success") {
         setHasExistingResume(true);
         setUploadSuccess(true);
         
-        // Refetch resume list from database to ensure data is synced
-        try {
-          const resumes = await api.get("/seeker/resumes");
-          console.log("📦 Refetched resumes from database:", resumes.data);
-        } catch (e) {
-          console.error("⚠️ Failed to refetch resumes:", e);
-        }
-        
-        // Trigger stats refresh in parent (SeekerDashboard)
-        console.log("📢 Triggering stats refresh after resume upload");
+        // Trigger stats refresh immediately after upload
         window.dispatchEvent(new CustomEvent('seekerStatsRefresh'));
         
-        // Check if there's a warning/error from backend
-        if (res.data.warning) {
-          console.warn("⚠️ Backend Warning:", res.data.warning);
-          if (window.innerWidth >= 768) {
-            toast.warning("Resume uploaded but AI analysis is temporarily unavailable. Please try again later.");
-          }
+        // Show success message
+        if (res.data.info) {
+          toast.success(res.data.info);
+        } else {
+          toast.success("Resume uploaded successfully! AI analysis is processing...");
         }
         
-        if (res.data.matches && res.data.matches.length > 0) {
-          setAiAnalysis({ matches: res.data.matches });
-          if (window.innerWidth >= 768) {
-            toast.success("Resume uploaded and analyzed successfully!");
+        // Refetch resume list from database after a short delay to get latest data
+        setTimeout(async () => {
+          try {
+            const resumes = await api.get("/seeker/resumes");
+            console.log("📦 Refetched resumes from database:", resumes.data);
+          } catch (e) {
+            console.error("⚠️ Failed to refetch resumes:", e);
           }
+        }, 2000); // Wait 2 seconds before refetching
+        
+        // Set analysis data
+        if (res.data.analysis?.processing) {
+          setAiAnalysis({ 
+            processing: true, 
+            message: 'AI analysis is running in the background. Refresh the page in a moment to see results.'
+          });
+        } else if (res.data.matches && res.data.matches.length > 0) {
+          setAiAnalysis({ matches: res.data.matches });
+          toast.success("Resume analyzed successfully!");
         } else if (res.data.analysis) {
           setAiAnalysis(res.data.analysis);
-          // Only show success if not a fallback error
-          if (!res.data.analysis.fallback && window.innerWidth >= 768) {
-            toast.success("Resume uploaded and analyzed successfully!");
-          }
-        } else {
-          // Fallback case: show warning instead of error
-          console.warn("⚠️ No analysis or matches returned from backend");
-          setAiAnalysis({ fallback: true, message: "Resume uploaded but analysis is temporarily unavailable. Please try uploading again." });
-          if (window.innerWidth >= 768) {
-            toast.warning("Resume uploaded. AI analysis will be available shortly.");
-          }
         }
       }
     } catch (err) {
@@ -261,24 +254,70 @@ export default function UploadResumePage() {
             <div className="space-y-8">
               {/* Success Message */}
               <div className={`rounded-2xl p-8 ${
-                aiAnalysis?.fallback 
+                aiAnalysis?.processing
+                  ? 'bg-blue-500/10 border border-blue-500/30'
+                  : aiAnalysis?.fallback 
                   ? 'bg-amber-500/10 border border-amber-500/30' 
                   : 'bg-green-500/10 border border-green-500/30'
               }`}>
                 <div className="flex items-center space-x-3 mb-4">
-                  <CheckCircle className={`w-6 h-6 ${
-                    aiAnalysis?.fallback ? 'text-amber-400' : 'text-green-400'
-                  }`} />
+                  {aiAnalysis?.processing ? (
+                    <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
+                  ) : (
+                    <CheckCircle className={`w-6 h-6 ${
+                      aiAnalysis?.fallback ? 'text-amber-400' : 'text-green-400'
+                    }`} />
+                  )}
                   <h2 className={`text-2xl font-bold ${
-                    aiAnalysis?.fallback ? 'text-amber-400' : 'text-green-400'
+                    aiAnalysis?.processing
+                      ? 'text-blue-400'
+                      : aiAnalysis?.fallback 
+                      ? 'text-amber-400' 
+                      : 'text-green-400'
                   }`}>
-                    {aiAnalysis?.fallback ? 'Resume Uploaded' : 'Resume Analyzed Successfully!'}
+                    {aiAnalysis?.processing 
+                      ? 'Resume Uploading & Processing...' 
+                      : aiAnalysis?.fallback 
+                      ? 'Resume Uploaded' 
+                      : 'Resume Analyzed Successfully!'}
                   </h2>
                 </div>
                 <p className="text-gray-300">
                   {aiAnalysis?.message || 'Your resume has been uploaded and analyzed by our AI system.'}
                 </p>
               </div>
+
+              {/* Processing State */}
+              {aiAnalysis?.processing && (
+                <div className="bg-slate-900 rounded-2xl p-6 border border-blue-500/30 space-y-4">
+                  <div className="flex items-start space-x-3">
+                    <Loader2 className="w-5 h-5 text-blue-400 animate-spin mt-1 flex-shrink-0" />
+                    <div>
+                      <h3 className="font-semibold text-white mb-2">AI Analysis in Progress</h3>
+                      <p className="text-gray-300 text-sm mb-4">
+                        Your resume has been successfully uploaded. Our AI system is currently analyzing your qualifications and matching you with job opportunities. This usually takes 1-2 minutes.
+                      </p>
+                      <div className="space-y-2 text-sm text-gray-400">
+                        <p>⏳ What's happening:</p>
+                        <ul className="list-disc list-inside space-y-1 ml-2">
+                          <li>Extracting skills and experience from your resume</li>
+                          <li>Matching with available jobs in the database</li>
+                          <li>Calculating compatibility scores</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-blue-500/20 space-y-2">
+                    <p className="text-xs text-gray-500">💡 Tip: Refresh the page in 2-3 minutes to see your matched jobs</p>
+                    <button
+                      onClick={() => window.location.reload()}
+                      className="w-full py-2 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors text-sm"
+                    >
+                      Refresh Now
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Fallback Analysis Status */}
               {aiAnalysis?.fallback && (
