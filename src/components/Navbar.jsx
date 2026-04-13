@@ -6,10 +6,23 @@ import { useAuth } from "../hooks/useAuth";
 
 export default function Navbar({ scrolled }) {
   const [mobileMenuIsOpen, setMobileMenuIsOpen] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const userThere = isAuthenticated && user;
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      setScrollProgress(scrollPercent);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -186,6 +199,9 @@ export default function Navbar({ scrolled }) {
           </div>
         </div>
       )}
+
+      {/* Scroll Progress Bar */}
+      <div className="absolute bottom-0 left-0 h-1 bg-orange-500" style={{ width: `${scrollProgress}%`, transition: 'width 0.1s ease-out' }}></div>
     </nav>
   );
 }
