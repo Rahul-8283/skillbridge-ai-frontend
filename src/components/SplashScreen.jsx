@@ -69,15 +69,29 @@ const SplashScreen = ({ children }) => {
                 ></motion.div>
               </div>
 
+              {/* Rotating Loading Text */}
+              <motion.div
+                key={textIndex}
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                transition={{ duration: 0.4 }}
+                className="h-6 flex items-center justify-center w-full mb-6"
+              >
+                <p className="text-orange-400 text-sm font-medium tracking-wide text-center">
+                  {loadingTexts[textIndex]}
+                </p>
+              </motion.div>
+
               {/* Static Explanatory Text */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.8 }}
-                className="h-8 flex items-center justify-center w-full"
+                className="flex items-center justify-center w-full"
               >
-                <p className="text-gray-400 text-sm font-medium tracking-wide text-center">
-                  Empowering careers through precision intelligence.
+                <p className="text-gray-300 text-base sm:text-lg font-medium tracking-wide text-center">
+                  Where Talent Meets Opportunity Through Intelligence
                 </p>
               </motion.div>
             </div>
