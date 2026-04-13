@@ -117,6 +117,10 @@ export default function UploadResumePage() {
           console.error("⚠️ Failed to refetch resumes:", e);
         }
         
+        // Trigger stats refresh in parent (SeekerDashboard)
+        console.log("📢 Triggering stats refresh after resume upload");
+        window.dispatchEvent(new CustomEvent('seekerStatsRefresh'));
+        
         // Check if there's a warning/error from backend
         if (res.data.warning) {
           console.warn("⚠️ Backend Warning:", res.data.warning);
