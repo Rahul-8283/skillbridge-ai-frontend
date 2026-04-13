@@ -23,18 +23,18 @@ export default function UploadResumePage() {
           setUploadSuccess(true);
           // Get the most recent resume
           const latestResume = res.data[0];
-          
+
           if (latestResume.analysis) {
             setAiAnalysis(latestResume.analysis);
           } else {
-             // Fallback if analysis is missing on object but user has matches
-             const user = JSON.parse(localStorage.getItem('user'));
-             if (user) {
-               try {
-                  const matchRes = await api.get(`/jobs/matches/${user._id || user.id}`);
-                  setAiAnalysis({ matches: matchRes.data?.matches || [] });
-               } catch(e) {}
-             }
+            // Fallback if analysis is missing on object but user has matches
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (user) {
+              try {
+                const matchRes = await api.get(`/jobs/matches/${user._id || user.id}`);
+                setAiAnalysis({ matches: matchRes.data?.matches || [] });
+              } catch (e) { }
+            }
           }
         }
       } catch (err) {
@@ -53,12 +53,12 @@ export default function UploadResumePage() {
     try {
       const planRes = await generateLearningPlan(jobId, 2);
       if (!planRes.success) {
-         toast.error(planRes.error || "Failed to generate learning roadmap");
-         return;
+        toast.error(planRes.error || "Failed to generate learning roadmap");
+        return;
       }
       toast.success("Learning roadmap generated successfully!");
       navigate("/seeker-dashboard/learning-plan");
-    } catch(err) {
+    } catch (err) {
       console.error(err);
       toast.error("Failed to generate learning roadmap.");
     } finally {
@@ -74,7 +74,7 @@ export default function UploadResumePage() {
         selectedFile.type === "application/pdf" ||
         selectedFile.type === "application/msword" ||
         selectedFile.type ===
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
       ) {
         setFile(selectedFile);
         setUploadSuccess(false);
@@ -108,31 +108,45 @@ export default function UploadResumePage() {
       if (res.status === "success") {
         setHasExistingResume(true);
         setUploadSuccess(true);
-        
+
         // Trigger stats refresh immediately after upload
         window.dispatchEvent(new CustomEvent('seekerStatsRefresh'));
-        
+
         // Show success message
         if (res.data.info) {
           toast.success(res.data.info);
         } else {
           toast.success("Resume uploaded successfully! AI analysis is processing...");
         }
-        
-        // Refetch resume list from database after a short delay to get latest data
-        setTimeout(async () => {
+
+        // Refetch resume list from database to get latest processing data
+        let attempts = 0;
+        const pollInterval = setInterval(async () => {
           try {
+            attempts++;
             const resumes = await api.get("/seeker/resumes");
-            console.log("📦 Refetched resumes from database:", resumes.data);
+            if (resumes.status === "success" && resumes.data.length > 0) {
+              const latest = resumes.data[0];
+              if (latest.analysis && !latest.analysis.processing) {
+                // Analysis is complete!
+                setAiAnalysis(latest.analysis);
+                clearInterval(pollInterval);
+                toast.success("Resume analyzed and matches generated successfully!");
+              }
+            }
+            if (attempts >= 30) {
+               // Give up after 90s, keep showing "refresh page manually" message
+               clearInterval(pollInterval); 
+            }
           } catch (e) {
-            console.error("⚠️ Failed to refetch resumes:", e);
+            console.error("⚠️ Failed to poll resumes:", e);
           }
-        }, 2000); // Wait 2 seconds before refetching
-        
+        }, 3000);
+
         // Set analysis data
         if (res.data.analysis?.processing) {
-          setAiAnalysis({ 
-            processing: true, 
+          setAiAnalysis({
+            processing: true,
             message: 'AI analysis is running in the background. Refresh the page in a moment to see results.'
           });
         } else if (res.data.matches && res.data.matches.length > 0) {
@@ -146,9 +160,9 @@ export default function UploadResumePage() {
       console.error("Upload error:", err);
       setHasExistingResume(true);
       setUploadSuccess(true);
-      setAiAnalysis({ 
-        fallback: true, 
-        message: "Resume uploaded successfully but AI analysis encountered an issue. Please check your internet connection and try uploading again." 
+      setAiAnalysis({
+        fallback: true,
+        message: "Resume uploaded successfully but AI analysis encountered an issue. Please check your internet connection and try uploading again."
       });
       if (window.innerWidth >= 768) {
         toast.error(err.response?.data?.message || err.message || "Failed to upload resume. Please try again.");
@@ -233,11 +247,10 @@ export default function UploadResumePage() {
                 <button
                   type="submit"
                   disabled={uploading}
-                  className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${
-                    uploading
+                  className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${uploading
                       ? "bg-slate-700 text-gray-400 cursor-not-allowed"
                       : "bg-blue-600 hover:bg-blue-700 text-white"
-                  }`}
+                    }`}
                 >
                   {uploading ? (
                     <>
@@ -253,33 +266,30 @@ export default function UploadResumePage() {
           ) : (
             <div className="space-y-8">
               {/* Success Message */}
-              <div className={`rounded-2xl p-8 ${
-                aiAnalysis?.processing
+              <div className={`rounded-2xl p-8 ${aiAnalysis?.processing
                   ? 'bg-blue-500/10 border border-blue-500/30'
-                  : aiAnalysis?.fallback 
-                  ? 'bg-amber-500/10 border border-amber-500/30' 
-                  : 'bg-green-500/10 border border-green-500/30'
-              }`}>
+                  : aiAnalysis?.fallback
+                    ? 'bg-amber-500/10 border border-amber-500/30'
+                    : 'bg-green-500/10 border border-green-500/30'
+                }`}>
                 <div className="flex items-center space-x-3 mb-4">
                   {aiAnalysis?.processing ? (
                     <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
                   ) : (
-                    <CheckCircle className={`w-6 h-6 ${
-                      aiAnalysis?.fallback ? 'text-amber-400' : 'text-green-400'
-                    }`} />
+                    <CheckCircle className={`w-6 h-6 ${aiAnalysis?.fallback ? 'text-amber-400' : 'text-green-400'
+                      }`} />
                   )}
-                  <h2 className={`text-2xl font-bold ${
-                    aiAnalysis?.processing
+                  <h2 className={`text-2xl font-bold ${aiAnalysis?.processing
                       ? 'text-blue-400'
-                      : aiAnalysis?.fallback 
-                      ? 'text-amber-400' 
-                      : 'text-green-400'
-                  }`}>
-                    {aiAnalysis?.processing 
-                      ? 'Resume Uploading & Processing...' 
-                      : aiAnalysis?.fallback 
-                      ? 'Resume Uploaded' 
-                      : 'Resume Analyzed Successfully!'}
+                      : aiAnalysis?.fallback
+                        ? 'text-amber-400'
+                        : 'text-green-400'
+                    }`}>
+                    {aiAnalysis?.processing
+                      ? 'Resume Uploading & Processing...'
+                      : aiAnalysis?.fallback
+                        ? 'Resume Uploaded'
+                        : 'Resume Analyzed Successfully!'}
                   </h2>
                 </div>
                 <p className="text-gray-300">
@@ -360,7 +370,7 @@ export default function UploadResumePage() {
                           Match Score: {Number(match.score).toFixed(2)}%
                         </div>
                       </div>
-                      
+
                       <div className="grid md:grid-cols-2 gap-6">
                         <div>
                           <h5 className="font-semibold text-gray-300 mb-2">Matched Skills</h5>
