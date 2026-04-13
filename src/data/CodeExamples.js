@@ -1,61 +1,45 @@
 export const codeExamples = {
-  "JobSeeker": `import { useState } from "react";
-import { analyzeResume } from "@skillbridge/ai";
+  "JobSeeker": `// 🟢 Generating tailored career path from uploaded resume
 
-function JobSeeker() {
-  const [matchScore, setMatchScore] = useState(0);
+const profileAnalysis = {
+  user: "Alex Chen",
+  role_desired: "Frontend Developer",
+  skill_match: "94%",
+  top_matches: [
+    { company: "TechVision Inc.", role: "Senior Explorer" },
+    { company: "Global Systems", role: "UI/UX Developer" }
+  ],
+  missing_skills: ["GraphQL"],
+  action: "Generating learning roadmap..."
+};`,
+  "JobProvider": `// 🟢 Scanning global talent pool for ideal matches
 
-  const calculateSkillMatch = async (resume) => {
-    const score = await analyzeResume(resume);
-    setMatchScore(score);
-  };
-
-  return (
-    <div className="seeker-dashboard">
-      <h2>Your Skill Match: {matchScore}%</h2>
-      <button onClick={() => calculateSkillMatch()}>
-        Analyze My Resume
-      </button>
-    </div>
-  );
-}`,
-  "JobProvider": `import { useState } from "react";
-import { findCandidates } from "@skillbridge/ai";
-
-export default function JobProvider() {
-  const [candidates, setCandidates] = useState([]);
-
-  const searchCandidates = async (jobDesc) => {
-    const results = await findCandidates(jobDesc);
-    setCandidates(results);
-  };
-
-  return (
-    <section className="provider-dashboard">
-      <h2>Top Matches: {candidates.length}</h2>
-      <button onClick={() => searchCandidates()}>
-        Find Perfect Candidates
-      </button>
-    </section>
-  );
-}`,
+const candidateScan = {
+  listing: "Lead Software Engineer",
+  ideal_skills: ["React", "Node.js", "System Design"],
+  top_candidates: [
+    { name: "Sarah J.", score: "96%", highlight: "5 yrs Node" },
+    { name: "Michael", score: "91%", highlight: "Strong React" }
+  ],
+  action: "Initiating automated brief interviews..."
+};`,
 };
 
 export const floatingCards = {
   "JobSeeker": {
-    bgColor: "bg-blue-500/20",
-    iconColor: "text-blue-400",
-    textColor: "text-blue-200",
-    contentColor: "text-blue-300",
+    bgColor: "bg-orange-500/20",
+    iconColor: "text-orange-400",
+    textColor: "text-white",
+    contentColor: "text-orange-200",
     icon: "📊",
     title: "Resume Analysis",
     content: "AI analyzes your skills and matches with perfect jobs",
   },
   "JobProvider": {
-    bgColor: "bg-purple-500/20",
-    iconColor: "text-purple-400",
-    textColor: "text-purple-200",
-    contentColor: "text-purple-300",
+    bgColor: "bg-orange-500/20",
+    iconColor: "text-orange-400",
+    textColor: "text-white",
+    contentColor: "text-orange-200",
     icon: "🎯",
     title: "Smart Matching",
     content: "Find candidates perfectly matched to your job description",

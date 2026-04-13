@@ -28,8 +28,8 @@ export default function Hero() {
         }}
       />
 
-      <div className="absolute top-20 left-4 sm:left-10 w-48 sm:w-72 h-48 sm:h-72 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-20 right-4 sm:right-10 w-64 sm:w-96 h-64 sm:h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+      <div className="absolute top-20 left-4 sm:left-10 w-48 sm:w-72 h-48 sm:h-72 bg-orange-500/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-20 right-4 sm:right-10 w-64 sm:w-96 h-64 sm:h-96 bg-orange-400/10 rounded-full blur-3xl animate-pulse delay-1000" />
 
       <div className="max-w-7xl mx-auto text-center relative w-full">
         <div className="max-w-7xl mx-auto flex flex-col lg:grid lg:grid-cols-2 text-center lg:text-left gap-6 sm:gap-8 lg:gap-12 items-center relative">
@@ -42,13 +42,13 @@ export default function Hero() {
             </div>
 
             <h1 className="text-5xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-semibold mb-4 sm:mb-6 animate-in slide-in-from-bottom duration-700 delay-100 leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>
-              <span className="bg-gradient-to-r from-white via-blue-100 to-cyan-100 bg-clip-text text-transparent block mb-1 sm:mb-2">
+              <span className="bg-gradient-to-r from-white via-white to-orange-100 bg-clip-text text-transparent block mb-1 sm:mb-2">
                 Grow Smarter
               </span>
-              <span className="bg-gradient-to-b from-blue-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent block mb-1 sm:mb-2">
+              <span className="bg-gradient-to-b from-orange-400 via-orange-500 to-orange-400 bg-clip-text text-transparent block mb-1 sm:mb-2">
                 Match Faster
               </span>
-              <span className="bg-gradient-to-r from-white via-blue-100 to-cyan-100 bg-clip-text text-transparent block mb-1 sm:mb-2">
+              <span className="bg-gradient-to-r from-white via-white to-orange-100 bg-clip-text text-transparent block mb-1 sm:mb-2">
                 With SkillBridge
               </span>
             </h1>
@@ -123,14 +123,16 @@ export default function Hero() {
                       style={nightOwl}
                       customStyle={{
                         margin: 0,
+                        backgroundColor: "rgba(0, 0, 0, 0.4)", /* Transparent pure black instead of deeply blue NightOwl */
                         borderRadius: "8px",
-                        fontSize: "11px",
-                        lineHeight: "1.4",
+                        fontSize: "13px",
+                        lineHeight: "1.5",
                         height: "100%",
-                        border: "1px solid #3c3c3c",
+                        border: "1px solid rgba(255, 255, 255, 0.05)",
                         wordWrap: "break-word",
                         whiteSpace: "pre-wrap",
                         textAlign: "left",
+                        fontFamily: "'Outfit', sans-serif"
                       }}
                     >
                       {codeExamples[activeTab]}

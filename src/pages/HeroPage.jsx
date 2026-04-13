@@ -8,7 +8,7 @@ export default function HeroPage() {
   return (
     <>
       <HeroSection />
-      {/* <Features /> */}
+      <Features />  
       {/* <Pricing /> */}
       {/* <Testimonials /> */}
       <Footer />

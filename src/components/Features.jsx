@@ -3,35 +3,45 @@ import { nightOwl } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
 const features = [
   {
-    title: "AI Code Completion",
+    title: "AI Resume Parsing",
     description:
-      "Intelligent code suggestions powered by advanced AI that learns from your coding patterns. Get real-time assistance with syntax, logic, and best practices.",
-    codeSnippet: `function handleSubmit() {
-  // AI suggests next line
-  const data = await fetch("/api/submit")
-  // Auto-completed by AI
+      "Instantly extract intelligence from any uploaded resume format. Our engine identifies your core skills, experience, and educational background without manual data entry.",
+    codeSnippet: `{
+  "applicant": "Jane Doe",
+  "role": "Full Stack Developer",
+  "extracted_skills": ["React", "Node.js", "TailwindCSS"],
+  "experience_years": 4,
+  "confidence_score": 0.98
 }`,
     imagePosition: "left",
   },
   {
-    title: "Automated Testing",
+    title: "Precision Job Matching",
     description:
-      "Generate comprehensive test suites automatically. Our AI analyzes your code and creates unit tests, integration tests, and edge case coverage.",
-    codeSnippet: `describe("User Authentication", () => {
-  // Auto-generated tests
-  it("should login successfully", () => {
-    // Test implementation
-  })
-})`,
+      "Stop guessing. Our advanced vector embeddings match candidates to job requirements instantly, providing deep compatibility scores based on actual skill overlap.",
+    codeSnippet: `{
+  "job_listing": "Senior Frontend Engineer",
+  "candidate": "Jane Doe",
+  "overall_match": "92%",
+  "skill_gaps": ["GraphQL"],
+  "recommendation": "Highly Recommended"
+}`,
     imagePosition: "right",
   },
   {
-    title: "Smart Debugging",
+    title: "GenAI Learning Roadmaps",
     description:
-      "Identify and fix bugs before they reach production. AI-powered error detection and resolution suggestions help you debug faster.",
-    codeSnippet: `// AI suggests fix:
-const result = await processData(input)
-// Fixed: Added await keyword`,
+      "Falling short on a requirement? SkillBridge automatically generates a personalized, step-by-step learning roadmap to help you bridge any skill gaps for your dream job.",
+    codeSnippet: `{
+  "target_role": "Senior Frontend Engineer",
+  "missing_skill": "GraphQL",
+  "roadmap": [
+    "1. Understand GraphQL Schemas and Resolvers",
+    "2. Integrate Apollo Client in React",
+    "3. Build a sample GraphQL API"
+  ],
+  "estimated_time": "2 Weeks"
+}`,
     imagePosition: "left",
   },
 ];
@@ -46,11 +56,11 @@ export default function Features() {
         <div className="text-center mb-12 sm:mb-16 lg:mb-20">
           <h2 className="text-5xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6">
             <span className="bg-gradient-to-b from-white to-gray-300 bg-clip-text text-transparent">
-              Your Complete Development
+              Bridge the Gap With
             </span>
             <br />
-            <span className="bg-gradient-to-b from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-              Workflow
+            <span className="bg-gradient-to-b from-orange-400 to-orange-500 bg-clip-text text-transparent">
+              Intelligent Matching
             </span>
           </h2>
         </div>
@@ -67,7 +77,7 @@ export default function Features() {
               <div className="flex-1 w-full">
                 <div className="relative group">
                   <div
-                    className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 
+                    className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-gray-800/20 
                   rounded-xl sm:rounded-2xl transition-all duration-500"
                   />
                   <div
@@ -89,7 +99,7 @@ export default function Features() {
                       </div>
                       <div>
                         <SyntaxHighlighter
-                          language="javascript"
+                          language="json"
                           style={nightOwl}
                           customStyle={{
                             margin: 0,
@@ -112,7 +122,7 @@ export default function Features() {
               {/* text section */}
               <div className="flex-1 w-full">
                 <div className="max-w-lg mx-auto lg:mx-0 text-center lg:text-left">
-                  <h3 className="text-4xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6 text-white">
+                  <h3 className="text-4xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6 text-white" style={{ fontFamily: 'var(--font-heading)' }}>
                     {feature.title}
                   </h3>
                   <p className="text-gray-300 text-base text-xl sm:text-lg leading-relaxed">
