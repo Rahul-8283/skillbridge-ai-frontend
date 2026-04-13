@@ -107,6 +107,15 @@ export default function UploadResumePage() {
 
       if (res.status === "success") {
         setHasExistingResume(true);
+        setUploadSuccess(true);
+        
+        // Refetch resume list from database to ensure data is synced
+        try {
+          const resumes = await api.get("/seeker/resumes");
+          console.log("📦 Refetched resumes from database:", resumes.data);
+        } catch (e) {
+          console.error("⚠️ Failed to refetch resumes:", e);
+        }
         
         // Check if there's a warning/error from backend
         if (res.data.warning) {
@@ -118,13 +127,11 @@ export default function UploadResumePage() {
         
         if (res.data.matches && res.data.matches.length > 0) {
           setAiAnalysis({ matches: res.data.matches });
-          setUploadSuccess(true);
           if (window.innerWidth >= 768) {
             toast.success("Resume uploaded and analyzed successfully!");
           }
         } else if (res.data.analysis) {
           setAiAnalysis(res.data.analysis);
-          setUploadSuccess(true);
           // Only show success if not a fallback error
           if (!res.data.analysis.fallback && window.innerWidth >= 768) {
             toast.success("Resume uploaded and analyzed successfully!");
@@ -133,7 +140,6 @@ export default function UploadResumePage() {
           // Fallback case: show warning instead of error
           console.warn("⚠️ No analysis or matches returned from backend");
           setAiAnalysis({ fallback: true, message: "Resume uploaded but analysis is temporarily unavailable. Please try uploading again." });
-          setUploadSuccess(true);
           if (window.innerWidth >= 768) {
             toast.warning("Resume uploaded. AI analysis will be available shortly.");
           }
@@ -153,6 +159,13 @@ export default function UploadResumePage() {
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleRetry = () => {
+    // Clear form and let user try again
+    setFile(null);
+    setUploadSuccess(false);
+    setAiAnalysis(null);
   };
 
   return (
