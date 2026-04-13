@@ -69,9 +69,8 @@ export default function Features() {
           {features.map((feature, key) => (
             <div
               key={key}
-              className={`flex flex-col lg:flex-row items-center gap-8 sm:gap-12 ${
-                feature.imagePosition === "right" ? "lg:flex-row-reverse" : ""
-              }`}
+              className={`flex flex-col lg:flex-row items-center gap-8 sm:gap-12 ${feature.imagePosition === "right" ? "lg:flex-row-reverse" : ""
+                }`}
             >
               {/* Code Section */}
               <div className="flex-1 w-full">
@@ -122,7 +121,7 @@ export default function Features() {
               {/* text section */}
               <div className="flex-1 w-full">
                 <div className="max-w-lg mx-auto lg:mx-0 text-center lg:text-left">
-                  <h3 className="text-4xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6 text-white" style={{ fontFamily: 'var(--font-heading)' }}>
+                  <h3 className="text-4xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6 text-white">
                     {feature.title}
                   </h3>
                   <p className="text-gray-300 text-base text-xl sm:text-lg leading-relaxed">

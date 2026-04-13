@@ -1,28 +1,62 @@
 export const codeExamples = {
-  "JobSeeker": `// 🟢 Generating tailored career path from uploaded resume
+  "JobSeeker": `import { useState } from "react";
+import { SkillBridgeAI } from "@skillbridge/sdk";
 
-const profileAnalysis = {
-  user: "Alex Chen",
-  role_desired: "Frontend Developer",
-  skill_match: "94%",
-  top_matches: [
-    { company: "TechVision Inc.", role: "Senior Explorer" },
-    { company: "Global Systems", role: "UI/UX Developer" }
-  ],
-  missing_skills: ["GraphQL"],
-  action: "Generating learning roadmap..."
-};`,
-  "JobProvider": `// 🟢 Scanning global talent pool for ideal matches
+export default function JobSeekerDashboard() {
+  const [profileMatch, setProfileMatch] = useState(null);
 
-const candidateScan = {
-  listing: "Lead Software Engineer",
-  ideal_skills: ["React", "Node.js", "System Design"],
-  top_candidates: [
-    { name: "Sarah J.", score: "96%", highlight: "5 yrs Node" },
-    { name: "Michael", score: "91%", highlight: "Strong React" }
-  ],
-  action: "Initiating automated brief interviews..."
-};`,
+  const analyzeAndMatch = async (resumeFile) => {
+    // 1. Extract skills via advanced AI syntax parser
+    const skills = await SkillBridgeAI.parseResume(resumeFile);
+    
+    // 2. Query Vector DB for high-compatibility roles
+    const matches = await SkillBridgeAI.findRoles(skills);
+    
+    // 3. Generate missing-skill learning roadmaps
+    const roadmap = await SkillBridgeAI.buildRoadmap(skills);
+    
+    setProfileMatch({ matches, roadmap });
+  };
+
+  return (
+    <div className="seeker-dashboard p-6">
+      <h1>Your Skill Match: {profileMatch?.matches[0].score || '0'}%</h1>
+      <button onClick={() => analyzeAndMatch(myResume)}>
+        Analyze My Profile
+      </button>
+      {profileMatch?.roadmap && <LearningPath data={profileMatch.roadmap} />}
+    </div>
+  );
+}`,
+  "JobProvider": `import { useState, useCallback } from "react";
+import { SkillBridgeAI } from "@skillbridge/sdk";
+
+export default function JobProviderDashboard() {
+  const [candidates, setCandidates] = useState([]);
+
+  const scanTalentPool = useCallback(async (jobRequirement) => {
+    // 1. Convert requirements into semantic embeddings
+    const reqVector = await SkillBridgeAI.embed(jobRequirement);
+    
+    // 2. Scan millions of profiles instantly
+    const results = await SkillBridgeAI.vectorSearch(reqVector, { minScore: 0.90 });
+    
+    // 3. Auto-schedule initial AI interviews
+    await SkillBridgeAI.scheduleInterviews(results.slice(0, 5));
+    
+    setCandidates(results);
+  }, []);
+
+  return (
+    <section className="provider-dashboard p-6">
+      <h2>Top Candidate Matches: {candidates.length}</h2>
+      <button onClick={() => scanTalentPool(openReq)}>
+        Find Perfect Candidates
+      </button>
+      <CandidateGrid candidates={candidates} />
+    </section>
+  );
+}`,
 };
 
 export const floatingCards = {

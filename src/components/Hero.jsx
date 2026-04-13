@@ -75,9 +75,9 @@ export default function Hero() {
           </div>
           <div className="relative order-2 w-full">
             <div className="relative bg-white/5 backdrop-blur-xl rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-2xl border border-white/10">
-              <div className="bg-gradient-to-br from-gray-900/20 to-gray-800/20 backdrop-blur-sm rounded-lg overflow-hidden h-[280px] sm:h-[350px] lg:h-[450px] border border-white/5">
+              <div className="bg-gradient-to-br from-gray-900/20 to-gray-800/20 backdrop-blur-sm rounded-lg overflow-hidden h-[280px] sm:h-[350px] lg:h-[450px] border border-white/5 flex flex-col">
                 {/* IDE HEADER */}
-                <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 bg-white/5 backdrop-blur-sm border-b border-white/10">
+                <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 bg-white/5 backdrop-blur-sm border-b border-white/10 shrink-0">
                   <div className="flex items-center space-x-2">
                     <div className="flex items-center space-x-1 sm:space-x-2">
                       <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-red-500" />
@@ -91,44 +91,41 @@ export default function Hero() {
                   <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
                 </div>
 
-                <div className="p-3 sm:p-4 relative h-full">
+                <div className="p-3 sm:p-4 relative flex-1 flex flex-col min-h-0">
                   {/* file tabs */}
-                  <div className="flex space-x-1 sm:space-x-2 mb-3 sm:mb-4 overflow-x-auto">
+                  <div className="flex space-x-1 sm:space-x-2 mb-3 sm:mb-4 overflow-x-auto shrink-0">
                     <button
                       onClick={() => setActiveTab("JobSeeker")}
-                      className={`px-3 py-2 backdrop-blur-sm tex-xs sm:text-sm rounded-t-lg border ${
-                        activeTab === "JobSeeker"
+                      className={`px-3 py-2 backdrop-blur-sm tex-xs sm:text-sm rounded-t-lg border ${activeTab === "JobSeeker"
                           ? "bg-blue-500/30 text-white border-blue-400/20"
                           : "bg-white/5 text-gray-300 border-white/10 hover:bg-white/10"
-                      }  transition-all duration-200 whitespace-nowrap`}
+                        }  transition-all duration-200 whitespace-nowrap`}
                     >
                       Job Seeker
                     </button>
                     <button
                       onClick={() => setActiveTab("JobProvider")}
-                      className={`px-3 py-2 backdrop-blur-sm tex-xs sm:text-sm rounded-t-lg border ${
-                        activeTab === "JobProvider"
+                      className={`px-3 py-2 backdrop-blur-sm tex-xs sm:text-sm rounded-t-lg border ${activeTab === "JobProvider"
                           ? "bg-blue-500/30 text-white border-blue-400/20"
                           : "bg-white/5 text-gray-300 border-white/10 hover:bg-white/10"
-                      }  transition-all duration-200 whitespace-nowrap`}
+                        }  transition-all duration-200 whitespace-nowrap`}
                     >
                       Job Provider
                     </button>
                   </div>
 
                   {/* Code Content */}
-                  <div className="relative overflow-hidden flex-grow">
+                  <div className="relative overflow-auto flex-1 rounded-lg bg-black/40 border border-white/5">
                     <SyntaxHighlighter
                       language="javascript"
                       style={nightOwl}
                       customStyle={{
                         margin: 0,
-                        backgroundColor: "rgba(0, 0, 0, 0.4)", /* Transparent pure black instead of deeply blue NightOwl */
+                        backgroundColor: "transparent",
                         borderRadius: "8px",
                         fontSize: "13px",
                         lineHeight: "1.5",
-                        height: "100%",
-                        border: "1px solid rgba(255, 255, 255, 0.05)",
+                        minHeight: "100%",
                         wordWrap: "break-word",
                         whiteSpace: "pre-wrap",
                         textAlign: "left",

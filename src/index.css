@@ -1,5 +1,5 @@
 /* ===== GOOGLE FONTS ===== */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Nunito+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 /* ===== TAILWIND ===== */
 @import "tailwindcss";
@@ -64,7 +64,7 @@
 @layer base {
   :root {
     --font-primary: "Outfit", sans-serif;
-    --font-heading: "Nunito Sans", sans-serif;
+    --font-heading: "Outfit", sans-serif;
   }
 
   body {
