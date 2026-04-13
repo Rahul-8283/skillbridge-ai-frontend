@@ -132,7 +132,7 @@ export default function BrowseJobsPage() {
 
     // Apply job type filter
     if (selectedFilter !== "all") {
-      filtered = filtered.filter((job) => job.type === selectedFilter);
+      filtered = filtered.filter((job) => job.type?.toLowerCase() === selectedFilter.toLowerCase());
     }
 
     setFilteredJobs(filtered);

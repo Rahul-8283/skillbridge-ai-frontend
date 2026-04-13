@@ -24,17 +24,31 @@ export default function UploadResumePage() {
           // Get the most recent resume
           const latestResume = res.data[0];
 
-          if (latestResume.analysis) {
+          // ALWAYS attempt to get matches directly from the endpoint as the ultimate source of truth
+          const user = JSON.parse(localStorage.getItem('user'));
+          if (user) {
+            try {
+              const matchRes = await api.get(`/jobs/matches/${user._id || user.id}`);
+              const matches = matchRes.data?.matches || [];
+              
+              if (matches.length > 0) {
+                 setAiAnalysis({ matches });
+                 return; // Exit early since we have live match data
+              }
+            } catch (e) {
+              console.error("Match fetch fallback error:", e);
+            }
+          }
+
+          // If no live matches exist, check the resume state
+          if (latestResume.analysis && !latestResume.analysis.processing) {
             setAiAnalysis(latestResume.analysis);
           } else {
-            // Fallback if analysis is missing on object but user has matches
-            const user = JSON.parse(localStorage.getItem('user'));
-            if (user) {
-              try {
-                const matchRes = await api.get(`/jobs/matches/${user._id || user.id}`);
-                setAiAnalysis({ matches: matchRes.data?.matches || [] });
-              } catch (e) { }
-            }
+            // Processing is TRUE but no matches exist on page load. It's likely stuck.
+            setAiAnalysis({ 
+              fallback: true, 
+              message: "Previous upload analysis was interrupted. Please click 'Update Resume' to try uploading again." 
+            });
           }
         }
       } catch (err) {
