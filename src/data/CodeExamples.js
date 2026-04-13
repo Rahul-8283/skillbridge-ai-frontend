@@ -1,33 +1,34 @@
 export const codeExamples = {
-  "JobSeeker": `🚀 Welcome to your personal Career Accelerator!
+  "JobSeeker": `
+Analyzing semantic footprint...
+Vector matching algorithm active.
 
-Here's how SkillBridge AI works for you:
+SkillBridge evaluates your professional 
+trajectory against global opportunities 
+in real-time.
 
-• 📄 Smart Upload: 
-  Drop your resume. Our AI instantly parses it.
+Our intelligence engine preemptively 
+identifies skill gaps and generates 
+dynamic learning curves to ensure 
+you remain the optimal candidate.
 
-• 🎯 Precision Matching: 
-  We map your exact skills & potential 
-  to top open roles globally.
-
-• 🛤️ GenAI Roadmaps: 
-  Missing a requirement? 
-  Get a custom learning path to bridge the gap!`,
+Status: Ready for profile integration.`,
   
-  "JobProvider": `⚡ Supercharge your Hiring Pipeline!
 
-Say goodbye to manual resume screening:
+"JobProvider": `
+Scanning dynamic talent topology...
+Deep verification active.
 
-• 🔎 Deep Semantic Search: 
-  Scan our entire talent pool in seconds.
+Identify exceptional candidates through 
+pure semantic resonance rather than 
+static keywords.
 
-• 🧠 Beyond Keywords: 
-  Find candidates who truly possess 
-  the core skills your team needs.
+Instantly shortlist qualified talent 
+with transparent, data-driven 
+compatibility scoring that reduces 
+hiring friction by orders of magnitude.
 
-• 📊 Automated Scoring: 
-  Get an immediate shortlist of talent with 
-  fit-scoring and skill-gap analysis.`,
+Status: Awaiting job requisition.`,
 };
 
 export const floatingCards = {
