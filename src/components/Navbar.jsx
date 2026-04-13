@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import "./Navbar.css";
 
 export default function Navbar({ scrolled }) {
   const [mobileMenuIsOpen, setMobileMenuIsOpen] = useState(false);
@@ -200,8 +201,22 @@ export default function Navbar({ scrolled }) {
         </div>
       )}
 
-      {/* Scroll Progress Bar */}
-      <div className="absolute bottom-0 left-0 h-1 bg-orange-500" style={{ width: `${scrollProgress}%`, transition: 'width 0.1s ease-out' }}></div>
+      {/* Animated 3D Scroll Progress Dashes */}
+      <div className="absolute bottom-0 left-0 w-full h-1 bg-transparent overflow-hidden">
+        <div className="scroll-dashes-container">
+          {[...Array(20)].map((_, i) => {
+            const dashThreshold = (i / 20) * 100;
+            const isVisible = scrollProgress >= dashThreshold;
+            return (
+              <div 
+                key={i} 
+                className="scroll-dash"
+                style={{ opacity: isVisible ? 1 : 0, pointerEvents: 'none' }}
+              ></div>
+            );
+          })}
+        </div>
+      </div>
     </nav>
   );
 }

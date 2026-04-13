@@ -1,0 +1,70 @@
+.scroll-dashes-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  gap: 4px;
+  padding: 0 8px;
+  align-items: center;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(235, 94, 40, 0.2) 20%,
+    rgba(235, 94, 40, 0.4) 50%,
+    rgba(235, 94, 40, 0.2) 80%,
+    transparent 100%
+  );
+}
+
+.scroll-dash {
+  flex: 0 0 calc(100% / 20 - 4px);
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    #eb5e28 0%,
+    #f2865c 50%,
+    #eb5e28 100%
+  );
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(235, 94, 40, 0.6), 
+              0 2px 8px rgba(235, 94, 40, 0.4);
+  opacity: 0;
+  transform: scaleY(0.5);
+  animation: dash-flow 0.8s ease-in-out infinite;
+}
+
+@keyframes dash-flow {
+  0% {
+    opacity: 0;
+    transform: scaleY(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleY(0.3);
+  }
+}
+
+/* Progressively activate dashes with staggered delays */
+.scroll-dash:nth-child(1) { animation-delay: 0s; }
+.scroll-dash:nth-child(2) { animation-delay: 0.05s; }
+.scroll-dash:nth-child(3) { animation-delay: 0.1s; }
+.scroll-dash:nth-child(4) { animation-delay: 0.15s; }
+.scroll-dash:nth-child(5) { animation-delay: 0.2s; }
+.scroll-dash:nth-child(6) { animation-delay: 0.25s; }
+.scroll-dash:nth-child(7) { animation-delay: 0.3s; }
+.scroll-dash:nth-child(8) { animation-delay: 0.35s; }
+.scroll-dash:nth-child(9) { animation-delay: 0.4s; }
+.scroll-dash:nth-child(10) { animation-delay: 0.45s; }
+.scroll-dash:nth-child(11) { animation-delay: 0.5s; }
+.scroll-dash:nth-child(12) { animation-delay: 0.55s; }
+.scroll-dash:nth-child(13) { animation-delay: 0.6s; }
+.scroll-dash:nth-child(14) { animation-delay: 0.65s; }
+.scroll-dash:nth-child(15) { animation-delay: 0.7s; }
+.scroll-dash:nth-child(16) { animation-delay: 0.75s; }
+.scroll-dash:nth-child(17) { animation-delay: 0.8s; }
+.scroll-dash:nth-child(18) { animation-delay: 0.85s; }
+.scroll-dash:nth-child(19) { animation-delay: 0.9s; }
+.scroll-dash:nth-child(20) { animation-delay: 0.95s; }
