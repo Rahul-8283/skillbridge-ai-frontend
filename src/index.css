@@ -1,12 +1,22 @@
+/* ===== GOOGLE FONTS ===== */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Cormorant+Garamond:wght@400;500;600;700&display=swap');
+
+/* ===== TAILWIND ===== */
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Noto Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans: "Outfit", sans-serif;
 }
 
+/* ===== THEME VARIABLES ===== */
 @layer base {
+  :root {
+    --font-primary: "Outfit", sans-serif;
+    --font-heading: "Cormorant Garamond", serif;
+  }
+
   body {
-    font-family: var(--font-sans);
+    font-family: var(--font-primary);
   }
 }
 
@@ -51,23 +61,23 @@
 @keyframes slideInFromBottom {
   from {
     opacity: 0;
-    trasnform: translateY(1rem);
+    transform: translateY(1rem);
   }
 
   to {
     opacity: 1;
-    trasnform: translateY(0);
+    transform: translateY(0);
   }
 }
 
 @keyframes slideInFromTop {
   from {
     opacity: 0;
-    trasnform: translateY(-1rem);
+    transform: translateY(-1rem);
   }
 
   to {
     opacity: 1;
-    trasnform: translateY(0);
+    transform: translateY(0);
   }
 }
