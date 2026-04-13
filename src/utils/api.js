@@ -2,10 +2,11 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 // Determine backend URL based on environment
-const isProd = import.meta.env.MODE === "production";
-const backendURL = isProd
-  ? import.meta.env.VITE_BACKEND_URL_PROD
-  : import.meta.env.VITE_BACKEND_URL_DEV;
+const mode = import.meta.env.VITE_APP_MODE || "development";
+const backendURL =
+  mode === "production"
+    ? import.meta.env.VITE_BACKEND_URL_PROD
+    : import.meta.env.VITE_BACKEND_URL_DEV;
 
 // Create axios instance with default config
 const api = axios.create({
