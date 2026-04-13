@@ -1,62 +1,33 @@
 export const codeExamples = {
-  "JobSeeker": `import { useState } from "react";
-import { SkillBridgeAI } from "@skillbridge/sdk";
+  "JobSeeker": `🚀 Welcome to your personal Career Accelerator!
 
-export default function JobSeekerDashboard() {
-  const [profileMatch, setProfileMatch] = useState(null);
+Here's how SkillBridge AI works for you:
 
-  const analyzeAndMatch = async (resumeFile) => {
-    // 1. Extract skills via advanced AI syntax parser
-    const skills = await SkillBridgeAI.parseResume(resumeFile);
-    
-    // 2. Query Vector DB for high-compatibility roles
-    const matches = await SkillBridgeAI.findRoles(skills);
-    
-    // 3. Generate missing-skill learning roadmaps
-    const roadmap = await SkillBridgeAI.buildRoadmap(skills);
-    
-    setProfileMatch({ matches, roadmap });
-  };
+• 📄 Smart Upload: 
+  Drop your resume. Our AI instantly parses it.
 
-  return (
-    <div className="seeker-dashboard p-6">
-      <h1>Your Skill Match: {profileMatch?.matches[0].score || '0'}%</h1>
-      <button onClick={() => analyzeAndMatch(myResume)}>
-        Analyze My Profile
-      </button>
-      {profileMatch?.roadmap && <LearningPath data={profileMatch.roadmap} />}
-    </div>
-  );
-}`,
-  "JobProvider": `import { useState, useCallback } from "react";
-import { SkillBridgeAI } from "@skillbridge/sdk";
+• 🎯 Precision Matching: 
+  We map your exact skills & potential 
+  to top open roles globally.
 
-export default function JobProviderDashboard() {
-  const [candidates, setCandidates] = useState([]);
+• 🛤️ GenAI Roadmaps: 
+  Missing a requirement? 
+  Get a custom learning path to bridge the gap!`,
+  
+  "JobProvider": `⚡ Supercharge your Hiring Pipeline!
 
-  const scanTalentPool = useCallback(async (jobRequirement) => {
-    // 1. Convert requirements into semantic embeddings
-    const reqVector = await SkillBridgeAI.embed(jobRequirement);
-    
-    // 2. Scan millions of profiles instantly
-    const results = await SkillBridgeAI.vectorSearch(reqVector, { minScore: 0.90 });
-    
-    // 3. Auto-schedule initial AI interviews
-    await SkillBridgeAI.scheduleInterviews(results.slice(0, 5));
-    
-    setCandidates(results);
-  }, []);
+Say goodbye to manual resume screening:
 
-  return (
-    <section className="provider-dashboard p-6">
-      <h2>Top Candidate Matches: {candidates.length}</h2>
-      <button onClick={() => scanTalentPool(openReq)}>
-        Find Perfect Candidates
-      </button>
-      <CandidateGrid candidates={candidates} />
-    </section>
-  );
-}`,
+• 🔎 Deep Semantic Search: 
+  Scan our entire talent pool in seconds.
+
+• 🧠 Beyond Keywords: 
+  Find candidates who truly possess 
+  the core skills your team needs.
+
+• 📊 Automated Scoring: 
+  Get an immediate shortlist of talent with 
+  fit-scoring and skill-gap analysis.`,
 };
 
 export const floatingCards = {

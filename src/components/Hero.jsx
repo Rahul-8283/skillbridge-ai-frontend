@@ -117,8 +117,9 @@ export default function Hero() {
                   {/* Code Content */}
                   <div className="relative overflow-auto flex-1 rounded-lg bg-black/40 border border-white/5">
                     <SyntaxHighlighter
-                      language="javascript"
+                      language="text"
                       style={nightOwl}
+                      wrapLongLines={true}
                       customStyle={{
                         margin: 0,
                         backgroundColor: "transparent",
