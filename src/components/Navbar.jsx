@@ -35,7 +35,7 @@ export default function Navbar({ scrolled }) {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14 sm:h-16 md:h-20">
-          <div className="flex items-center space-x-1 group cursor-pointer">
+          <div className="flex items-center space-x-1 group cursor-pointer" style={{ fontFamily: 'var(--font-heading)' }}>
             <div>
               <img
                 src="/logo.png"

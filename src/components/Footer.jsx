@@ -14,7 +14,7 @@ export default function Footer() {
         {/* Main footer content - hidden on mobile, visible on sm and up */}
         <div className="hidden sm:grid sm:grid-cols-3 lg:grid-cols-6 gap-6 sm:gap-8 lg:gap-12 mb-8 sm:mb-12">
           <div className="col-span-1 sm:col-span-3 lg:col-span-2 text-center sm:text-left">
-            <div className="flex items-center justify-center sm:justify-start space-x-2 mb-3 sm:mb-4">
+            <div className="flex items-center justify-center sm:justify-start space-x-2 mb-3 sm:mb-4" style={{ fontFamily: 'var(--font-heading)' }}>
               <div className="rounded-lg">
                 <img
                   src="/logo.png"
