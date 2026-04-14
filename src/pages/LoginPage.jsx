@@ -16,11 +16,10 @@ export default function LoginPage() {
   // Navigate after successful login
   useEffect(() => {
     if (isAuthenticated && user) {
-      const dashboard = user.role === "seeker" ? "/seeker-dashboard" : "/provider-dashboard";
       if (window.innerWidth >= 768) {
         toast.success(`Welcome ${user.name}! Redirecting to your dashboard...`);
       }
-      navigate(dashboard);
+      navigate("/dashboard");
     }
   }, [isAuthenticated, user, navigate]);
 

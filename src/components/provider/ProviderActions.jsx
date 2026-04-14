@@ -34,7 +34,7 @@ export default function ProviderActions() {
       color: "blue",
       buttonText: "Create Job",
       delay: 0.2,
-      route: "/provider-dashboard/post-job",
+      route: "/dashboard/post-job",
     },
     {
       title: "Find Candidates",
@@ -43,7 +43,7 @@ export default function ProviderActions() {
       color: "purple",
       buttonText: "Browse",
       delay: 0.3,
-      route: "/provider-dashboard/find-candidates",
+      route: "/dashboard/find-candidates",
     },
     {
       title: "My Postings",
@@ -52,7 +52,7 @@ export default function ProviderActions() {
       color: "green",
       buttonText: "View all",
       delay: 0.4,
-      route: "/provider-dashboard/my-postings",
+      route: "/dashboard/my-postings",
     },
   ];
 

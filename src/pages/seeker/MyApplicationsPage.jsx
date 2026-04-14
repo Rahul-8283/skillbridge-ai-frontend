@@ -45,7 +45,7 @@ export default function MyApplicationsPage() {
         <div className="pt-32 pb-12 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
           <div className="max-w-4xl mx-auto">
             <button
-              onClick={() => navigate("/seeker-dashboard")}
+              onClick={() => navigate("/dashboard")}
               className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 transition-colors mb-6"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -67,7 +67,7 @@ export default function MyApplicationsPage() {
               <h2 className="text-xl font-bold mb-2">No Applications Yet</h2>
               <p className="text-slate-400 mb-6">You haven't applied to any jobs yet.</p>
               <button
-                onClick={() => navigate("/seeker-dashboard/browse-jobs")}
+                onClick={() => navigate("/dashboard/browse-jobs")}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
               >
                 Browse Jobs

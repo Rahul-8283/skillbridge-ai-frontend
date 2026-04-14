@@ -109,7 +109,7 @@ export default function MyPostingsPage() {
       <div className="pt-32 pb-12 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
         <div className="max-w-7xl mx-auto">
           <button
-            onClick={() => navigate("/provider-dashboard")}
+            onClick={() => navigate("/dashboard")}
             className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 transition-colors mb-6"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -123,7 +123,7 @@ export default function MyPostingsPage() {
               </p>
             </div>
             <button
-              onClick={() => navigate("/provider-dashboard/post-job")}
+              onClick={() => navigate("/dashboard/post-job")}
               className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors"
             >
               + Post New Job
@@ -229,7 +229,7 @@ export default function MyPostingsPage() {
                   {/* Action Buttons */}
                   <div className="flex flex-wrap gap-3">
                     <button
-                      onClick={() => navigate(`/provider-dashboard/job/${posting._id}/applications`)}
+                      onClick={() => navigate(`/dashboard/job/${posting._id}/applications`)}
                       className="px-4 py-2 bg-slate-800 hover:bg-blue-600 text-white rounded-lg flex items-center transition-colors text-sm font-medium"
                     >
                       <Users className="w-4 h-4 mr-2" />
@@ -275,7 +275,7 @@ export default function MyPostingsPage() {
               </p>
               {postings.length === 0 && (
                 <button
-                  onClick={() => navigate("/provider-dashboard/post-job")}
+                  onClick={() => navigate("/dashboard/post-job")}
                   className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors"
                 >
                   Post Your First Job

@@ -51,7 +51,7 @@ export default function BrowseJobsPage() {
       }
       
       toast.success("Learning plan generated successfully!");
-      navigate("/seeker-dashboard/learning-plan");
+      navigate("/dashboard/learning-plan");
     } catch (err) {
       if (err.message === "You have already applied for this job") {
          toast.info("You have already applied. Generating roadmap directly...");
@@ -60,7 +60,7 @@ export default function BrowseJobsPage() {
            toast.error(planRes.error || "Failed to generate learning roadmap");
            return;
          }
-         navigate("/seeker-dashboard/learning-plan");
+         navigate("/dashboard/learning-plan");
       } else {
          toast.error(err.message || "Failed to apply for the job");
       }
@@ -283,7 +283,7 @@ export default function BrowseJobsPage() {
       <div className="pt-32 pb-12 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
         <div className="max-w-6xl mx-auto">
           <button
-            onClick={() => navigate("/seeker-dashboard")}
+            onClick={() => navigate("/dashboard")}
             className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 transition-colors mb-6"
           >
             <ArrowLeft className="w-5 h-5" />

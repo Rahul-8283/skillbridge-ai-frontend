@@ -289,7 +289,7 @@ export default function LearningPlanPage() {
             You haven't generated an AI learning roadmap yet. Find a job that interests you and we'll create a custom path for you!
           </p>
           <button
-            onClick={() => navigate("/seeker-dashboard/browse-jobs")}
+            onClick={() => navigate("/dashboard/browse-jobs")}
             className="w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all"
           >
             Browse Jobs to Start
@@ -309,7 +309,7 @@ export default function LearningPlanPage() {
       <div className="pt-32 pb-12 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
         <div className="max-w-6xl mx-auto">
           <button
-            onClick={() => navigate("/seeker-dashboard")}
+            onClick={() => navigate("/dashboard")}
             className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 transition-colors mb-6"
           >
             <ArrowLeft className="w-5 h-5" />

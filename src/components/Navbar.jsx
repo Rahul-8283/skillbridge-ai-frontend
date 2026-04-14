@@ -36,8 +36,7 @@ export default function Navbar({ scrolled }) {
       navigate("/login");
       return;
     }
-    const dashboardRoute = user.role === "seeker" ? "/seeker-dashboard" : "/provider-dashboard";
-    navigate(dashboardRoute);
+    navigate("/dashboard");
   };
 
   return (

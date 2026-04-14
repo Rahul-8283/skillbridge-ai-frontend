@@ -44,7 +44,7 @@ export default function SeekerDashboard() {
             console.error("Error checking profile:", err);
           }
         } else if (user.role === "provider") {
-          navigate("/provider-dashboard");
+          navigate("/dashboard");
         }
       } else if (!isAuthenticated && !localStorage.getItem("access_token")) {
         navigate("/");

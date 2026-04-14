@@ -18,11 +18,10 @@ export default function SignUpPage() {
   // Navigate after successful signup
   useEffect(() => {
     if (isAuthenticated && user) {
-      const dashboard = user.role === "seeker" ? "/seeker-dashboard" : "/provider-dashboard";
       if (window.innerWidth >= 768) {
         toast.success(`Welcome ${user.name}! Your account has been created.`);
       }
-      navigate(dashboard);
+      navigate("/dashboard");
     }
   }, [isAuthenticated, user, navigate]);
 

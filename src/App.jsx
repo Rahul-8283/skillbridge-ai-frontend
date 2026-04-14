@@ -55,6 +55,28 @@ function ProtectedRoute({ element, requiredRole = null }) {
   return element;
 }
 
+/**
+ * Dashboard Router Component
+ * Renders appropriate dashboard based on user role
+ */
+function DashboardRouter() {
+  const { user } = useAuth();
+
+  if (!user) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  }
+
+  if (user.role === "seeker") {
+    return <SeekerDashboard />;
+  }
+
+  if (user.role === "provider") {
+    return <ProviderDashboard />;
+  }
+
+  return <div className="flex items-center justify-center h-screen">Invalid role</div>;
+}
+
 function App() {
   const [scrolled, setScrolled] = useState(false);
   // Auth is initialized in useAuth hook automatically
@@ -99,49 +121,18 @@ function App() {
             {/* Protected Routes - All Users */}
             <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} />} />
 
-            {/* Protected Routes - Seeker Only */}
-            <Route
-              path="/seeker-dashboard"
-              element={<ProtectedRoute element={<SeekerDashboard />} requiredRole="seeker" />}
-            />
-            <Route
-              path="/seeker-dashboard/upload-resume"
-              element={<ProtectedRoute element={<UploadResumePage />} requiredRole="seeker" />}
-            />
-            <Route
-              path="/seeker-dashboard/browse-jobs"
-              element={<ProtectedRoute element={<BrowseJobsPage />} requiredRole="seeker" />}
-            />
-            <Route
-              path="/seeker-dashboard/learning-plan"
-              element={<ProtectedRoute element={<LearningPlanPage />} requiredRole="seeker" />}
-            />
-            <Route
-              path="/seeker-dashboard/applications"
-              element={<ProtectedRoute element={<MyApplicationsPage />} requiredRole="seeker" />}
-            />
+            {/* Protected Routes - Dashboard (Role-Based) */}
+            <Route path="/dashboard" element={<ProtectedRoute element={<DashboardRouter />} />} />
 
-            {/* Protected Routes - Provider Only */}
-            <Route
-              path="/provider-dashboard"
-              element={<ProtectedRoute element={<ProviderDashboard />} requiredRole="provider" />}
-            />
-            <Route
-              path="/provider-dashboard/post-job"
-              element={<ProtectedRoute element={<PostJobPage />} requiredRole="provider" />}
-            />
-            <Route
-              path="/provider-dashboard/find-candidates"
-              element={<ProtectedRoute element={<FindCandidatesPage />} requiredRole="provider" />}
-            />
-            <Route
-              path="/provider-dashboard/my-postings"
-              element={<ProtectedRoute element={<MyPostingsPage />} requiredRole="provider" />}
-            />
-            <Route
-              path="/provider-dashboard/job/:id/applications"
-              element={<ProtectedRoute element={<JobApplicationsPage />} requiredRole="provider" />}
-            />
+            <Route path="/dashboard/upload-resume" element={<ProtectedRoute element={<UploadResumePage />} requiredRole="seeker" />} />
+            <Route path="/dashboard/browse-jobs" element={<ProtectedRoute element={<BrowseJobsPage />} requiredRole="seeker" />} />
+            <Route path="/dashboard/learning-plan" element={<ProtectedRoute element={<LearningPlanPage />} requiredRole="seeker" />} />
+            <Route path="/dashboard/applications" element={<ProtectedRoute element={<MyApplicationsPage />} requiredRole="seeker" />} />
+
+            <Route path="/dashboard/post-job" element={<ProtectedRoute element={<PostJobPage />} requiredRole="provider" />} />
+            <Route path="/dashboard/find-candidates" element={<ProtectedRoute element={<FindCandidatesPage />} requiredRole="provider" />} />
+            <Route path="/dashboard/my-postings" element={<ProtectedRoute element={<MyPostingsPage />} requiredRole="provider" />} />
+            <Route path="/dashboard/job/:id/applications" element={<ProtectedRoute element={<JobApplicationsPage />} requiredRole="provider" />} />
           </Routes>
         </div>
       </BrowserRouter>

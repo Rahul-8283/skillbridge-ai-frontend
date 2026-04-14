@@ -38,7 +38,7 @@ export default function SeekerActions({ resumeUploaded = false }) {
       color: "blue",
       buttonText: "Upload",
       delay: 0.2,
-      path: "/seeker-dashboard/upload-resume",
+      path: "/dashboard/upload-resume",
     },
     {
       title: "Browse Jobs",
@@ -47,7 +47,7 @@ export default function SeekerActions({ resumeUploaded = false }) {
       color: "purple",
       buttonText: "Explore",
       delay: 0.3,
-      path: "/seeker-dashboard/browse-jobs",
+      path: "/dashboard/browse-jobs",
       disabled: !resumeUploaded,
       disabledText: "Upload resume first",
     },
@@ -58,7 +58,7 @@ export default function SeekerActions({ resumeUploaded = false }) {
       color: "green",
       buttonText: "View Plan",
       delay: 0.4,
-      path: "/seeker-dashboard/learning-plan",
+      path: "/dashboard/learning-plan",
       disabled: !resumeUploaded,
       disabledText: "Generate from upload",
     },
@@ -69,7 +69,7 @@ export default function SeekerActions({ resumeUploaded = false }) {
       color: "blue",
       buttonText: "View Applications",
       delay: 0.5,
-      path: "/seeker-dashboard/applications",
+      path: "/dashboard/applications",
     },
   ];
 

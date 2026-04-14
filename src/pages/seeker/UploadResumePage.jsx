@@ -71,7 +71,7 @@ export default function UploadResumePage() {
         return;
       }
       toast.success("Learning roadmap generated successfully!");
-      navigate("/seeker-dashboard/learning-plan");
+      navigate("/dashboard/learning-plan");
     } catch (err) {
       console.error(err);
       toast.error("Failed to generate learning roadmap.");
@@ -199,7 +199,7 @@ export default function UploadResumePage() {
       <div className="pt-32 pb-12 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
         <div className="max-w-4xl mx-auto">
           <button
-            onClick={() => navigate("/seeker-dashboard")}
+            onClick={() => navigate("/dashboard")}
             className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 transition-colors mb-6"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -466,7 +466,7 @@ export default function UploadResumePage() {
                   Update Resume
                 </button>
                 <button
-                  onClick={() => navigate("/seeker-dashboard")}
+                  onClick={() => navigate("/dashboard")}
                   className="flex-1 py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-300"
                 >
                   Back to Dashboard

@@ -52,7 +52,7 @@ export default function JobApplicationsPage() {
         <div className="pt-32 pb-12 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
           <div className="max-w-4xl mx-auto">
             <button
-              onClick={() => navigate("/provider-dashboard/my-postings")}
+              onClick={() => navigate("/dashboard/my-postings")}
               className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 transition-colors mb-6"
             >
               <ArrowLeft className="w-5 h-5" />

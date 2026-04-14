@@ -228,7 +228,7 @@ export default function FindCandidatesPage() {
       <div className="pt-32 pb-12 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
         <div className="max-w-7xl mx-auto">
           <button
-            onClick={() => navigate("/provider-dashboard")}
+            onClick={() => navigate("/dashboard")}
             className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 transition-colors mb-6"
           >
             <ArrowLeft className="w-5 h-5" />

@@ -50,7 +50,7 @@ export default function ProviderDashboard() {
       if (user.role === "provider") {
         fetchData();
       } else if (user.role === "seeker") {
-        navigate("/seeker-dashboard");
+        navigate("/dashboard");
       }
     } else if (!isAuthenticated && !localStorage.getItem("access_token")) {
       navigate("/");
