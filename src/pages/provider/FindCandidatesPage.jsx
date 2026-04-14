@@ -13,14 +13,26 @@ export default function FindCandidatesPage() {
   const [unviewedCandidates, setUnviewedCandidates] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("unviewed");
+  const [providerJobs, setProviderJobs] = useState([]);
+  const [selectedJob, setSelectedJob] = useState("");
 
   useEffect(() => {
+    loadJobs();
     loadCandidates();
   }, []);
 
+  const loadJobs = async () => {
+    try {
+      const res = await api.get("/provider/my-jobs");
+      setProviderJobs(res.data || []);
+    } catch (err) {
+      console.error("Error loading jobs:", err);
+    }
+  };
+
   const [loading, setLoading] = useState(false);
 
-  const loadCandidates = async () => {
+  const loadCandidates = async (jobId = "") => {
     setLoading(true);
     try {
       // 1. Fetch provider profile to get status arrays
@@ -29,8 +41,12 @@ export default function FindCandidatesPage() {
       const selectedEmails = new Set(profile.selectedCandidates || []);
       const rejectedEmails = new Set(profile.rejectedCandidates || []);
 
-      // 2. Fetch all candidates
-      const candidatesRes = await api.get("/provider/candidates");
+      // 2. Fetch candidates
+      let candidateEndpoint = "/provider/candidates";
+      if (jobId) {
+        candidateEndpoint = `/provider/candidates/match/${jobId}`;
+      }
+      const candidatesRes = await api.get(candidateEndpoint);
       const enrichedCandidates = candidatesRes.data || [];
 
       // 3. Categorize candidates
@@ -56,7 +72,7 @@ export default function FindCandidatesPage() {
     try {
       await api.put("/provider/candidates/status", { candidateEmail, status: newStatus });
       toast.success(`Candidate moved to ${newStatus}`);
-      loadCandidates();
+      loadCandidates(selectedJob);
     } catch (err) {
       console.error("Error updating candidate status:", err);
       toast.error("Failed to update candidate status");
@@ -120,6 +136,18 @@ export default function FindCandidatesPage() {
             <div className="flex items-center space-x-2 mb-3 text-sm text-gray-300">
               <GraduationCap className="w-4 h-4 text-amber-400" />
               <span>{candidate.profile.education}</span>
+            </div>
+          )}
+          
+          {selectedJob && candidate.matchScore !== undefined && (
+            <div className="flex items-center space-x-2 mb-3 text-sm">
+              <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                candidate.matchScore >= 80 ? 'bg-green-500/20 text-green-400' :
+                candidate.matchScore >= 50 ? 'bg-blue-500/20 text-blue-400' :
+                'bg-gray-500/20 text-gray-400'
+              }`}>
+                {candidate.matchScore}% Match
+              </span>
             </div>
           )}
 
@@ -213,16 +241,29 @@ export default function FindCandidatesPage() {
         </div>
       </div>
 
-      {/* Search Bar */}
+      {/* Search Bar & Job Matcher */}
       <div className="py-8 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-4">
           <input
             type="text"
             placeholder="Search by name, email, skills, or location..."
             value={searchTerm}
             onChange={handleSearch}
-            className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+            className="flex-1 px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
           />
+          <select
+            value={selectedJob}
+            onChange={(e) => {
+              setSelectedJob(e.target.value);
+              loadCandidates(e.target.value);
+            }}
+            className="md:w-1/3 px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none transition-colors text-white"
+          >
+            <option value="">All Candidates (No AI Matching)</option>
+            {providerJobs.filter(j => j.status === 'active').map(job => (
+              <option key={job._id} value={job._id}>Sort by Match: {job.title}</option>
+            ))}
+          </select>
         </div>
       </div>
 

@@ -46,9 +46,9 @@ export default function MyPostingsPage() {
 
   const toggleStatus = async (jobId, currentStatus) => {
     try {
-      const newStatus = currentStatus === "active" ? "closed" : "active";
+      const newStatus = currentStatus === "open" ? "closed" : "open";
       await api.put(`/jobs/${jobId}`, { status: newStatus });
-      toast.success(`Job ${newStatus === "active" ? "reopened" : "closed"} successfully!`);
+      toast.success(`Job ${newStatus === "open" ? "reopened" : "closed"} successfully!`);
       loadPostings();
     } catch (err) {
       console.error("Error toggling status:", err);
@@ -57,13 +57,13 @@ export default function MyPostingsPage() {
   };
 
   const getStatusColor = (status) => {
-    return status === "active"
+    return status === "open" || status === "active"
       ? "bg-green-600/20 text-green-400 border-green-500/30"
       : "bg-gray-600/20 text-gray-400 border-gray-500/30";
   };
 
   const filteredPostings = postings.filter((posting) => {
-    if (filter === "active") return posting.status === "active";
+    if (filter === "active") return posting.status === "open" || posting.status === "active";
     if (filter === "closed") return posting.status === "closed";
     return true;
   });
@@ -145,7 +145,7 @@ export default function MyPostingsPage() {
                     : "bg-slate-800 text-gray-400 hover:bg-slate-700"
                   }`}
               >
-                {tab} ({postings.filter((p) => tab === "all" || p.status === tab).length})
+                {tab} ({postings.filter((p) => tab === "all" || (tab === "active" ? (p.status === "open" || p.status === "active") : p.status === tab)).length})
               </button>
             ))}
           </div>
@@ -175,7 +175,7 @@ export default function MyPostingsPage() {
                         posting.status
                       )}`}
                     >
-                      {posting.status === "active" ? "Active" : "Closed"}
+                      {posting.status === "open" || posting.status === "active" ? "Active" : "Closed"}
                     </div>
                   </div>
 
@@ -215,14 +215,16 @@ export default function MyPostingsPage() {
                   </div>
 
                   {/* Deadline */}
-                  <div className="mb-6 p-3 bg-slate-800 rounded-lg">
-                    <p className="text-xs font-semibold text-gray-400 mb-1">
-                      Application Deadline
-                    </p>
-                    <p className="text-sm text-blue-300">
-                      {formatDate(posting.deadline)}
-                    </p>
-                  </div>
+                  {posting.deadline && (
+                    <div className="mb-6 p-3 bg-slate-800 rounded-lg">
+                      <p className="text-xs font-semibold text-gray-400 mb-1">
+                        Application Deadline
+                      </p>
+                      <p className="text-sm text-blue-300">
+                        {formatDate(posting.deadline)}
+                      </p>
+                    </div>
+                  )}
 
                   {/* Action Buttons */}
                   <div className="flex flex-wrap gap-3">
@@ -246,12 +248,12 @@ export default function MyPostingsPage() {
                     </button>
                     <button
                       onClick={() => toggleStatus(posting._id, posting.status)}
-                      className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${posting.status === "active"
+                      className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${posting.status === "open" || posting.status === "active"
                           ? "bg-red-600/20 hover:bg-red-600/30 border border-red-500/30 text-red-300"
                           : "bg-green-600/20 hover:bg-green-600/30 border border-green-500/30 text-green-300"
                         }`}
                     >
-                      {posting.status === "active" ? "Close Posting" : "Reopen"}
+                      {posting.status === "open" || posting.status === "active" ? "Close Posting" : "Reopen"}
                     </button>
                     <button
                       onClick={() => deletePosting(posting._id)}

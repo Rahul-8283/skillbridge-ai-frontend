@@ -26,7 +26,7 @@ export default function ProviderDashboard() {
 
         // Fetch My Jobs
         const jobsRes = await api.get("/provider/my-jobs");
-        const activeJobs = (jobsRes.data || []).filter(j => j.status === 'active').length;
+        const activeJobs = (jobsRes.data || []).filter(j => j.status === 'active' || j.status === 'open').length;
         
         // Fetch Candidates
         const candidatesRes = await api.get("/provider/candidates");
@@ -70,7 +70,7 @@ export default function ProviderDashboard() {
           <ProviderHeader user={user} profile={profile} />
           <ProviderStats stats={stats} />
           <ProviderActions />
-          <ProviderCandidates candidates={candidates} onStatusUpdate={fetchData} />
+          {/* <ProviderCandidates candidates={candidates} onStatusUpdate={fetchData} /> */}
           <ProviderTips />
         </div>
       </div>

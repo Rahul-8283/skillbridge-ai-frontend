@@ -11,17 +11,20 @@ export const useSeekerStats = (user) => {
   const [loading, setLoading] = useState(false);
 
   // Calculate profile completion
-  const calculateProfileCompletion = useCallback(() => {
+  const calculateProfileCompletion = useCallback(async () => {
     if (user) {
-      const storedProfile = localStorage.getItem(`${user.email}_profile`);
-      if (storedProfile) {
-        const profile = JSON.parse(storedProfile);
-        const fields = ["resume", "skills", "experience"];
+      try {
+        const res = await api.get("/seeker/profile");
+        const profile = res.data || {};
+        const fields = ["resume", "skills", "experience", "education", "location"];
         const filledFields = fields.filter(
-          (field) => profile[field] && profile[field].trim().length > 0
+          (field) => profile[field] && String(profile[field]).trim().length > 0
         );
         const completion = Math.round((filledFields.length / fields.length) * 100);
         setProfileCompletion(`${completion}%`);
+      } catch (err) {
+        console.error("Error fetching profile for completion:", err);
+        setProfileCompletion("0%");
       }
     }
   }, [user]);
@@ -38,10 +41,13 @@ export const useSeekerStats = (user) => {
       const appsRes = await api.get(`/user/${uId}/applications`);
       const matchesRes = await api.get(`/jobs/matches/${uId}`);
       
+      const allApps = appsRes.data || [];
+      const acceptedApps = allApps.filter(app => app.status === 'accepted');
+      
       const newStats = {
-        applications: appsRes.data?.length?.toString() || "0",
+        applications: allApps.length.toString() || "0",
         matches: matchesRes.data?.matches?.length?.toString() || "0",
-        interviews: "0",
+        interviews: acceptedApps.length.toString() || "0",
       };
       
       console.log("✅ Stats fetched:", newStats);
@@ -56,7 +62,7 @@ export const useSeekerStats = (user) => {
   // Refetch everything - this is called after actions
   const refetchStats = useCallback(async () => {
     console.log("🔄 Refetching all seeker stats...");
-    calculateProfileCompletion();
+    await calculateProfileCompletion();
     await fetchStats();
   }, [fetchStats, calculateProfileCompletion]);
 
