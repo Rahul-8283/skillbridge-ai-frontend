@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   ArrowLeft,
   Search,
@@ -17,6 +17,7 @@ import { toast } from "react-toastify";
 
 export default function BrowseJobsPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [jobs, setJobs] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,8 +32,15 @@ export default function BrowseJobsPage() {
     try {
       // 1. Apply for the job
       await api.post(`/jobs/${jobId}/apply`);
+      console.log('✅ Applied to job successfully');
       
-      // 2. Generate roadmap for this job
+      // 2. Refetch jobs to get latest data from database
+      await loadJobs();
+      
+      // 3. Trigger stats refresh in parent (SeekerDashboard)
+      window.dispatchEvent(new CustomEvent('seekerStatsRefresh'));
+      
+      // 4. Generate roadmap for this job
       toast.info("Application successful! Generating custom learning roadmap...", { autoClose: 3000 });
       const planRes = await generateLearningPlan(jobId, 2);
       
@@ -66,13 +74,17 @@ export default function BrowseJobsPage() {
 
   const loadJobs = async () => {
     try {
+      console.log('📋 Loading jobs from database...');
       const res = await api.get("/jobs");
       const activeJobs = res.data || [];
+      console.log('✅ Fetched', activeJobs.length, 'jobs');
       
       try {
         const user = JSON.parse(localStorage.getItem("user"));
+        console.log('📊 Fetching job matches for user:', user._id);
         const matchRes = await api.get(`/jobs/matches/${user._id || user.id}`);
         const matchData = matchRes.data?.matches || [];
+        console.log('✅ Found', matchData.length, 'matching jobs');
         setMatches(matchData);
         
         // Merge match data into jobs
@@ -87,12 +99,12 @@ export default function BrowseJobsPage() {
         setJobs(enrichedJobs);
         setFilteredJobs(enrichedJobs);
       } catch(err) {
-        console.warn("Matches not available:", err);
+        console.warn("⚠️ Matches not available:", err.message);
         setJobs(activeJobs);
         setFilteredJobs(activeJobs);
       }
     } catch (err) {
-      console.error("Error loading jobs:", err);
+      console.error("❌ Error loading jobs:", err.message);
     }
   };
 
@@ -120,7 +132,7 @@ export default function BrowseJobsPage() {
 
     // Apply job type filter
     if (selectedFilter !== "all") {
-      filtered = filtered.filter((job) => job.type === selectedFilter);
+      filtered = filtered.filter((job) => job.type?.toLowerCase() === selectedFilter.toLowerCase());
     }
 
     setFilteredJobs(filtered);

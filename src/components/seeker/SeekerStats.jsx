@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
-import api from "../../utils/api";
+import { useEffect } from "react";
+import { useSeekerStats } from "../../hooks/useSeekerStats";
 
 const colorStyles = {
   blue: "from-blue-600/20 to-blue-400/20 border-blue-500/30",
@@ -16,46 +16,21 @@ const textColorMap = {
   amber: "text-amber-400",
 };
 
-export default function SeekerStats({ user }) {
-  const [profileCompletion, setProfileCompletion] = useState("0%");
-  const [statsData, setStatsData] = useState({
-    applications: "0",
-    matches: "0",
-    interviews: "0",
-  });
+export default function SeekerStats({ user, triggerRefresh }) {
+  const { statsData, profileCompletion, fetchStats, calculateProfileCompletion } = useSeekerStats(user);
 
   useEffect(() => {
-    if (user) {
-      const storedProfile = localStorage.getItem(`${user.email}_profile`);
-      if (storedProfile) {
-        const profile = JSON.parse(storedProfile);
-        const fields = ["resume", "skills", "experience"];
-        const filledFields = fields.filter((field) => profile[field] && profile[field].trim().length > 0);
-        const completion = Math.round((filledFields.length / fields.length) * 100);
-        setProfileCompletion(`${completion}%`);
-      }
-    }
-  }, [user]);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      const uId = user?._id || user?.id;
-      if (!uId) return;
-      try {
-        const appsRes = await api.get(`/user/${uId}/applications`);
-        const matchesRes = await api.get(`/jobs/matches/${uId}`);
-        
-        setStatsData({
-          applications: appsRes.data?.length?.toString() || "0",
-          matches: matchesRes.data?.matches?.length?.toString() || "0",
-          interviews: "0",
-        });
-      } catch (err) {
-        console.error("Error fetching live stats:", err);
-      }
-    };
+    calculateProfileCompletion();
     fetchStats();
-  }, [user]);
+  }, [user, fetchStats, calculateProfileCompletion]);
+
+  // Listen for refresh trigger from parent
+  useEffect(() => {
+    if (triggerRefresh !== undefined && triggerRefresh > 0) {
+      calculateProfileCompletion();
+      fetchStats();
+    }
+  }, [triggerRefresh, fetchStats, calculateProfileCompletion]);
 
   const stats = [
     { label: "Applications", value: statsData.applications, color: "blue" },

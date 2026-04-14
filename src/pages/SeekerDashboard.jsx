@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer.jsx";
 import SeekerHeader from "../components/seeker/SeekerHeader.jsx";
@@ -14,7 +14,22 @@ export default function SeekerDashboard() {
   const { user, isAuthenticated } = useAuth();
   const [resumeUploaded, setResumeUploaded] = useState(false);
   const [profileCompleted, setProfileCompleted] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const navigate = useNavigate();
+
+  // Function to trigger stats refresh - called by child components
+  const triggerStatsRefresh = useCallback(() => {
+    console.log("📢 Stats refresh triggered from child component");
+    setRefreshTrigger(prev => prev + 1);
+  }, []);
+
+  // Listen for stats refresh events from child routes/components
+  useEffect(() => {
+    window.addEventListener('seekerStatsRefresh', triggerStatsRefresh);
+    return () => {
+      window.removeEventListener('seekerStatsRefresh', triggerStatsRefresh);
+    };
+  }, [triggerStatsRefresh]);
 
   useEffect(() => {
     const checkProfile = async () => {
@@ -57,8 +72,6 @@ export default function SeekerDashboard() {
     checkResume();
   }, [isAuthenticated, user]);
 
-
-
   if (!user) {
     return null;
   }
@@ -68,10 +81,10 @@ export default function SeekerDashboard() {
       <div className="min-h-screen bg-slate-950 text-white px-4 pt-32 pb-20">
         <div className="max-w-7xl mx-auto">
           <SeekerHeader user={user} />
-          <SeekerStats user={user} />
+          <SeekerStats user={user} triggerRefresh={refreshTrigger} />
           <SeekerActions resumeUploaded={resumeUploaded} />
           <div className="hidden md:block">
-            <ProfileCompletion user={user} onProfileComplete={() => setProfileCompleted(true)} />
+            <ProfileCompletion user={user} onProfileComplete={() => { setProfileCompleted(true); triggerStatsRefresh(); }} />
           </div>
 
           {profileCompleted && (

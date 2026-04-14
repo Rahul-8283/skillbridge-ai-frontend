@@ -56,14 +56,29 @@ export default function PostJobPage() {
         type: formData.jobType === "full-time" ? "Full-time" : (formData.jobType === "part-time" ? "Part-time" : (formData.jobType === "internship" ? "Internship" : "Contract")),
         skillsRequired: formData.requirements.split('\n').filter(Boolean)
       };
+      
+      console.log('📝 Posting job to backend:', payload);
       const res = await api.post("/provider/jobs", payload);
+      console.log('✅ Job created successfully:', res.data);
+      
       if (res.status === "success") {
         toast.success("Job posted successfully!");
         navigate("/provider-dashboard");
       }
     } catch (err) {
-      console.error("Error posting job:", err);
-      toast.error(err.message || "Failed to post job. Please try again.");
+      console.error("❌ Error posting job:", err);
+      
+      // Handle specific error codes
+      if (err.response?.status === 429) {
+        toast.error("Too many requests. Please wait a moment and try again.");
+      } else if (err.response?.status === 401) {
+        toast.error("Session expired. Please login again.");
+        navigate("/login");
+      } else if (err.response?.status === 400) {
+        toast.error(err.response.data?.message || "Invalid job data. Please check your input.");
+      } else {
+        toast.error(err.message || "Failed to post job. Please try again.");
+      }
     } finally {
       setSubmitting(false);
     }

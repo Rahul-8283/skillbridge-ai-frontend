@@ -48,6 +48,11 @@ export default function SeekerProfileForm({ user, onSave }) {
       if (window.innerWidth >= 768) {
         toast.success("Profile saved successfully!");
       }
+      
+      // Trigger stats refresh in parent (SeekerDashboard)
+      console.log("📢 Triggering stats refresh after profile save");
+      window.dispatchEvent(new CustomEvent('seekerStatsRefresh'));
+      
       if (onSave) onSave();
     } catch (err) {
       console.error("Error saving profile:", err);
