@@ -82,7 +82,7 @@ export default function LearningPlanPage() {
                   ? `${Number(skill.total_days).toFixed(2)} days`
                   : "Unknown",
                 lessons: Array.isArray(skill.roadmap) ? skill.roadmap.length : 0,
-                description: skill.summary || "Guided steps to learn this skill.",
+                summary: skill.summary || "Guided steps to learn this skill.",
                 difficulty: "intermediate",
                 topics: Array.isArray(skill.roadmap) ? skill.roadmap : [],
                 ...normalizedResources,
@@ -130,7 +130,7 @@ export default function LearningPlanPage() {
                 <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
               )}
             </div>
-            <p className="text-gray-400 text-sm">{module.description}</p>
+            <p className="text-gray-400 text-sm">{module.summary}</p>
           </div>
         </div>
 
