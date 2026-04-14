@@ -70,7 +70,7 @@ export default function ProviderDashboard() {
           <ProviderHeader user={user} profile={profile} />
           <ProviderStats stats={stats} />
           <ProviderActions />
-          <ProviderCandidates candidates={candidates} onStatusUpdate={fetchData} />
+          {/* <ProviderCandidates candidates={candidates} onStatusUpdate={fetchData} /> */}
           <ProviderTips />
         </div>
       </div>
