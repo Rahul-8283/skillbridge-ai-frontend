@@ -15,6 +15,7 @@ import SplashScreen from "./components/SplashScreen.jsx";
 import SeekerDashboard from "./pages/SeekerDashboard.jsx";
 import ProviderDashboard from "./pages/ProviderDashboard.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
+import NotFoundPage from "./pages/NotFoundPage.jsx";
 
 import PostJobPage from "./pages/provider/PostJobPage.jsx";
 import FindCandidatesPage from "./pages/provider/FindCandidatesPage.jsx";
@@ -133,6 +134,9 @@ function App() {
             <Route path="/dashboard/find-candidates" element={<ProtectedRoute element={<FindCandidatesPage />} requiredRole="provider" />} />
             <Route path="/dashboard/my-postings" element={<ProtectedRoute element={<MyPostingsPage />} requiredRole="provider" />} />
             <Route path="/dashboard/job/:id/applications" element={<ProtectedRoute element={<JobApplicationsPage />} requiredRole="provider" />} />
+
+            {/* Catch-all 404 route */}
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </div>
       </BrowserRouter>
