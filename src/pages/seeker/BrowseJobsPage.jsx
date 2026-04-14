@@ -9,6 +9,7 @@ import {
   Clock,
   Heart,
   Loader2,
+  CheckCircle,
 } from "lucide-react";
 import Footer from "../../components/Footer";
 import api from "../../utils/api";
@@ -24,6 +25,7 @@ export default function BrowseJobsPage() {
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [savedJobs, setSavedJobs] = useState([]);
   const [matches, setMatches] = useState([]);
+  const [appliedJobs, setAppliedJobs] = useState([]);
   const [applying, setApplying] = useState(null);
   const { generateLearningPlan } = useLearning();
 
@@ -103,6 +105,18 @@ export default function BrowseJobsPage() {
         setJobs(activeJobs);
         setFilteredJobs(activeJobs);
       }
+      
+      // Fetch user's existing applications
+      try {
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (user) {
+          const appsRes = await api.get(`/user/${user._id || user.id}/applications`);
+          const appliedJobIds = (appsRes.data || []).map(app => app.jobId?._id || app.jobId);
+          setAppliedJobs(appliedJobIds);
+        }
+      } catch (err) {
+        console.warn("⚠️ Could not load applications:", err.message);
+      }
     } catch (err) {
       console.error("❌ Error loading jobs:", err.message);
     }
@@ -163,6 +177,8 @@ export default function BrowseJobsPage() {
 
   const JobCard = ({ job }) => {
     const isSaved = savedJobs.includes(job._id);
+    const hasApplied = appliedJobs.includes(job._id);
+
     return (
       <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 hover:border-blue-500/50 transition-all duration-300 relative overflow-hidden">
         {job.matchScore && job.matchScore > 70 && (
@@ -236,12 +252,18 @@ export default function BrowseJobsPage() {
         <div className="pt-4 border-t border-slate-800">
           <button 
             onClick={() => handleApply(job._id)}
-            disabled={applying === job._id}
+            disabled={applying === job._id || hasApplied}
             className={`w-full py-2 px-4 font-semibold rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 ${
+              hasApplied ? 'bg-green-600/20 text-green-400 cursor-not-allowed' :
               applying === job._id ? 'bg-slate-700 text-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'
             }`}
           >
-            {applying === job._id ? (
+            {hasApplied ? (
+              <>
+                <CheckCircle className="w-5 h-5" />
+                <span>Applied</span>
+              </>
+            ) : applying === job._id ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
                 <span>Applying & Generating...</span>
