@@ -13,6 +13,13 @@ const SplashScreen = ({ children }) => {
   ];
 
   useEffect(() => {
+    // Prevent scrolling while splash is active
+    if (showSplash) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
     // 3500ms total / 4 texts = 875ms per text cycle
     const textInterval = setInterval(() => {
       setTextIndex((prev) => (prev + 1) % loadingTexts.length);
@@ -26,8 +33,9 @@ const SplashScreen = ({ children }) => {
     return () => {
       clearInterval(textInterval);
       clearTimeout(hideTimeout);
+      document.body.style.overflow = 'auto'; // Clean up on unmount
     };
-  }, [loadingTexts.length]);
+  }, [showSplash, loadingTexts.length]);
 
   return (
     <>
