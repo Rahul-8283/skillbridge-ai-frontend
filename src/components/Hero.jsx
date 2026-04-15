@@ -22,7 +22,7 @@ export default function Hero() {
   return (
     <section className="relative min-h-screen flex items-center justify-center pt-16 sm:pt-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
       {/* Grid Pattern Background */}
-      <div className="absolute inset-0 opacity-90">
+      <div className="absolute inset-0 opacity-100">
         <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
