@@ -128,7 +128,7 @@ const RoleSelectionPage = () => {
           whileHover={selectedRole && !isLoading ? { scale: 1.05 } : {}}
           whileTap={selectedRole && !isLoading ? { scale: 0.95 } : {}}
           onClick={handleRoleSelection}
-          className={`mt-10 px-8 py-3 rounded-full font-bold text-lg flex items-center justify-center w-full max-w-md mx-auto transition-all ${
+          className={`mt-10 px-8 py-3 rounded-xl font-bold text-lg flex items-center justify-center w-full max-w-md mx-auto transition-all ${
             selectedRole && !isLoading
               ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-500 hover:to-indigo-500 shadow-xl'
               : 'bg-slate-800 text-slate-500 cursor-not-allowed'
