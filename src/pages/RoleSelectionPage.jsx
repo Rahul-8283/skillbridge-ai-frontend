@@ -130,7 +130,7 @@ const RoleSelectionPage = () => {
           onClick={handleRoleSelection}
           className={`mt-10 px-8 py-3 rounded-xl font-bold text-lg flex items-center justify-center w-full max-w-md mx-auto transition-all ${
             selectedRole && !isLoading
-              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-500 hover:to-indigo-500 shadow-xl'
+              ? 'bg-blue-600 hover:bg-blue-700 text-white'
               : 'bg-slate-800 text-slate-500 cursor-not-allowed'
           }`}
         >
