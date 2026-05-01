@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "./hooks/useAuth.js";
@@ -9,6 +9,8 @@ import HeroPage from "./pages/HeroPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
+import OAuthCallback from "./pages/OAuthCallback.jsx";
+import RoleSelectionPage from "./pages/RoleSelectionPage.jsx";
 
 import SplashScreen from "./components/SplashScreen.jsx";
 
@@ -67,6 +69,10 @@ function DashboardRouter() {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
 
+  if (user.role === "pending") {
+    return <Navigate to="/role-selection" replace />;
+  }
+
   if (user.role === "seeker") {
     return <SeekerDashboard />;
   }
@@ -118,6 +124,8 @@ function App() {
             <Route path="/about" element={<AboutPage />} />
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/oauth-callback" element={<OAuthCallback />} />
+            <Route path="/role-selection" element={<RoleSelectionPage />} />
 
             {/* Protected Routes - All Users */}
             <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} />} />
