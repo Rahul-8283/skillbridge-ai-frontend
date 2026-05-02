@@ -75,7 +75,7 @@ export default function SignUpPage() {
           transition={{ duration: 0.6 }}
         > 
           <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
-            <div className="flex items-center justify-center space-x-3 mb-6">
+            <div className="flex items-center justify-center space-x-3 mb-4">
               <UserPlus className="w-8 h-8 text-blue-400" />
               <h1 className="text-3xl font-bold text-blue-400">Create account</h1>
             </div>
