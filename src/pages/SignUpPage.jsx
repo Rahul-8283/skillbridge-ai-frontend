@@ -66,20 +66,20 @@ export default function SignUpPage() {
   const displayError = localError || authError;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white pt-10 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-slate-950 text-white pt-6 flex items-center justify-center px-4">
       <motion.div className="max-w-md w-full"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       > 
-        <div className="bg-slate-900 rounded-2xl p-8 border border-slate-800">
-          <div className="flex items-center justify-center space-x-3 mb-8">
+        <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
+          <div className="flex items-center justify-center space-x-3 mb-6">
             <UserPlus className="w-8 h-8 text-blue-400" />
             <h1 className="text-3xl font-bold text-blue-400">Create account</h1>
           </div>
 
           {displayError && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
+            <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
               {displayError}
             </div>
           )}
@@ -121,7 +121,7 @@ export default function SignUpPage() {
                 value={userType}
                 onChange={(e) => setUserType(e.target.value)}
                 disabled={isLoading}
-                className="w-full bg-slate-800 text-white px-4 py-2.5 rounded-lg border border-slate-700 focus:border-blue-400 focus:outline-none transition-colors cursor-pointer disabled:opacity-50 text-sm"
+                className="w-full bg-slate-800 text-white px-3 py-2.5 rounded-lg border border-slate-700 focus:border-blue-400 focus:outline-none transition-colors cursor-pointer disabled:opacity-50 text-sm"
               >
                 <option value="seeker">Job Seeker</option>
                 <option value="provider">Job Provider</option>
@@ -163,7 +163,7 @@ export default function SignUpPage() {
             >
               {isLoading ? "Creating account..." : "Sign Up"}
             </button>
-            <div className="relative my-4">
+            <div className="relative my-3">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-slate-700"></div>
               </div>
@@ -186,7 +186,7 @@ export default function SignUpPage() {
               Google
             </button>          </form>
 
-          <p className="text-center text-gray-400 text-sm mt-4">
+          <p className="text-center text-gray-400 text-sm mt-3">
             Already have an account?{" "}
             <button
               onClick={() => navigate("/login")}
