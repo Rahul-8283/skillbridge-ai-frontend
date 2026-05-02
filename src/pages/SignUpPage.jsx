@@ -66,7 +66,7 @@ export default function SignUpPage() {
   const displayError = localError || authError;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white pt-6 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center px-4 pt-20">
       <div className="flex gap-6 w-full max-w-2xl flex-col md:flex-row md:items-center">
         {/* Left: SignUp Form */}
         <motion.div className="flex-1 w-full"
