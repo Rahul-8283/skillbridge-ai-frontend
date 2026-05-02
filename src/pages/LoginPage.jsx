@@ -43,9 +43,10 @@ export default function LoginPage() {
   };
 
   const handleGoogleAuth = () => {
-    // Redirect direct to the backend Google OAuth endpoint
-    const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-    window.location.href = `${backendUrl}/auth/google`;
+    // Redirect to the backend Google OAuth endpoint based on environment
+    const isProd = import.meta.env.VITE_APP_MODE === 'production';
+    const backendUrl = isProd ? import.meta.env.VITE_BACKEND_URL_PROD : import.meta.env.VITE_BACKEND_URL_DEV;
+    window.location.href = `${backendUrl}/api/auth/google`;
   };
 
   const displayError = localError || authError;
