@@ -12,11 +12,33 @@ import {
 } from "lucide-react";
 import Footer from "../../components/Footer";
 
+const FALLBACK_SUMMARY_MARKER = "Summary not available yet";
+const FALLBACK_TOPICS = [
+  "learn the absolute basics",
+  "review documentation and core concepts",
+  "complete a portfolio project",
+];
+
+const normalizeTopicForCompare = (topic) =>
+  topic
+    .toString()
+    .toLowerCase()
+    .replace(/^\s*[-*\d.]+\s*/, "")
+    .trim();
+
+const hasFallbackTopics = (topics) => {
+  if (!Array.isArray(topics) || topics.length !== 3) return false;
+  const normalized = topics.map(normalizeTopicForCompare);
+  return FALLBACK_TOPICS.every((fallback) => normalized.includes(fallback));
+};
+
 export default function LearningPlanPage() {
   const navigate = useNavigate();
-  const { currentPlan, learningPlans, isLoading } = useLearning();
+  const { currentPlan, learningPlans, isLoading, generateLearningPlan } = useLearning();
   const [learningPlan, setLearningPlan] = useState(null);
   const [completedModules, setCompletedModules] = useState([]);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const [regenError, setRegenError] = useState(null);
 
   const normalizeTopics = (topicInput) => {
     if (Array.isArray(topicInput)) {
@@ -86,6 +108,8 @@ export default function LearningPlanPage() {
       const roadmap = activePlan;
       const mappedPlan = {
         currentLevel: "Beginner",
+        jobId: roadmap.jobId || roadmap.job_id || null,
+        hoursPerDay: roadmap.hoursPerDay || roadmap.hours_per_day || 2,
         targetRole: roadmap.targetRole || `Learning Path`,
         completionTime: roadmap.overallDays ? `${Math.round(roadmap.overallDays)} days` : (roadmap.overall_days ? `${Math.round(roadmap.overall_days)} days` : "Unknown"),
         modules: Array.isArray(roadmap.skills)
@@ -107,6 +131,17 @@ export default function LearningPlanPage() {
                   0
               );
 
+              const summaryText =
+                skill.summary ||
+                skill.description ||
+                skill.overview ||
+                skill.plan_summary ||
+                "Guided steps to learn this skill.";
+
+              const isFallbackModule =
+                summaryText.includes(FALLBACK_SUMMARY_MARKER) ||
+                hasFallbackTopics(normalizedTopics);
+
               return {
                 id: index + 1,
                 title: skill.skill || skill.keyword || skill.name || `Module ${index + 1}`,
@@ -115,23 +150,38 @@ export default function LearningPlanPage() {
                   : "Unknown",
                 lessons: normalizedTopics.length,
                 stepTimeDays: Array.isArray(skill.step_time_days) ? skill.step_time_days : [],
-                summary:
-                  skill.summary ||
-                  skill.description ||
-                  skill.overview ||
-                  skill.plan_summary ||
-                  "Guided steps to learn this skill.",
+                summary: summaryText,
                 difficulty: "intermediate",
                 topics: normalizedTopics,
+                isFallback: isFallbackModule,
                 ...normalizedResources,
               };
             })
           : []
       };
+
+      mappedPlan.isFallback = mappedPlan.modules.some((module) => module.isFallback);
       setLearningPlan(mappedPlan);
       setCompletedModules(Array.isArray(roadmap.completedModules) ? roadmap.completedModules : []);
     }
   }, [currentPlan, learningPlans]);
+
+  const handleRegeneratePlan = async () => {
+    if (!learningPlan?.jobId) return;
+    setRegenError(null);
+    setIsRegenerating(true);
+
+    try {
+      const result = await generateLearningPlan(learningPlan.jobId, learningPlan.hoursPerDay || 2);
+      if (!result?.success) {
+        throw new Error(result?.error || "Failed to regenerate learning plan");
+      }
+    } catch (err) {
+      setRegenError(err?.message || "Failed to regenerate learning plan");
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
 
   const toggleModuleComplete = (moduleId) => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -321,6 +371,31 @@ export default function LearningPlanPage() {
           </p>
         </div>
       </div>
+
+      {learningPlan.isFallback && (
+        <div className="px-4 sm:px-6 lg:px-8 border-b border-slate-800">
+          <div className="max-w-6xl mx-auto py-6">
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="text-amber-300 font-semibold">Roadmap is using placeholder content</p>
+                <p className="text-amber-200/80 text-sm">
+                  The AI service returned fallback steps. Regenerate the plan to fetch the full roadmap.
+                </p>
+                {regenError && (
+                  <p className="text-xs text-red-300 mt-2">{regenError}</p>
+                )}
+              </div>
+              <button
+                onClick={handleRegeneratePlan}
+                disabled={isRegenerating}
+                className="px-5 py-2 rounded-lg font-semibold bg-amber-500/20 text-amber-200 border border-amber-500/40 hover:bg-amber-500/30 disabled:opacity-60"
+              >
+                {isRegenerating ? "Regenerating..." : "Regenerate Plan"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Progress Overview */}
       <div className="py-12 px-4 sm:px-6 lg:px-8 border-b border-slate-800">

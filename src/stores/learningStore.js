@@ -24,12 +24,26 @@ export const useLearningStore = create((set, get) => ({
       });
 
       const newPlan = response.data;
-      set({
-        currentPlan: newPlan,
-        learningPlans: [...get().learningPlans, newPlan],
-        isLoading: false,
+      set((state) => {
+        const existingIndex = state.learningPlans.findIndex((plan) => plan._id === newPlan?._id);
+        let updatedPlans = state.learningPlans;
+
+        if (newPlan) {
+          if (existingIndex >= 0) {
+            updatedPlans = [...state.learningPlans];
+            updatedPlans[existingIndex] = newPlan;
+          } else {
+            updatedPlans = [newPlan, ...state.learningPlans];
+          }
+        }
+
+        return {
+          currentPlan: newPlan || state.currentPlan,
+          learningPlans: updatedPlans,
+          isLoading: false,
+        };
       });
-      return { success: true, plan: response };
+      return { success: true, plan: newPlan };
     } catch (error) {
       set({ error: error.message, isLoading: false });
       return { success: false, error: error.message };
@@ -42,10 +56,11 @@ export const useLearningStore = create((set, get) => ({
     try {
       const response = await api.get(`/user/${userId}/learning-plans`);
       const plans = response.data || [];
-      set({ 
-        learningPlans: plans, 
-        isLoading: false 
-      });
+      set((state) => ({
+        learningPlans: plans,
+        currentPlan: state.currentPlan || (plans.length > 0 ? plans[0] : null),
+        isLoading: false
+      }));
       return { success: true, plans };
     } catch (error) {
       set({ error: error.message, isLoading: false });
