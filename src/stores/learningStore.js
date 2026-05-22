@@ -43,6 +43,10 @@ export const useLearningStore = create((set, get) => ({
           isLoading: false,
         };
       });
+
+      // Refetch to ensure we have the latest plans from backend
+      // await get().fetchLearningPlans(userId);
+      
       return { success: true, plan: newPlan };
     } catch (error) {
       set({ error: error.message, isLoading: false });

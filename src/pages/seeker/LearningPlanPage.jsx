@@ -75,6 +75,7 @@ export default function LearningPlanPage() {
     const youtubeItems = Array.isArray(skill.youtube) ? skill.youtube : [];
     const directResources = Array.isArray(skill.resources) ? skill.resources : [];
 
+    // Get YouTube URL - prioritize youtube_url field from backend
     const tutorialUrl =
       skill.youtube_url ||
       skill.video_url ||
@@ -83,12 +84,16 @@ export default function LearningPlanPage() {
       youtubeItems[0]?.url ||
       null;
 
+    // Normalize all resource links with proper structure
     const normalizedResourceLinks = directResources
       .map((resource) => {
         if (!resource || typeof resource !== "object") return null;
         return {
           title: resource.title || resource.label || resource.name || "Open Resource",
           url: resource.url || resource.link || resource.href || null,
+          stars: resource.stars || null,
+          language: resource.language || null,
+          description: resource.description || null
         };
       })
       .filter((resource) => resource?.url);
@@ -241,26 +246,45 @@ export default function LearningPlanPage() {
                 href={module.tutorialUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center space-x-2 px-4 py-2 bg-red-500/10 border border-red-500/30 rounded-lg text-xs text-red-400 hover:bg-red-500/20 transition-all font-semibold"
+                className="flex items-center space-x-2 px-4 py-2 bg-red-500/10 border border-red-500/30 rounded-lg text-xs text-red-400 hover:bg-red-500/20 transition-all font-semibold group"
               >
                 <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                <span>Watch Tutorial</span>
+                <span>YouTube Tutorial</span>
               </a>
             )}
             {module.resourceLinks
               .filter((resource) => resource?.url)
-              .slice(0, 2)
-              .map((resource, idx) => (
-                <a
-                  key={`${module.id}-resource-${idx}`}
-                  href={resource.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center space-x-2 px-4 py-2 bg-blue-500/10 border border-blue-500/30 rounded-lg text-xs text-blue-300 hover:bg-blue-500/20 transition-all font-semibold"
-                >
-                  <span>{resource.title || resource.label || "Open Resource"}</span>
-                </a>
-              ))}
+              .map((resource, idx) => {
+                const isGithub = resource.url?.includes('github.com');
+                return (
+                  <div key={`${module.id}-resource-${idx}`} className="group relative">
+                    <a
+                      href={resource.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+                        isGithub
+                          ? 'bg-gray-700/20 border border-gray-500/30 text-gray-300 hover:bg-gray-600/30 hover:border-gray-400/50'
+                          : 'bg-blue-500/10 border border-blue-500/30 text-blue-300 hover:bg-blue-500/20'
+                      }`}
+                    >
+                      {isGithub ? (
+                        <>
+                          <span>🔗 {resource.title || resource.name}</span>
+                          {resource.stars && <span className="text-yellow-300">⭐{resource.stars}</span>}
+                        </>
+                      ) : (
+                        <span>📚 {resource.title || "Open Resource"}</span>
+                      )}
+                    </a>
+                    {resource.description && (
+                      <div className="absolute left-0 right-0 top-full mt-1 z-50 hidden group-hover:block bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs text-gray-300 w-48">
+                        {resource.description.substring(0, 100)}...
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             {!module.tutorialUrl && module.resourceLinks.length === 0 && (
               <span className="text-gray-500 text-xs italic">Service did not return external links for this skill</span>
             )}
