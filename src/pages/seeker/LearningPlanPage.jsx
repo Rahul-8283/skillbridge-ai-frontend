@@ -223,7 +223,17 @@ export default function LearningPlanPage() {
                 <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
               )}
             </div>
-            <p className="text-gray-400 text-sm">{module.summary}</p>
+            <div className="text-gray-400 text-sm leading-relaxed whitespace-pre-wrap">
+              {module.summary.split('\n').map((line, idx) => (
+                <div key={idx}>
+                  {line.split(/(\*\*.*?\*\*)/g).map((part, i) => 
+                    part.startsWith('**') && part.endsWith('**') 
+                      ? <span key={i} className="font-bold text-white">{part.slice(2, -2)}</span>
+                      : part
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -291,40 +301,27 @@ export default function LearningPlanPage() {
           </div>
         </div>
 
-        <div className="mb-4">
-          <p className="text-gray-400 text-sm font-semibold mb-2">Curriculum Topics:</p>
+        <div className="mb-6">
+          <p className="text-gray-400 text-sm font-semibold mb-3 uppercase tracking-widest">📚 Curriculum & Timeline</p>
           {module.topics.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {module.topics.map((topic, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 bg-blue-500/5 border border-blue-500/20 rounded-full text-[10px] text-blue-300"
-                >
-                  {topic}
-                </span>
-              ))}
+            <div className="space-y-2">
+              {module.topics.map((topic, index) => {
+                const days = module.stepTimeDays[index] ? Number(module.stepTimeDays[index]).toFixed(1) : "N/A";
+                return (
+                  <div
+                    key={`${module.id}-topic-${index}`}
+                    className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-orange-500/10 to-orange-400/5 border border-orange-500/30 hover:border-orange-400/50 rounded-lg group transition-all duration-300"
+                  >
+                    <span className="text-orange-300 font-semibold text-sm group-hover:text-orange-200">{topic}</span>
+                    <span className="text-orange-400 font-bold text-sm bg-orange-500/20 px-3 py-1 rounded-full">{days} days</span>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <span className="text-gray-500 text-xs italic">No curriculum steps provided</span>
           )}
         </div>
-
-        {module.stepTimeDays.length > 0 && (
-          <div className="mb-4">
-            <p className="text-gray-400 text-sm font-semibold mb-2">Estimated Time Per Topic:</p>
-            <div className="space-y-2">
-              {module.stepTimeDays.slice(0, module.topics.length || module.stepTimeDays.length).map((days, idx) => (
-                <div
-                  key={`${module.id}-time-${idx}`}
-                  className="flex items-center justify-between text-xs text-gray-300 bg-slate-800/60 border border-slate-700 rounded-lg px-3 py-2"
-                >
-                  <span>{module.topics[idx] || `Step ${idx + 1}`}</span>
-                  <span className="text-blue-300 font-semibold">{Number(days).toFixed(2)} days</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         <button
           onClick={() => toggleModuleComplete(module.id)}
